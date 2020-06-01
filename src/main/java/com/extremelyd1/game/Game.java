@@ -101,6 +101,7 @@ public class Game {
         plugin.getCommand("pvp").setExecutor(new PvpCommand(this));
         plugin.getCommand("maintenance").setExecutor(new MaintenanceCommand(this));
         plugin.getCommand("fullcard").setExecutor(new FullCardCommand(this));
+        plugin.getCommand("reroll").setExecutor(new RerollCommand(this));
     }
 
     public void start(Player player) {
@@ -191,6 +192,26 @@ public class Game {
 
     public void end() {
         this.state = State.POST_GAME;
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            onlinePlayer.setGameMode(GameMode.CREATIVE);
+        }
+
+        soundManager.broadcastEnd();
+    }
+
+    public void rerollCard() {
+        // Create random bingo card
+        BingoCard bingoCard = new BingoCard(bingoItemMaterials.getMaterials());
+
+        for (Team team : teamManager.getTeams()) {
+            team.setBingoCard(bingoCard.copy());
+
+            // Update the bingo card of all players in the team
+            ItemUtil.updateBingoCard(team, bingoCardItemFactory);
+
+            gameBoardManager.onItemCollected(team);
+        }
     }
 
     public void onPlayerJoinLeave() {
@@ -212,7 +233,12 @@ public class Game {
 
         if (playerTeam.getBingoCard().containsItem(material)
                 && !playerTeam.getBingoCard().getItemByMaterial(material).isCollected()) {
+            playerTeam.getBingoCard().addItemCollected(material);
+
             gameBoardManager.onItemCollected(playerTeam);
+
+            // Update the bingo card of all players in the team
+            ItemUtil.updateBingoCard(playerTeam, bingoCardItemFactory);
 
             Bukkit.broadcastMessage(
                     PREFIX +
@@ -221,16 +247,10 @@ public class Game {
                             + ChatColor.AQUA + StringUtil.formatMaterialName(material)
             );
 
-            boolean hasBingo = playerTeam.getBingoCard().addItemCollected(material);
-
-            if (fullCard) {
-                hasBingo = playerTeam.getBingoCard().isCardComplete();
-            }
-
-            // Update the bingo card of all players in the team
-            ItemUtil.updateBingoCard(playerTeam, bingoCardItemFactory);
-
-            if (hasBingo) {
+            // If using full card and card is completely filled OR
+            // not using full card and card has bingo
+            if ((fullCard && playerTeam.getBingoCard().isCardComplete())
+                    || (!fullCard && playerTeam.getBingoCard().hasBingo())) {
                 Bukkit.broadcastMessage(
                         PREFIX + "-------------------------"
                 );
@@ -244,15 +264,9 @@ public class Game {
                         PREFIX + "-------------------------"
                 );
 
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.setGameMode(GameMode.CREATIVE);
-                }
-
-                soundManager.broadcastEnd();
-
                 end();
             } else {
-                soundManager.broadcastItemCollected();
+                soundManager.broadcastItemCollected(playerTeam);
             }
         }
     }

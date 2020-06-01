@@ -35,3 +35,7 @@ commands:
   fullcard:
     description: Toggle full bingo card mode
     usage: /<command>
+
+  reroll:
+    description: Command to reroll the bingo card
+    usage: /<command>

@@ -15,7 +15,7 @@ public class BingoItemMaterials {
     }
 
     public void loadMaterials(File dataFolder) {
-        String path = dataFolder.getPath() + "/item_data/";
+        String path = dataFolder.getPath() + "/item_data/images/";
 
         File[] materialFiles = new File(path).listFiles();
         if (materialFiles == null) {

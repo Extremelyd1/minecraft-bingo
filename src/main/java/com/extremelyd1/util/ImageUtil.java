@@ -11,7 +11,7 @@ public class ImageUtil {
 
     public static BufferedImage readItemImage(File dataFolder, Material material) {
         String filePath = dataFolder.getPath()
-                + "/item_data/"
+                + "/item_data/images/"
                 + material.name().toLowerCase()
                 + ".png";
 

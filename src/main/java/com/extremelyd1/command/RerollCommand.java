@@ -8,11 +8,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class EndCommand implements CommandExecutor {
+public class RerollCommand implements CommandExecutor {
 
     private final Game game;
 
-    public EndCommand(Game game) {
+    public RerollCommand(Game game) {
         this.game = game;
     }
 
@@ -22,17 +22,20 @@ public class EndCommand implements CommandExecutor {
             return true;
         }
 
-        Bukkit.broadcastMessage(
-                Game.PREFIX + "-------------------------"
-        );
-        Bukkit.broadcastMessage(
-                Game.PREFIX + "game has been force-ended"
-        );
-        Bukkit.broadcastMessage(
-                Game.PREFIX + "-------------------------"
-        );
+        if (!game.getState().equals(Game.State.IN_GAME)) {
+            sender.sendMessage(
+                    ChatColor.DARK_RED + "Error: "
+                            + ChatColor.WHITE + "Can only use this command in game"
+            );
 
-        game.end();
+            return true;
+        }
+
+        game.rerollCard();
+
+        sender.sendMessage(
+                Game.PREFIX + "Rerolled bingo card"
+        );
 
         return true;
     }

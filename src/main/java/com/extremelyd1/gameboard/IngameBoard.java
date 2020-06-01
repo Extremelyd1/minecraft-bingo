@@ -41,10 +41,10 @@ public class IngameBoard extends GameBoard {
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
     }
 
-    public void update() {
-        super.update();
+    public void update(int numItems) {
+        numItemsEntry.setValue(numItems);
 
-        numItemsEntry.setValue(numItemsEntry.getValue() + 1);
+        super.update();
     }
 
     public void broadcast() {

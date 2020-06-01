@@ -40,7 +40,7 @@ public class GameBoardManager {
 
     public void onItemCollected(Team team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
-            ingameBoards.get(team).update();
+            ingameBoards.get(team).update(team.getBingoCard().getNumberOfCollectedItems());
         }
     }
 

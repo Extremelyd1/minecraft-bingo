@@ -55,23 +55,49 @@ public class BingoCard {
     }
 
     /**
-     * Sets the item to be collected on the card and returns whether it completes a row, column or diagonal
+     * Sets the item to be collected on the card
      * @param material The material of the item collected
-     * @return Whether a row, column or diagonal is completed
      */
-    public boolean addItemCollected(Material material) {
+    public void addItemCollected(Material material) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
                 if (bingoItem.getMaterial().equals(material)) {
                     bingoItem.setCollected();
+                }
+            }
+        }
+    }
 
-                    return checkRow(y) || checkColumn(x) || checkDiagonal(true) || checkDiagonal(false);
+    public boolean hasBingo() {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            if (checkRow(y)) {
+                return true;
+            }
+        }
+
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            if (checkColumn(x)) {
+                return true;
+            }
+        }
+
+        return checkDiagonal(true) || checkDiagonal(false);
+    }
+
+    public int getNumberOfCollectedItems() {
+        int numCollected = 0;
+
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                BingoItem bingoItem = bingoItems[y][x];
+                if (bingoItem.isCollected()) {
+                    numCollected++;
                 }
             }
         }
 
-        return false;
+        return numCollected;
     }
 
     public boolean isCardComplete() {
