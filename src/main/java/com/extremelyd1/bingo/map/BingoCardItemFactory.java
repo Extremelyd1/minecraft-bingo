@@ -115,11 +115,11 @@ public class BingoCardItemFactory {
             }
         }
 
-        try {
-            ImageIO.write(image, "png", new File("D:\\Users\\X\\Desktop\\test.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ImageIO.write(image, "png", new File("D:\\Users\\X\\Desktop\\test.png"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
 

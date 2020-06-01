@@ -17,6 +17,8 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import sun.applet.Main;
 
 import java.io.File;
@@ -146,19 +148,30 @@ public class Game {
             Team team = teamManager.getTeams().get(i);
             Location location = locations.get(i);
 
+            PotionEffect resistanceEffect = new PotionEffect(
+                    PotionEffectType.DAMAGE_RESISTANCE,
+                    5,
+                    5,
+                    false,
+                    false
+            );
+
             for (Player teamPlayer : team.getPlayers()) {
+                // Give player resistance 5 before teleporting to prevent fall damage
+                teamPlayer.addPotionEffect(resistanceEffect);
+
                 teamPlayer.teleport(location);
                 teamPlayer.setBedSpawnLocation(location, true);
 
                 // Just to be sure, reset player again
-                player.getInventory().clear();
-                player.setGameMode(GameMode.SURVIVAL);
+                teamPlayer.getInventory().clear();
+                teamPlayer.setGameMode(GameMode.SURVIVAL);
                 teamPlayer.setHealth(20D);
                 teamPlayer.setFoodLevel(20);
                 teamPlayer.setSaturation(5);
 
                 // Give all players a bingo card
-                player.getInventory().addItem(
+                teamPlayer.getInventory().addItem(
                         bingoCardItemFactory.create(team.getBingoCard())
                 );
             }
@@ -208,12 +221,10 @@ public class Game {
                             + ChatColor.AQUA + StringUtil.formatMaterialName(material)
             );
 
-            boolean hasBingo = false;
+            boolean hasBingo = playerTeam.getBingoCard().addItemCollected(material);
 
             if (fullCard) {
                 hasBingo = playerTeam.getBingoCard().isCardComplete();
-            } else {
-                hasBingo = playerTeam.getBingoCard().addItemCollected(material);
             }
 
             // Update the bingo card of all players in the team

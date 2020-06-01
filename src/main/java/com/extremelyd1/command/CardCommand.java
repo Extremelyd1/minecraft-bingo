@@ -33,6 +33,14 @@ public class CardCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
+        if (!game.getState().equals(Game.State.IN_GAME)) {
+            player.sendMessage(
+                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command now"
+            );
+
+            return true;
+        }
+
         Team team = null;
         for (Team possibleTeam : game.getTeamManager().getTeams()) {
             if (possibleTeam.getPlayers().contains(player)) {
