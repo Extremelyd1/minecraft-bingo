@@ -1,0 +1,9 @@
+enableBlacklist: True
+defaultItemDistribution: "2,6,9,6,2"
+defaultBingoLinesCompleteForWin: 1
+border:
+  enable: True
+  size: 3000
+timer:
+  enable: True
+  length: 1800

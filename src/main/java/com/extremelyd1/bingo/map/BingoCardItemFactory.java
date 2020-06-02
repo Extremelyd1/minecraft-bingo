@@ -1,10 +1,10 @@
 package com.extremelyd1.bingo.map;
 
 import com.extremelyd1.bingo.BingoCard;
-import com.extremelyd1.bingo.BingoItem;
+import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.ColorUtil;
-import com.extremelyd1.util.ImageUtil;
+import com.extremelyd1.util.FileUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -79,7 +79,7 @@ public class BingoCardItemFactory {
                 BufferedImage itemImage;
 
                 if (!cachedImages.containsKey(bingoItem.getMaterial())) {
-                    itemImage = ImageUtil.readItemImage(
+                    itemImage = FileUtil.readItemImage(
                             game.getDataFolder(),
                             bingoItem.getMaterial()
                     );

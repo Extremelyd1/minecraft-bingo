@@ -21,14 +21,7 @@ public class ChatListener implements Listener {
     public void onAsyncPlayerChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
 
-        Team team = null;
-        for (Team possibleTeam : game.getTeamManager().getTeams()) {
-            if (possibleTeam.getPlayers().contains(player)) {
-                team = possibleTeam;
-                break;
-            }
-        }
-
+        Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
             Bukkit.broadcastMessage(
                     player.getName() + ": " + e.getMessage()

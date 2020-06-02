@@ -3,7 +3,6 @@ package com.extremelyd1.gameboard;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,18 +18,18 @@ public class GameBoardManager {
     public GameBoardManager(Game game) {
         this.game = game;
 
-        this.pregameBoard = new PregameBoard();
+        this.pregameBoard = new PregameBoard(game);
     }
 
     public void createIngameBoards(List<Team> teams) {
         ingameBoards = new HashMap<>();
 
         for (Team team : teams) {
-            ingameBoards.put(team, new IngameBoard(team));
+            ingameBoards.put(team, new IngameBoard(game, team));
         }
     }
 
-    public void onPlayerJoinLeave() {
+    public void onPregameUpdate() {
         if (game.getState().equals(Game.State.PRE_GAME)) {
             pregameBoard.update(Bukkit.getOnlinePlayers().size());
         }
@@ -41,6 +40,14 @@ public class GameBoardManager {
     public void onItemCollected(Team team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
             ingameBoards.get(team).update(team.getBingoCard().getNumberOfCollectedItems());
+        }
+    }
+
+    public void onTimeUpdate(long timeLeft) {
+        if (game.getState().equals(Game.State.IN_GAME)) {
+            for (IngameBoard ingameBoard : ingameBoards.values()) {
+                ingameBoard.updateTime(timeLeft);
+            }
         }
     }
 

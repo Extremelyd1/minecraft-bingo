@@ -1,25 +1,30 @@
 package com.extremelyd1.game;
 
 import com.extremelyd1.bingo.BingoCard;
-import com.extremelyd1.bingo.BingoItemMaterials;
+import com.extremelyd1.bingo.item.BingoItemMaterials;
 import com.extremelyd1.bingo.map.BingoCardItemFactory;
+import com.extremelyd1.border.BorderManager;
 import com.extremelyd1.command.*;
+import com.extremelyd1.config.Config;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
+import com.extremelyd1.game.timer.GameTimer;
+import com.extremelyd1.game.winCondition.WinConditionChecker;
+import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.gameboard.GameBoardManager;
 import com.extremelyd1.listener.*;
 import com.extremelyd1.main.Bingo;
 import com.extremelyd1.sound.SoundManager;
+import com.extremelyd1.title.TitleManager;
+import com.extremelyd1.util.TimeUtil;
 import com.extremelyd1.util.ItemUtil;
 import com.extremelyd1.util.LocationUtil;
 import com.extremelyd1.util.StringUtil;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import sun.applet.Main;
 
 import java.io.File;
 import java.util.List;
@@ -30,7 +35,7 @@ public class Game {
     // The base value of the spread radius
     private static final float BASE_RADIUS = 200;
     // The increase in spread radius for each team
-    private static final float RADIUS_TEAM_INCREASE = 50;
+    private static final float RADIUS_TEAM_INCREASE = 100;
 
     public static final String PREFIX = ChatColor.BOLD.toString() + ChatColor.BLUE + "BINGO " + ChatColor.RESET;
 
@@ -40,6 +45,8 @@ public class Game {
 
     private State state;
 
+    private final Config config;
+
     private final World world;
 
     private final GameBoardManager gameBoardManager;
@@ -47,17 +54,22 @@ public class Game {
 
     private final BingoCardItemFactory bingoCardItemFactory;
     private final BingoItemMaterials bingoItemMaterials;
+    private final WinConditionChecker winConditionChecker;
 
     private final SoundManager soundManager;
+    private final TitleManager titleManager;
 
     private boolean maintenance = false;
     private boolean pvpEnabled = false;
-    private boolean fullCard = false;
+
+    private GameTimer gameTimer;
 
     public Game(Bingo bingo) {
         this.plugin = bingo;
         this.logger = bingo.getLogger();
         state = State.PRE_GAME;
+
+        this.config = new Config(bingo);
 
         if (Bukkit.getWorlds().size() == 0) {
             throw new IllegalStateException("There are no worlds loaded");
@@ -71,10 +83,16 @@ public class Game {
         teamManager = new TeamManager(this);
 
         bingoCardItemFactory = new BingoCardItemFactory(this, world);
-        bingoItemMaterials = new BingoItemMaterials();
+        bingoItemMaterials = new BingoItemMaterials(this);
         bingoItemMaterials.loadMaterials(getDataFolder());
 
+        winConditionChecker = new WinConditionChecker(config);
+
         soundManager = new SoundManager();
+        titleManager = new TitleManager();
+
+        // No need for storing it, since it only creates the border once
+        new BorderManager(config, world);
 
         registerListeners(bingo);
         registerCommands(bingo);
@@ -100,8 +118,10 @@ public class Game {
         plugin.getCommand("card").setExecutor(new CardCommand(this));
         plugin.getCommand("pvp").setExecutor(new PvpCommand(this));
         plugin.getCommand("maintenance").setExecutor(new MaintenanceCommand(this));
-        plugin.getCommand("fullcard").setExecutor(new FullCardCommand(this));
+        plugin.getCommand("wincondition").setExecutor(new WinConditionCommand(this));
         plugin.getCommand("reroll").setExecutor(new RerollCommand(this));
+        plugin.getCommand("itemdistribution").setExecutor(new ItemDistributionCommand(this));
+        plugin.getCommand("timer").setExecutor(new TimerCommand(this));
     }
 
     public void start(Player player) {
@@ -120,7 +140,7 @@ public class Game {
         }
 
         // Create random bingo card
-        BingoCard bingoCard = new BingoCard(bingoItemMaterials.getMaterials());
+        BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
         for (Team team : teamManager.getTeams()) {
             team.setBingoCard(bingoCard.copy());
@@ -129,13 +149,13 @@ public class Game {
         this.state = State.IN_GAME;
 
         Bukkit.broadcastMessage(
-                PREFIX + "----------------------"
+                PREFIX + "------------------------------------------------"
         );
         Bukkit.broadcastMessage(
-                PREFIX + "Game has been started!"
+                PREFIX + "                           Game has started!"
         );
         Bukkit.broadcastMessage(
-                PREFIX + "----------------------"
+                PREFIX + "------------------------------------------------"
         );
 
         // Spread out players
@@ -175,6 +195,8 @@ public class Game {
                 teamPlayer.getInventory().addItem(
                         bingoCardItemFactory.create(team.getBingoCard())
                 );
+
+                titleManager.sendStartTitle();
             }
         }
 
@@ -188,9 +210,59 @@ public class Game {
 
         // Send sounds
         soundManager.broadcastStart();
+
+        if (config.isTimerEnabled()) {
+            // Start timer
+            gameTimer = new GameTimer(
+                    plugin,
+                    1,
+                    config.getTimerLength(),
+                    timeLeft -> {
+                        gameBoardManager.onTimeUpdate(timeLeft);
+
+                        if (timeLeft <= 0) {
+                            WinReason winReason = winConditionChecker.decideWinner(teamManager.getTeams());
+                            end(winReason);
+
+                            return true;
+                        } else {
+                            TimeUtil.broadcastTimeLeft(timeLeft);
+                        }
+
+                        return false;
+                    }
+            );
+            gameTimer.start();
+        }
     }
 
-    public void end() {
+    public void end(WinReason winReason) {
+        String message = PREFIX + "------------------------------------------------\n"
+                + PREFIX;
+
+        switch (winReason.getReason()) {
+            case COMPLETE:
+                Team team = winReason.getTeam();
+                message += "                     " + team.getColor() + team.getName()
+                        + ChatColor.WHITE + " team "
+                        + "has gotten bingo!";
+                break;
+            case RANDOM_TIE:
+                // Don't do anything with ties yet
+                message += "                      Game has ended in a tie!";
+                break;
+            case NO_WINNER:
+            default:
+                message += "                            Game has ended!";
+                break;
+        }
+
+        message += "\n" + PREFIX + "------------------------------------------------";
+
+        Bukkit.broadcastMessage(message);
+
+        titleManager.sendEndTitle(winReason);
+
         this.state = State.POST_GAME;
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -198,11 +270,15 @@ public class Game {
         }
 
         soundManager.broadcastEnd();
+
+        if (config.isTimerEnabled()) {
+            gameTimer.cancel();
+        }
     }
 
     public void rerollCard() {
         // Create random bingo card
-        BingoCard bingoCard = new BingoCard(bingoItemMaterials.getMaterials());
+        BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
         for (Team team : teamManager.getTeams()) {
             team.setBingoCard(bingoCard.copy());
@@ -214,26 +290,21 @@ public class Game {
         }
     }
 
-    public void onPlayerJoinLeave() {
-        gameBoardManager.onPlayerJoinLeave();
+    public void onPregameUpdate() {
+        gameBoardManager.onPregameUpdate();
     }
 
     public void onMaterialCollected(Player player, Material material) {
-        Team playerTeam = null;
-        for (Team team : teamManager.getTeams()) {
-            if (team.getPlayers().contains(player)) {
-                playerTeam = team;
-                break;
-            }
-        }
-
+        Team playerTeam = teamManager.getTeamByPlayer(player);
         if (playerTeam == null) {
             return;
         }
 
-        if (playerTeam.getBingoCard().containsItem(material)
-                && !playerTeam.getBingoCard().getItemByMaterial(material).isCollected()) {
-            playerTeam.getBingoCard().addItemCollected(material);
+        BingoCard bingoCard = playerTeam.getBingoCard();
+
+        if (bingoCard.containsItem(material)
+                && !bingoCard.getItemByMaterial(material).isCollected()) {
+            bingoCard.addItemCollected(material);
 
             gameBoardManager.onItemCollected(playerTeam);
 
@@ -247,24 +318,9 @@ public class Game {
                             + ChatColor.AQUA + StringUtil.formatMaterialName(material)
             );
 
-            // If using full card and card is completely filled OR
-            // not using full card and card has bingo
-            if ((fullCard && playerTeam.getBingoCard().isCardComplete())
-                    || (!fullCard && playerTeam.getBingoCard().hasBingo())) {
-                Bukkit.broadcastMessage(
-                        PREFIX + "-------------------------"
-                );
-                Bukkit.broadcastMessage(
-                        PREFIX
-                                + playerTeam.getColor() + playerTeam.getName()
-                                + ChatColor.WHITE + " team "
-                                + "has gotten bingo!"
-                );
-                Bukkit.broadcastMessage(
-                        PREFIX + "-------------------------"
-                );
-
-                end();
+            // Check whether win condition has been met
+            if (winConditionChecker.hasBingo(bingoCard)) {
+                end(new WinReason(playerTeam, WinReason.Reason.COMPLETE));
             } else {
                 soundManager.broadcastItemCollected(playerTeam);
             }
@@ -279,6 +335,10 @@ public class Game {
         return state;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
     public World getWorld() {
         return world;
     }
@@ -289,6 +349,10 @@ public class Game {
 
     public BingoCardItemFactory getBingoCardItemFactory() {
         return bingoCardItemFactory;
+    }
+
+    public WinConditionChecker getWinConditionChecker() {
+        return winConditionChecker;
     }
 
     public boolean isMaintenance() {
@@ -305,14 +369,6 @@ public class Game {
 
     public void togglePvp() {
         pvpEnabled = !pvpEnabled;
-    }
-
-    public boolean isFullCard() {
-        return fullCard;
-    }
-
-    public void toggleFullCard() {
-        fullCard = !fullCard;
     }
 
     public File getDataFolder() {

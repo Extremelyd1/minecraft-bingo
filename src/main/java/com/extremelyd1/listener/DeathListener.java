@@ -33,14 +33,7 @@ public class DeathListener implements Listener {
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         if (game.getState().equals(Game.State.IN_GAME)) {
             Player player = e.getPlayer();
-            Team team = null;
-            for (Team possibleTeam : game.getTeamManager().getTeams()) {
-                if (possibleTeam.getPlayers().contains(player)) {
-                    team = possibleTeam;
-                    break;
-                }
-            }
-
+            Team team = game.getTeamManager().getTeamByPlayer(player);
             if (team == null) {
                 return;
             }

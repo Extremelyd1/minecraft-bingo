@@ -1,20 +1,13 @@
 package com.extremelyd1.command;
 
-import com.extremelyd1.bingo.BingoItem;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.ItemUtil;
-import com.extremelyd1.util.StringUtil;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CardCommand implements CommandExecutor {
 
@@ -41,14 +34,7 @@ public class CardCommand implements CommandExecutor {
             return true;
         }
 
-        Team team = null;
-        for (Team possibleTeam : game.getTeamManager().getTeams()) {
-            if (possibleTeam.getPlayers().contains(player)) {
-                team = possibleTeam;
-                break;
-            }
-        }
-
+        Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
             return true;
         }

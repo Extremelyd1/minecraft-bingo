@@ -1,5 +1,6 @@
 package com.extremelyd1.gameboard;
 
+import com.extremelyd1.game.Game;
 import com.extremelyd1.gameboard.boardEntry.BlankBoardEntry;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
@@ -9,8 +10,8 @@ public class PregameBoard extends GameBoard {
 
     private final DynamicBoardEntry<Integer> numPlayersEntry;
 
-    public PregameBoard() {
-        super();
+    public PregameBoard(Game game) {
+        super(game);
 
         this.objective.setDisplayName(
                 ChatColor.BOLD.toString()

@@ -28,7 +28,27 @@ public class TeamCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length <= 0) {
-            return false;
+            player.sendMessage(
+                    ChatColor.DARK_RED
+                            + "Usage: "
+                            + ChatColor.WHITE
+                            + "/"
+                            + command.getName()
+                            + " <random|create|add>"
+            );
+
+            return true;
+        }
+
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            player.sendMessage(
+                    ChatColor.DARK_RED
+                            + "Error: "
+                            + ChatColor.WHITE
+                            + "Cannot execute this command now"
+            );
+
+            return true;
         }
 
         if (args[0].equalsIgnoreCase("random")) {
@@ -142,13 +162,12 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
+            Team team = game.getTeamManager().getTeamByPlayer(argumentPlayer);
             // Remove player from team if he is already on a team
-            for (Team team : game.getTeamManager().getTeams()) {
-                if (team.getPlayers().contains(argumentPlayer)) {
-                    team.getPlayers().remove(argumentPlayer);
+            if (team.getPlayers().contains(argumentPlayer)) {
+                team.getPlayers().remove(argumentPlayer);
 
-                    game.getLogger().info("Player was already on a team, removing...");
-                }
+                game.getLogger().info("Player was already on a team, removing...");
             }
 
             argumentTeam.addPlayer(argumentPlayer);
@@ -159,6 +178,8 @@ public class TeamCommand implements CommandExecutor {
                             + ChatColor.WHITE + " team"
             );
         }
+
+        game.onPregameUpdate();
 
         return true;
     }

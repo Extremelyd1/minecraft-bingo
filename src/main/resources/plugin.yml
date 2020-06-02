@@ -1,12 +1,13 @@
 name: MinecraftBingo
 version: 1.0.0
 main: com.extremelyd1.main.Bingo
+author: Extremelyd1
 api-version: 1.15
 
 commands:
   team:
     description: Command for handling teams
-    usage: /<command> random | create | add
+    usage: /<command> [random|create|add]
 
   start:
     description: Command to start the game
@@ -25,17 +26,26 @@ commands:
     usage: /<command>
 
   pvp:
-    description: Toggle PVP
+    description: Command to toggle PVP
     usage: /<command>
 
   maintenance:
-    description: Toggle maintenance mode
+    description: Command to toggle maintenance mode
     usage: /<command>
 
-  fullcard:
-    description: Toggle full bingo card mode
-    usage: /<command>
+  wincondition:
+    description: Command to change win conditions, such as enabling full card mode
+    usage: /<command> <fullCard|numLines>
 
   reroll:
     description: Command to reroll the bingo card
     usage: /<command>
+
+  itemdistribution:
+    aliases: [itemdist, distribution, dist]
+    description: Command to change the item distribution
+    usage: /<command> <S,A,B,C,D>
+
+  timer:
+    description: Command to set the max timer length
+    usage: /<command> <enable|disable|length>

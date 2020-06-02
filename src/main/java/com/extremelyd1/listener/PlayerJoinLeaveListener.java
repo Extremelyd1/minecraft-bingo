@@ -52,7 +52,7 @@ public class PlayerJoinLeaveListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        this.game.onPlayerJoinLeave();
+        this.game.onPregameUpdate();
 
         Player player = e.getPlayer();
 
@@ -68,14 +68,7 @@ public class PlayerJoinLeaveListener implements Listener {
             player.setBedSpawnLocation(spawnLocation);
         }
 
-        Team team = null;
-        for (Team possibleTeam : game.getTeamManager().getTeams()) {
-            if (possibleTeam.getPlayers().contains(player)) {
-                team = possibleTeam;
-                break;
-            }
-        }
-
+        Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
             e.setJoinMessage(
                     ChatColor.GREEN + "+ "
@@ -95,18 +88,11 @@ public class PlayerJoinLeaveListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerQuitEvent e) {
-        this.game.onPlayerJoinLeave();
+        this.game.onPregameUpdate();
 
         Player player = e.getPlayer();
 
-        Team team = null;
-        for (Team possibleTeam : game.getTeamManager().getTeams()) {
-            if (possibleTeam.getPlayers().contains(player)) {
-                team = possibleTeam;
-                break;
-            }
-        }
-
+        Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
             e.setQuitMessage(
                     ChatColor.RED + "- "

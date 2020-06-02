@@ -88,6 +88,16 @@ public class TeamManager {
         }
     }
 
+    public Team getTeamByPlayer(Player player) {
+        for (Team team : teams) {
+            if (team.getPlayers().contains(player)) {
+                return team;
+            }
+        }
+
+        return null;
+    }
+
     public Team createTeam() {
         if (teamFactory == null) {
             teamFactory = new TeamFactory();

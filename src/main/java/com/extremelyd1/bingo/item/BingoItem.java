@@ -1,4 +1,4 @@
-package com.extremelyd1.bingo;
+package com.extremelyd1.bingo.item;
 
 import org.bukkit.Material;
 

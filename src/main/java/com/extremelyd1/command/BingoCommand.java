@@ -1,9 +1,8 @@
 package com.extremelyd1.command;
 
-import com.extremelyd1.bingo.BingoItem;
+import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
-import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.StringUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -41,14 +40,7 @@ public class BingoCommand implements CommandExecutor {
             return true;
         }
 
-        Team team = null;
-        for (Team possibleTeam : game.getTeamManager().getTeams()) {
-            if (possibleTeam.getPlayers().contains(player)) {
-                team = possibleTeam;
-                break;
-            }
-        }
-
+        Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
             return true;
         }

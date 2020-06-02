@@ -1,6 +1,6 @@
 package com.extremelyd1.bingo;
 
-import com.extremelyd1.game.Game;
+import com.extremelyd1.bingo.item.BingoItem;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -69,7 +69,33 @@ public class BingoCard {
         }
     }
 
-    public boolean hasBingo() {
+    public int getNumLinesComplete() {
+        int numLinesComplete = 0;
+
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            if (checkRow(y)) {
+                numLinesComplete++;
+            }
+        }
+
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            if (checkColumn(x)) {
+                numLinesComplete++;
+            }
+        }
+
+        if (checkDiagonal(true)) {
+            numLinesComplete++;
+        }
+
+        if (checkDiagonal(false)) {
+            numLinesComplete++;
+        }
+
+        return numLinesComplete;
+    }
+
+    public boolean hasLineComplete() {
         for (int y = 0; y < BOARD_SIZE; y++) {
             if (checkRow(y)) {
                 return true;

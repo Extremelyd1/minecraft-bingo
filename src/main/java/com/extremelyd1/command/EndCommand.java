@@ -1,6 +1,7 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.util.CommandUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,17 +23,7 @@ public class EndCommand implements CommandExecutor {
             return true;
         }
 
-        Bukkit.broadcastMessage(
-                Game.PREFIX + "-------------------------"
-        );
-        Bukkit.broadcastMessage(
-                Game.PREFIX + "game has been force-ended"
-        );
-        Bukkit.broadcastMessage(
-                Game.PREFIX + "-------------------------"
-        );
-
-        game.end();
+        game.end(new WinReason());
 
         return true;
     }
