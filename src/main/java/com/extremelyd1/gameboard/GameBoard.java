@@ -57,11 +57,13 @@ public class GameBoard {
 
             // Get scoreboard team with color enum name
             Team scoreboardTeam = scoreboard.getTeam(gameTeam.getColor().name());
+
             if (scoreboardTeam == null) {
                 // Create new scoreboard team with color enum name
                 scoreboardTeam = scoreboard.registerNewTeam(gameTeam.getColor().name());
+
                 // Set prefix to color code
-                scoreboardTeam.setPrefix(gameTeam.getColor().toString());
+                scoreboardTeam.setPrefix(gameTeam.getColor().toString() + gameTeam.getName().toUpperCase() + " ");
             }
 
             // Add player name to this scoreboard team
