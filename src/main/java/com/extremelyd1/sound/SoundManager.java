@@ -48,7 +48,7 @@ public class SoundManager {
             player.playSound(
                     player.getLocation(),
                     Sound.BLOCK_PORTAL_TRAVEL,
-                    1f,
+                    0.2f,
                     1f
             );
         }

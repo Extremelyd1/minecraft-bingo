@@ -2,12 +2,15 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.potion.PotionEffects;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class DeathListener implements Listener {
 
@@ -37,6 +40,8 @@ public class DeathListener implements Listener {
             if (team == null) {
                 return;
             }
+
+            player.addPotionEffect(PotionEffects.RESISTANCE);
 
             player.getInventory().addItem(
                     game.getBingoCardItemFactory().create(team.getBingoCard())

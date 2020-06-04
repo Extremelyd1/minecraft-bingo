@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class BingoCard {
 
-    private final static int BOARD_SIZE = 5;
+    public final static int BOARD_SIZE = 5;
 
     private final BingoItem[][] bingoItems;
 

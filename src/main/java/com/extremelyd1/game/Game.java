@@ -14,6 +14,7 @@ import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.gameboard.GameBoardManager;
 import com.extremelyd1.listener.*;
 import com.extremelyd1.main.Bingo;
+import com.extremelyd1.potion.PotionEffects;
 import com.extremelyd1.sound.SoundManager;
 import com.extremelyd1.title.TitleManager;
 import com.extremelyd1.util.TimeUtil;
@@ -38,6 +39,8 @@ public class Game {
     private static final float RADIUS_TEAM_INCREASE = 100;
 
     public static final String PREFIX = ChatColor.BOLD.toString() + ChatColor.BLUE + "BINGO " + ChatColor.RESET;
+    private static final String DIVIDER = PREFIX + ChatColor.STRIKETHROUGH
+            + "                                                                        ";
 
     private final JavaPlugin plugin;
 
@@ -149,13 +152,9 @@ public class Game {
         this.state = State.IN_GAME;
 
         Bukkit.broadcastMessage(
-                PREFIX + "------------------------------------------------"
-        );
-        Bukkit.broadcastMessage(
-                PREFIX + "                           Game has started!"
-        );
-        Bukkit.broadcastMessage(
-                PREFIX + "------------------------------------------------"
+                DIVIDER + "\n"
+                + PREFIX + "                           Game has started!\n"
+                + DIVIDER
         );
 
         // Spread out players
@@ -169,17 +168,9 @@ public class Game {
             Team team = teamManager.getTeams().get(i);
             Location location = locations.get(i);
 
-            PotionEffect resistanceEffect = new PotionEffect(
-                    PotionEffectType.DAMAGE_RESISTANCE,
-                    5,
-                    5,
-                    false,
-                    false
-            );
-
             for (Player teamPlayer : team.getPlayers()) {
                 // Give player resistance 5 before teleporting to prevent fall damage
-                teamPlayer.addPotionEffect(resistanceEffect);
+                teamPlayer.addPotionEffect(PotionEffects.RESISTANCE);
 
                 teamPlayer.teleport(location);
                 teamPlayer.setBedSpawnLocation(location, true);
@@ -237,8 +228,7 @@ public class Game {
     }
 
     public void end(WinReason winReason) {
-        String message = PREFIX + "------------------------------------------------\n"
-                + PREFIX;
+        String message = DIVIDER + "\n" + PREFIX;
 
         switch (winReason.getReason()) {
             case COMPLETE:
@@ -257,7 +247,7 @@ public class Game {
                 break;
         }
 
-        message += "\n" + PREFIX + "------------------------------------------------";
+        message += "\n" + DIVIDER;
 
         Bukkit.broadcastMessage(message);
 
