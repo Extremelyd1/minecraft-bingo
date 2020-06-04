@@ -2,13 +2,16 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -62,6 +65,10 @@ public class InteractListener implements Listener {
             return;
         }
 
+        if (e.getHand() == null || !e.getHand().equals(EquipmentSlot.HAND)) {
+            return;
+        }
+
         if (!e.hasItem()) {
             return;
         }
@@ -85,9 +92,27 @@ public class InteractListener implements Listener {
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().contains("Bingo Card")) {
-            event.setCancelled(true);
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player)) {
+            return;
+        }
+
+        if (e.getClick().equals(ClickType.MIDDLE)) {
+            ItemStack itemStack = e.getCurrentItem();
+            if (itemStack != null
+                    && itemStack.hasItemMeta()
+                    && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
+                Team team = game.getTeamManager().getTeamByPlayer((Player) e.getWhoClicked());
+                if (team == null) {
+                    return;
+                }
+
+                team.getBingoCardInventory().show((Player) e.getWhoClicked());
+            }
+        }
+
+        if (e.getView().getTitle().contains("Bingo Card")) {
+            e.setCancelled(true);
         }
     }
 }
