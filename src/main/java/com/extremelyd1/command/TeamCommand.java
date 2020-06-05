@@ -28,14 +28,7 @@ public class TeamCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length <= 0) {
-            player.sendMessage(
-                    ChatColor.DARK_RED
-                            + "Usage: "
-                            + ChatColor.WHITE
-                            + "/"
-                            + command.getName()
-                            + " <random|create|add>"
-            );
+            sendUsage(player, command);
 
             return true;
         }
@@ -177,10 +170,25 @@ public class TeamCommand implements CommandExecutor {
                             + argumentTeam.getColor() + argumentTeam.getName()
                             + ChatColor.WHITE + " team"
             );
+        } else {
+            sendUsage(player, command);
+
+            return true;
         }
 
         game.onPregameUpdate();
 
         return true;
+    }
+
+    private void sendUsage(Player player, Command command) {
+        player.sendMessage(
+                ChatColor.DARK_RED
+                        + "Usage: "
+                        + ChatColor.WHITE
+                        + "/"
+                        + command.getName()
+                        + " <random|create|add>"
+        );
     }
 }
