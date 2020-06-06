@@ -7,6 +7,9 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 public class FoodListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public FoodListener(Game game) {

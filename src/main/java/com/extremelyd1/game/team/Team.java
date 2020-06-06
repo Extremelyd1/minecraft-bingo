@@ -2,19 +2,38 @@ package com.extremelyd1.game.team;
 
 import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.BingoCardInventory;
+import com.extremelyd1.game.Game;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a list of players that are on the same team
+ */
 public class Team {
 
+    /**
+     * The name of the team
+     */
     private final String name;
+    /**
+     * The color of the team
+     */
     private final ChatColor color;
+    /**
+     * The list of players in this team
+     */
     private final List<Player> players;
 
+    /**
+     * The bingo card associated with this team
+     */
     private BingoCard bingoCard;
+    /**
+     * The bingo card inventory associated with this team
+     */
     private BingoCardInventory bingoCardInventory;
 
     public Team(String name, ChatColor color) {
@@ -24,8 +43,47 @@ public class Team {
         this.players = new ArrayList<>();
     }
 
-    public void addPlayer(Player player) {
+    /**
+     * Add a player to this team
+     * @param player The player to add
+     */
+    void addPlayer(Player player) {
+        this.addPlayer(player, false);
+    }
+
+    /**
+     * Add a player to this team, and whether to notify them of their new team
+     * @param player The player to add
+     * @param notify Whether to notify the player of their new team
+     */
+    void addPlayer(Player player, boolean notify) {
         this.players.add(player);
+
+        if (notify) {
+            player.sendMessage(
+                    Game.PREFIX +
+                            "Joined "
+                            + color + name
+                            + ChatColor.WHITE + " team"
+            );
+        }
+    }
+
+    /**
+     * Remove a player from this team
+     * @param player The player to remove
+     */
+    void removePlayer(Player player) {
+        this.players.remove(player);
+    }
+
+    /**
+     * Check whether the given player is on this team
+     * @param player The player to check for
+     * @return Whether to player is on this team
+     */
+    public boolean contains(Player player) {
+        return this.players.contains(player);
     }
 
     public String getName() {
@@ -36,8 +94,16 @@ public class Team {
         return color;
     }
 
-    public List<Player> getPlayers() {
+    public Iterable<Player> getPlayers() {
         return players;
+    }
+
+    /**
+     * Gets the number of players on this team
+     * @return
+     */
+    public int getNumPlayers() {
+        return players.size();
     }
 
     public void setBingoCard(BingoCard bingoCard) {
@@ -48,6 +114,10 @@ public class Team {
         return bingoCard;
     }
 
+    /**
+     * Gets the bingo card inventory of this team or creates one if it does not exist
+     * @return The bingo card inventory of this team
+     */
     public BingoCardInventory getBingoCardInventory() {
         if (bingoCardInventory == null) {
             if (bingoCard == null) {

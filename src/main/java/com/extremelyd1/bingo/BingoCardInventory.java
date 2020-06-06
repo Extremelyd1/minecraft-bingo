@@ -7,10 +7,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Represents the Bukkit inventory with the bingo card items
+ */
 public class BingoCardInventory {
 
+    /**
+     * The Bukkit inventory to store the items
+     */
     private final Inventory inventory;
 
+    /**
+     * Create a bingo card inventory with the given bingo card
+     * @param bingoCard The bingo card to make the inventory from
+     */
     public BingoCardInventory(BingoCard bingoCard) {
         // Create the inventory and set the items in it
         inventory = Bukkit.createInventory(
@@ -29,6 +39,10 @@ public class BingoCardInventory {
         }
     }
 
+    /**
+     * Show the given player this inventory
+     * @param player The player to show the inventory to
+     */
     public void show(Player player) {
         player.openInventory(inventory);
     }

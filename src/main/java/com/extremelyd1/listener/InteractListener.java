@@ -17,6 +17,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class InteractListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public InteractListener(Game game) {

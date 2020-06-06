@@ -14,6 +14,9 @@ import org.bukkit.potion.PotionEffectType;
 
 public class DeathListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public DeathListener(Game game) {

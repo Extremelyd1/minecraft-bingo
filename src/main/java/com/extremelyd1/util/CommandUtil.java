@@ -6,10 +6,21 @@ import org.bukkit.entity.Player;
 
 public class CommandUtil {
 
+    /**
+     * Checks whether the command sender has permission to execute a command
+     * @param sender The sender to check
+     * @return True if the sender is a player and has OP rights; False otherwise
+     */
     public static boolean checkCommandSender(CommandSender sender) {
         return checkCommandSender(sender, true);
     }
 
+    /**
+     * Checks whether the command sender has permission to execute a command
+     * @param sender The sender to check
+     * @param noConsole Whether to allow console to execute
+     * @return True if the sender has OP rights, or is the console and console is allowed; False otherwise
+     */
     public static boolean checkCommandSender(CommandSender sender, boolean noConsole) {
         if (!(sender instanceof Player)) {
             if (noConsole) {

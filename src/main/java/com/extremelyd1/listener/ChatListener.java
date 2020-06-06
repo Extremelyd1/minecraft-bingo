@@ -11,6 +11,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class ChatListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public ChatListener(Game game) {

@@ -3,7 +3,6 @@ package com.extremelyd1.game;
 import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.item.BingoItemMaterials;
 import com.extremelyd1.bingo.map.BingoCardItemFactory;
-import com.extremelyd1.border.BorderManager;
 import com.extremelyd1.command.*;
 import com.extremelyd1.config.Config;
 import com.extremelyd1.game.team.Team;
@@ -21,50 +20,109 @@ import com.extremelyd1.util.TimeUtil;
 import com.extremelyd1.util.ItemUtil;
 import com.extremelyd1.util.LocationUtil;
 import com.extremelyd1.util.StringUtil;
+import com.extremelyd1.world.WorldManager;
 import org.bukkit.*;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class Game {
 
-    // The base value of the spread radius
+    /**
+     * The base value of the spread radius
+     */
     private static final float BASE_RADIUS = 200;
-    // The increase in spread radius for each team
+    /**
+     * The increase in spread radius for each team
+     */
     private static final float RADIUS_TEAM_INCREASE = 100;
 
+    /**
+     * The prefix string
+     */
     public static final String PREFIX = ChatColor.BOLD.toString() + ChatColor.BLUE + "BINGO " + ChatColor.RESET;
+    /**
+     * The divider string
+     */
     private static final String DIVIDER = PREFIX + ChatColor.STRIKETHROUGH
             + "                                                                        ";
 
+    /**
+     * The plugin instance
+     */
     private final JavaPlugin plugin;
 
+    /**
+     * The logger instance to log messages to
+     */
     private final Logger logger;
 
+    /**
+     * The current state of the game
+     */
     private State state;
 
+    /**
+     * The config instance
+     */
     private final Config config;
 
-    private final World world;
-
+    /**
+     * The game board manager instance
+     */
     private final GameBoardManager gameBoardManager;
+    /**
+     * The team manager instance
+     */
     private final TeamManager teamManager;
 
+    /**
+     * The bingo card item factory instance
+     */
     private final BingoCardItemFactory bingoCardItemFactory;
+    /**
+     * The bingo item materials store instance
+     */
     private final BingoItemMaterials bingoItemMaterials;
+    /**
+     * The win condition checker instance
+     */
     private final WinConditionChecker winConditionChecker;
 
+    /**
+     * The sound manager instance
+     */
     private final SoundManager soundManager;
+    /**
+     * The title manager instance
+     */
     private final TitleManager titleManager;
+    /**
+     * The world manager instance
+     */
+    private final WorldManager worldManager;
 
+    /**
+     * Whether maintenance mode is enabled
+     */
     private boolean maintenance = false;
+    /**
+     * Whether PvP is enabled
+     */
     private boolean pvpEnabled = false;
 
+    /**
+     * The current game timer
+     */
     private GameTimer gameTimer;
 
     public Game(Bingo bingo) {
@@ -72,20 +130,14 @@ public class Game {
         this.logger = bingo.getLogger();
         state = State.PRE_GAME;
 
-        this.config = new Config(bingo);
-
-        if (Bukkit.getWorlds().size() == 0) {
-            throw new IllegalStateException("There are no worlds loaded");
-        }
-        world = Bukkit.getWorlds().get(0);
-        world.setAutoSave(false);
-        world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        config = new Config(bingo);
 
         gameBoardManager = new GameBoardManager(this);
         teamManager = new TeamManager(this);
 
-        bingoCardItemFactory = new BingoCardItemFactory(this, world);
+        worldManager = new WorldManager(config);
+
+        bingoCardItemFactory = new BingoCardItemFactory(this);
         bingoItemMaterials = new BingoItemMaterials(this);
         bingoItemMaterials.loadMaterials(getDataFolder());
 
@@ -94,13 +146,14 @@ public class Game {
         soundManager = new SoundManager();
         titleManager = new TitleManager();
 
-        // No need for storing it, since it only creates the border once
-        new BorderManager(config, world);
-
         registerListeners(bingo);
         registerCommands(bingo);
     }
 
+    /**
+     * Register all event listeners
+     * @param plugin The plugin instance to register the listeners to
+     */
     private void registerListeners(JavaPlugin plugin) {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinLeaveListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new ItemListener(this), plugin);
@@ -113,23 +166,43 @@ public class Game {
         Bukkit.getPluginManager().registerEvents(new MoveListener(this), plugin);
     }
 
+    /**
+     * Register all commands
+     * @param plugin The plugin instance to register the commands to
+     */
     private void registerCommands(JavaPlugin plugin) {
-        plugin.getCommand("team").setExecutor(new TeamCommand(this));
-        plugin.getCommand("start").setExecutor(new StartCommand(this));
-        plugin.getCommand("end").setExecutor(new EndCommand(this));
-        plugin.getCommand("bingo").setExecutor(new BingoCommand(this));
-        plugin.getCommand("card").setExecutor(new CardCommand(this));
-        plugin.getCommand("pvp").setExecutor(new PvpCommand(this));
-        plugin.getCommand("maintenance").setExecutor(new MaintenanceCommand(this));
-        plugin.getCommand("wincondition").setExecutor(new WinConditionCommand(this));
-        plugin.getCommand("reroll").setExecutor(new RerollCommand(this));
-        plugin.getCommand("itemdistribution").setExecutor(new ItemDistributionCommand(this));
-        plugin.getCommand("timer").setExecutor(new TimerCommand(this));
+        final Game game = this;
+        final Map<String, CommandExecutor> executors = new HashMap<String, CommandExecutor>() {{
+            put("team", new TeamCommand(game));
+            put("start", new StartCommand(game));
+            put("end", new EndCommand(game));
+            put("bingo", new BingoCommand(game));
+            put("card", new CardCommand(game));
+            put("pvp", new PvpCommand(game));
+            put("maintenance", new MaintenanceCommand(game));
+            put("wincondition", new WinConditionCommand(game));
+            put("reroll", new RerollCommand(game));
+            put("itemdistribution", new ItemDistributionCommand(game));
+            put("timer", new TimerCommand(game));
+        }};
+
+        for (String cmdName : executors.keySet()) {
+            PluginCommand command = plugin.getCommand(cmdName);
+            if (command != null) {
+                command.setExecutor(executors.get(cmdName));
+            } else {
+                throw new IllegalStateException("Command " + cmdName + " could not be registered");
+            }
+        }
     }
 
+    /**
+     * Starts the game
+     * @param player The player that started the game, or null if no player started the game
+     */
     public void start(Player player) {
         // Sanity checks
-        if (teamManager.getTeams().size() == 0) {
+        if (teamManager.getNumTeams() == 0) {
             getLogger().warning("No teams have been selected, cannot start game");
 
             if (player != null) {
@@ -159,14 +232,14 @@ public class Game {
 
         // Spread out players
         List<Location> locations = LocationUtil.getRandomCircleLocations(
-                world.getSpawnLocation(),
-                teamManager.getTeams().size(),
-                BASE_RADIUS + RADIUS_TEAM_INCREASE * teamManager.getTeams().size()
+                worldManager.getSpawnLocation(),
+                teamManager.getNumTeams(),
+                BASE_RADIUS + RADIUS_TEAM_INCREASE * teamManager.getNumTeams()
         );
 
-        for (int i = 0; i < teamManager.getTeams().size(); i++) {
-            Team team = teamManager.getTeams().get(i);
-            Location location = locations.get(i);
+        int index = 0;
+        for (Team team : teamManager.getTeams()) {
+            Location location = locations.get(index++);
 
             for (Player teamPlayer : team.getPlayers()) {
                 // Give player resistance 5 before teleporting to prevent fall damage
@@ -191,9 +264,8 @@ public class Game {
             }
         }
 
-        // Enable game rules
-        world.setGameRule(GameRule.DO_MOB_SPAWNING, true);
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        // Prepare world for game start
+        worldManager.onGameStart();
 
         // Enable scoreboards
         gameBoardManager.createIngameBoards(teamManager.getTeams());
@@ -227,6 +299,10 @@ public class Game {
         }
     }
 
+    /**
+     * Ends the game with a win reason
+     * @param winReason The reason for the game to end
+     */
     public void end(WinReason winReason) {
         String message = DIVIDER + "\n" + PREFIX;
 
@@ -266,6 +342,9 @@ public class Game {
         }
     }
 
+    /**
+     * Reroll the bingo card
+     */
     public void rerollCard() {
         // Create random bingo card
         BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
@@ -280,13 +359,24 @@ public class Game {
         }
     }
 
+    /**
+     * Called if the pregame state is updated
+     * Updates the game board scoreboard
+     */
     public void onPregameUpdate() {
         gameBoardManager.onPregameUpdate();
     }
 
+    /**
+     * When a material is collected by a player
+     * Updates the bingo card of the player's team and ends the game if a card is completed
+     * @param player The player that has collected the material
+     * @param material The material that is collected
+     */
     public void onMaterialCollected(Player player, Material material) {
         Team playerTeam = teamManager.getTeamByPlayer(player);
         if (playerTeam == null) {
+            getLogger().warning("Material collected by player without team");
             return;
         }
 
@@ -329,10 +419,6 @@ public class Game {
         return config;
     }
 
-    public World getWorld() {
-        return world;
-    }
-
     public TeamManager getTeamManager() {
         return teamManager;
     }
@@ -363,6 +449,10 @@ public class Game {
 
     public File getDataFolder() {
         return plugin.getDataFolder();
+    }
+
+    public WorldManager getWorldManager() {
+        return worldManager;
     }
 
     public enum State {

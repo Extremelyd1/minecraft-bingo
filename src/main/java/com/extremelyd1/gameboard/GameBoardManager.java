@@ -21,7 +21,7 @@ public class GameBoardManager {
         this.pregameBoard = new PregameBoard(game);
     }
 
-    public void createIngameBoards(List<Team> teams) {
+    public void createIngameBoards(Iterable<Team> teams) {
         ingameBoards = new HashMap<>();
 
         for (Team team : teams) {

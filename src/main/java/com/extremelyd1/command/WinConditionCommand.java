@@ -10,6 +10,9 @@ import org.bukkit.command.CommandSender;
 
 public class WinConditionCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public WinConditionCommand(Game game) {

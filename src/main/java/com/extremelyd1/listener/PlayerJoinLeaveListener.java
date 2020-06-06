@@ -12,6 +12,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerJoinLeaveListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public PlayerJoinLeaveListener(Game game) {
@@ -63,7 +66,7 @@ public class PlayerJoinLeaveListener implements Listener {
             player.setFoodLevel(20);
             player.setSaturation(5);
 
-            Location spawnLocation = this.game.getWorld().getSpawnLocation();
+            Location spawnLocation = game.getWorldManager().getSpawnLocation();
             player.teleport(spawnLocation);
             player.setBedSpawnLocation(spawnLocation);
         }

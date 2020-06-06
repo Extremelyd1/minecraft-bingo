@@ -12,6 +12,9 @@ import org.bukkit.event.server.ServerListPingEvent;
 
 public class MotdListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public MotdListener(Game game) {

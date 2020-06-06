@@ -11,6 +11,9 @@ import org.bukkit.command.CommandSender;
 
 public class EndCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public EndCommand(Game game) {

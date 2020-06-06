@@ -10,6 +10,9 @@ import org.bukkit.command.CommandSender;
 
 public class PvpCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public PvpCommand(Game game) {

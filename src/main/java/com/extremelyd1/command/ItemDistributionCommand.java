@@ -10,6 +10,9 @@ import org.bukkit.command.CommandSender;
 
 public class ItemDistributionCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public ItemDistributionCommand(Game game) {
@@ -85,6 +88,12 @@ public class ItemDistributionCommand implements CommandExecutor {
         return true;
     }
 
+    /**
+     * Parse the item in the given string, or send an error message to the given command sender
+     * @param item The item in string format
+     * @param sender The sender to send the error to
+     * @return The parsed integer of this string value or -1 if it cannot be parsed
+     */
     private int parseItemDistribution(String item, CommandSender sender) {
         int value;
 
@@ -98,6 +107,10 @@ public class ItemDistributionCommand implements CommandExecutor {
         return value;
     }
 
+    /**
+     * Sends the item distribution error message to the sender
+     * @param sender The command sender to send the error message to
+     */
     private void sendItemDistributionError(CommandSender sender) {
         sender.sendMessage(
                 ChatColor.DARK_RED + "Error: "

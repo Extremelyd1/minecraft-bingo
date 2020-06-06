@@ -5,14 +5,24 @@ import org.bukkit.Material;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Represents a set of coherent items that are specified together in a data file
+ */
 public class BingoItemSet {
 
+    /**
+     * The list of materials in this item set
+     */
     private final List<Material> materials;
 
     public BingoItemSet(List<Material> materials) {
         this.materials = materials;
     }
 
+    /**
+     * Pick a random item from this item set
+     * @return A random Material
+     */
     public Material pick() {
         return materials.get(new Random().nextInt(materials.size()));
     }

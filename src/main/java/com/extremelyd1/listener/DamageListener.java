@@ -9,6 +9,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class DamageListener implements Listener {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public DamageListener(Game game) {

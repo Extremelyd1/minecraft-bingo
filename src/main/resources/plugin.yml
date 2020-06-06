@@ -1,5 +1,5 @@
 name: MinecraftBingo
-version: 1.0.0
+version: 1.1.0
 main: com.extremelyd1.main.Bingo
 author: Extremelyd1
 api-version: 1.15
@@ -7,7 +7,7 @@ api-version: 1.15
 commands:
   team:
     description: Command for handling teams
-    usage: /<command> [random|create|add]
+    usage: /<command> <random|add|remove>
 
   start:
     description: Command to start the game

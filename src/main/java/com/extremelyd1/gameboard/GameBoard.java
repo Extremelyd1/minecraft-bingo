@@ -12,15 +12,34 @@ import org.bukkit.scoreboard.Team;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a scoreboard with GameBoardEntry instances in it
+ */
 public class GameBoard {
 
+    /**
+     * The last id of a created objective
+     * Makes sure that there are no collisions between objective names
+     */
     protected static int lastObjectiveId = 0;
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
+    /**
+     * The Scoreboard instance of the game board
+     */
     protected Scoreboard scoreboard;
+    /**
+     * The Objective instance of this Scoreboard
+     */
     protected Objective objective;
 
+    /**
+     * The list of entries on this board
+     */
     protected List<BoardEntry> boardEntries;
 
     public GameBoard(Game game) {
@@ -36,6 +55,9 @@ public class GameBoard {
         this.boardEntries = new ArrayList<>();
     }
 
+    /**
+     * Updates this board by updating all board entries and resetting the prefixes of players
+     */
     public void update() {
         // Clear all existing scores
         for (String entry : this.scoreboard.getEntries()) {
@@ -51,7 +73,13 @@ public class GameBoard {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             com.extremelyd1.game.team.Team gameTeam = game.getTeamManager().getTeamByPlayer(onlinePlayer);
             if (gameTeam == null) {
-                // Player is not in a team yet, skip coloring
+                // Player is not in a team, remove from existing teams
+                Team scoreboardTeam = scoreboard.getEntryTeam(onlinePlayer.getName());
+
+                if (scoreboardTeam != null) {
+                    scoreboardTeam.removeEntry(onlinePlayer.getName());
+                }
+
                 continue;
             }
 
@@ -72,6 +100,9 @@ public class GameBoard {
         }
     }
 
+    /**
+     * Broadcasts this board to all online players
+     */
     public void broadcast() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(scoreboard);

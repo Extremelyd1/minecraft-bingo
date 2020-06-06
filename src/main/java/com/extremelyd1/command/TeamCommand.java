@@ -13,6 +13,9 @@ import org.bukkit.entity.Player;
 
 public class TeamCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public TeamCommand(Game game) {
@@ -84,25 +87,6 @@ public class TeamCommand implements CommandExecutor {
                     numTeams,
                     true
             );
-        } else if (args[0].equalsIgnoreCase("create")) {
-            if (game.getTeamManager().getTeams().size() == TeamManager.MAX_TEAMS) {
-                player.sendMessage(
-                        ChatColor.DARK_RED + "Error: "
-                                + ChatColor.WHITE + "Cannot create more than 8 teams"
-                );
-
-                return true;
-            }
-
-            Team createdTeam = game.getTeamManager().createTeam();
-
-            player.sendMessage(
-                    Game.PREFIX +
-                    ChatColor.GREEN + "Created "
-                            + ChatColor.WHITE + "new team: "
-                            + createdTeam.getColor() + createdTeam.getName()
-                            + ChatColor.WHITE + " team"
-            );
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 3) {
                 player.sendMessage(
@@ -117,14 +101,7 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            Player argumentPlayer = null;
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (onlinePlayer.getName().equalsIgnoreCase(args[1])) {
-                    argumentPlayer = onlinePlayer;
-                    break;
-                }
-            }
-
+            Player argumentPlayer = getPlayerByName(args[1]);
             if (argumentPlayer == null) {
                 player.sendMessage(
                         ChatColor.DARK_RED
@@ -136,14 +113,9 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            Team argumentTeam = null;
-            for (Team team : game.getTeamManager().getTeams()) {
-                if (team.getName().equalsIgnoreCase(args[2])) {
-                    argumentTeam = team;
-                    break;
-                }
-            }
+            TeamManager teamManager = game.getTeamManager();
 
+            Team argumentTeam = teamManager.getTeamByName(args[2]);
             if (argumentTeam == null) {
                 player.sendMessage(
                         ChatColor.DARK_RED
@@ -155,21 +127,54 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            Team team = game.getTeamManager().getTeamByPlayer(argumentPlayer);
             // Remove player from team if he is already on a team
-            if (team.getPlayers().contains(argumentPlayer)) {
-                team.getPlayers().remove(argumentPlayer);
-
+            if (teamManager.removePlayerFromTeam(argumentPlayer)) {
                 game.getLogger().info("Player was already on a team, removing...");
             }
 
-            argumentTeam.addPlayer(argumentPlayer);
-            argumentPlayer.sendMessage(
-                    Game.PREFIX +
-                    ChatColor.GREEN + "Joined "
-                            + argumentTeam.getColor() + argumentTeam.getName()
-                            + ChatColor.WHITE + " team"
-            );
+            teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);
+        } else if (args[0].equalsIgnoreCase("remove")) {
+                if (args.length < 2) {
+                    player.sendMessage(
+                            ChatColor.DARK_RED
+                                    + "Usage: "
+                                    + ChatColor.WHITE
+                                    + "/"
+                                    + command.getName()
+                                    + " remove <player>"
+                    );
+
+                    return true;
+                }
+
+                Player argumentPlayer = getPlayerByName(args[1]);
+                if (argumentPlayer == null) {
+                    player.sendMessage(
+                            ChatColor.DARK_RED
+                                    + "Error: "
+                                    + ChatColor.WHITE
+                                    + "Could not find player with that name"
+                    );
+
+                    return true;
+                }
+
+                TeamManager teamManager = game.getTeamManager();
+
+                Team team = teamManager.getTeamByPlayer(argumentPlayer);
+                if (team == null) {
+                    player.sendMessage(
+                            ChatColor.DARK_RED
+                                    + "Error: "
+                                    + ChatColor.WHITE
+                                    + "Player is not currently on a team"
+                    );
+
+                    return true;
+                }
+
+                // Remove player from team
+                teamManager.removePlayerFromTeam(argumentPlayer);
         } else {
             sendUsage(player, command);
 
@@ -181,6 +186,11 @@ public class TeamCommand implements CommandExecutor {
         return true;
     }
 
+    /**
+     * Send the usage of this command to the given player
+     * @param player The player to send the command to
+     * @param command The command instance
+     */
     private void sendUsage(Player player, Command command) {
         player.sendMessage(
                 ChatColor.DARK_RED
@@ -188,7 +198,22 @@ public class TeamCommand implements CommandExecutor {
                         + ChatColor.WHITE
                         + "/"
                         + command.getName()
-                        + " <random|create|add>"
+                        + " <random|add|remove>"
         );
+    }
+
+    /**
+     * Get a player by its name
+     * @param name The name of the player
+     * @return The player corresponding to this name, or null if no such player exists
+     */
+    private Player getPlayerByName(String name) {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (onlinePlayer.getName().equalsIgnoreCase(name)) {
+                return onlinePlayer;
+            }
+        }
+
+        return null;
     }
 }

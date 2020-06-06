@@ -4,6 +4,11 @@ import org.bukkit.Material;
 
 public class StringUtil {
 
+    /**
+     * Formats the given material into a nice human-readable string
+     * @param material The material to format
+     * @return A nice human-readable string
+     */
     public static String formatMaterialName(Material material) {
         String[] wordSplit = material.name().split("_");
 
@@ -26,6 +31,12 @@ public class StringUtil {
         return result.toString();
     }
 
+    /**
+     * Ellipses a given input to a given maximum length by limiting it and adding ... to the end
+     * @param input The input to ellips
+     * @param maxSize The maximum size of the string
+     * @return A string of at most maxSize characters
+     */
     public static String ellipsString(String input, int maxSize) {
         if (input.length() < maxSize) {
             return input;

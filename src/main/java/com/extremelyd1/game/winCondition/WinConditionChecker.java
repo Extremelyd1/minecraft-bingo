@@ -8,9 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * A class that stores and handles win conditions
+ * Such as needing a full card to win the game
+ */
 public class WinConditionChecker {
 
+    /**
+     * How many lines need to be completed in order to win
+     */
     private int numLinesComplete;
+    /**
+     * Whether teams need to complete the full card in order to win
+     */
     private boolean fullCard;
 
     public WinConditionChecker(Config config) {
@@ -18,6 +28,11 @@ public class WinConditionChecker {
         this.fullCard = false;
     }
 
+    /**
+     * Checks whether a bingo card is completed according to the win conditions
+     * @param card The bingo card to check
+     * @return Whether this bingo card has won
+     */
     public boolean hasBingo(BingoCard card) {
         if (fullCard) {
             return card.isCardComplete();
@@ -35,7 +50,7 @@ public class WinConditionChecker {
      * @param teams The list of teams to choose from
      * @return The team that won
      */
-    public WinReason decideWinner(List<Team> teams) {
+    public WinReason decideWinner(Iterable<Team> teams) {
         if (!fullCard && numLinesComplete == 1) {
             // We cannot really determine a winner now
             return new WinReason();
@@ -75,6 +90,10 @@ public class WinConditionChecker {
         return winReason;
     }
 
+    /**
+     * Sets the number of lines to complete in order to win
+     * @param numLinesComplete The number of lines to complete; must be between 1 (inclusive) and 10 (inclusive)
+     */
     public void setNumLinesComplete(int numLinesComplete) {
         if (numLinesComplete < 1 || numLinesComplete > 10) {
             throw new IllegalArgumentException("Cannot set number of lines completed to less than 1 or more than 10");

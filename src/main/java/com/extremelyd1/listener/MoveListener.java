@@ -9,8 +9,14 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class MoveListener implements Listener {
 
+    /**
+     * The maximum distance a player can move away from the spawn in pregame
+     */
     private final static float SPAWN_AREA = 20;
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public MoveListener(Game game) {
@@ -25,7 +31,7 @@ public class MoveListener implements Listener {
                 return;
             }
 
-            Location spawnLocation = game.getWorld().getSpawnLocation();
+            Location spawnLocation = game.getWorldManager().getSpawnLocation();
             if (e.getTo().distance(spawnLocation) > SPAWN_AREA) {
                 e.getPlayer().sendMessage(
                         ChatColor.DARK_RED + "Error: "

@@ -2,10 +2,19 @@ package com.extremelyd1.game.team;
 
 import org.bukkit.ChatColor;
 
+/**
+ * Factory class that creates team instances
+ */
 public class TeamFactory {
 
+    /**
+     * The index of the last team created
+     */
     private int lastTeamIndex;
 
+    /**
+     * The names of the teams
+     */
     private final String[] names = {
             "Red",
             "Blue",
@@ -17,6 +26,9 @@ public class TeamFactory {
             "Gray"
     };
 
+    /**
+     * The colors of the teams
+     */
     private final ChatColor[] colors = {
             ChatColor.RED,
             ChatColor.BLUE,
@@ -32,6 +44,10 @@ public class TeamFactory {
         lastTeamIndex = -1;
     }
 
+    /**
+     * Creates a new team
+     * @return A new team
+     */
     public Team createTeam() {
         lastTeamIndex++;
 

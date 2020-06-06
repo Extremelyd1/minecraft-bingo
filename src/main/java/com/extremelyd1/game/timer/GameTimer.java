@@ -3,13 +3,31 @@ package com.extremelyd1.game.timer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+/**
+ * Represents the in game timer
+ */
 public class GameTimer {
 
+    /**
+     * The plugin instance
+     */
     private final Plugin plugin;
+    /**
+     * How often the timer updates in seconds
+     */
     private final long period;
+    /**
+     * The time left on this timer in seconds
+     */
     private long timeLeft;
+    /**
+     * A functional interface to execute every timer tick
+     */
     private final TimerConsumer timerConsumer;
 
+    /**
+     * The timer runnable
+     */
     private BukkitRunnable runnable;
 
     public GameTimer(Plugin plugin, long period, long time, TimerConsumer timerConsumer) {
@@ -19,6 +37,9 @@ public class GameTimer {
         this.timerConsumer = timerConsumer;
     }
 
+    /**
+     * Start this timer
+     */
     public void start() {
         runnable = new BukkitRunnable() {
             @Override
@@ -38,6 +59,9 @@ public class GameTimer {
         );
     }
 
+    /**
+     * Cancel this timer
+     */
     public void cancel() {
         if (runnable != null && !runnable.isCancelled()) {
             runnable.cancel();

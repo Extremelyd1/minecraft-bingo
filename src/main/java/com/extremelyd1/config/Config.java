@@ -4,20 +4,53 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Config {
 
+    /**
+     * Whether blacklist is enabled
+     */
     private final boolean enableBlacklist;
 
+    /**
+     * The default number of S tier items
+     */
     private int numSTierItems;
+    /**
+     * The default number of A tier items
+     */
     private int numATierItems;
+    /**
+     * The default number of B tier items
+     */
     private int numBTierItems;
+    /**
+     * The default number of C tier items
+     */
     private int numCTierItems;
+    /**
+     * The default number of D tier items
+     */
     private int numDTierItems;
 
+    /**
+     * The default number of lines to complete to win
+     */
     private final int defaultNumLinesComplete;
 
+    /**
+     * Whether a world border is enabled
+     */
     private final boolean borderEnabled;
+    /**
+     * The size of the world border
+     */
     private final int borderSize;
 
+    /**
+     * Whether a timer is enabled
+     */
     private boolean timerEnabled;
+    /**
+     * The length of the timer is seconds
+     */
     private long timerLength;
 
     public Config(JavaPlugin plugin) {
@@ -51,6 +84,11 @@ public class Config {
         timerLength = plugin.getConfig().getInt("timer.length");
     }
 
+    /**
+     * Parse the given string value to an integer or throw a exception if not possible
+     * @param stringValue The string value to parse
+     * @return The parsed integer value
+     */
     private int parseItemDistribution(String stringValue) {
         try {
             return Integer.parseInt(stringValue);

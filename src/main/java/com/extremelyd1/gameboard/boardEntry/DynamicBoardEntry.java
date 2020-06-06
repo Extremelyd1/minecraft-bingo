@@ -1,5 +1,9 @@
 package com.extremelyd1.gameboard.boardEntry;
 
+/**
+ * Represents an dynamic entry on the scoreboard that can change its value
+ * @param <T> The type of the dynamic value
+ */
 public class DynamicBoardEntry<T> extends BoardEntry {
 
     private T value;

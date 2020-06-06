@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * A class that handles loading/storing of material names from file
+ * Also provides methods to create bingo item sets and randomly picking from these sets
+ */
 public class BingoItemMaterials {
 
     private final String S_TIER_FILE_NAME = "s_tier.txt";
@@ -19,19 +23,40 @@ public class BingoItemMaterials {
 
     private final String BLACKLIST_FILE_NAME = "blacklist.txt";
 
-
+    /**
+     * The game instance
+     */
     private final Game game;
 
+    /**
+     * A list of bingo item sets of S tier rarity
+     */
     private List<BingoItemSet> sTierItemSets;
+    /**
+     * A list of bingo item sets of A tier rarity
+     */
     private List<BingoItemSet> aTierItemSets;
+    /**
+     * A list of bingo item sets of B tier rarity
+     */
     private List<BingoItemSet> bTierItemSets;
+    /**
+     * A list of bingo item sets of C tier rarity
+     */
     private List<BingoItemSet> cTierItemSets;
+    /**
+     * A list of bingo item sets of D tier rarity
+     */
     private List<BingoItemSet> dTierItemSets;
 
     public BingoItemMaterials(Game game) {
         this.game = game;
     }
 
+    /**
+     * Load the materials of all tiers (and blacklist if enabled) into the data structures
+     * @param dataFolder The data folder in which the data files are stored
+     */
     public void loadMaterials(File dataFolder) {
         String path = dataFolder.getPath() + "/item_data/";
 
@@ -52,6 +77,12 @@ public class BingoItemMaterials {
         }
     }
 
+    /**
+     * Create a list of materials that are stored in the file at the given path with the given file name
+     * @param path The path at which the file resides
+     * @param fileName The name of the file
+     * @return A list of materials that are stored in the given file
+     */
     public List<Material> createMaterialList(String path, String fileName) {
         String fileString = FileUtil.readFileToString(path + fileName);
         if (fileString == null) {
@@ -77,6 +108,12 @@ public class BingoItemMaterials {
         return materialList;
     }
 
+    /**
+     * Create a list of bingo item sets that are stored in the file at the given path with the given file name
+     * @param path The path at which the file resides
+     * @param fileName The name of the file
+     * @return A list of BingoItemSet instances that are stored in the given file
+     */
     public List<BingoItemSet> createBingoItemSetList(String path, String fileName) {
         String fileString = FileUtil.readFileToString(path + fileName);
         if (fileString == null) {
@@ -92,6 +129,12 @@ public class BingoItemMaterials {
         return bingoItemSets;
     }
 
+    /**
+     * Create a single bingo item set given a line from the data file
+     * @param line The line containing the data
+     * @param fileName The name of the file of this line
+     * @return A BingoItemSet instance
+     */
     public BingoItemSet createBingoItemSet(String line, String fileName) {
         List<Material> itemSetMaterials = new ArrayList<>();
         for (String material : line.split("\\|")) {
@@ -115,6 +158,12 @@ public class BingoItemMaterials {
         return new BingoItemSet(itemSetMaterials);
     }
 
+    /**
+     * Filters the given list of bingo item sets and removes items from the item set if they are
+     * contained in the given blacklist. Also removes bingo item sets entirely if they are empty after filtering
+     * @param bingoItemSets The list of bingo item sets to filter
+     * @param blacklist The blacklist on which to filter
+     */
     public void filterBingoItemSets(List<BingoItemSet> bingoItemSets, List<Material> blacklist) {
         for (int i = 0; i < bingoItemSets.size(); i++) {
             BingoItemSet bingoItemSet = bingoItemSets.get(i);
@@ -125,6 +174,10 @@ public class BingoItemMaterials {
         }
     }
 
+    /**
+     * Randomly pick a list of materials from the tiers based on the distribution denoted by the config values
+     * @return A list of materials
+     */
     public List<Material> pickMaterials() {
         return pickMaterials(
                 game.getConfig().getNumSTier(),
@@ -135,6 +188,15 @@ public class BingoItemMaterials {
         );
     }
 
+    /**
+     * Randomly pick a list of materials from the tiers
+     * @param numSTier The number of S tier materials to pick
+     * @param numATier The number of A tier materials to pick
+     * @param numBTier The number of B tier materials to pick
+     * @param numCTier The number of C tier materials to pick
+     * @param numDTier The number of D tier materials to pick
+     * @return A list of materials
+     */
     public List<Material> pickMaterials(
             int numSTier,
             int numATier,
@@ -155,6 +217,13 @@ public class BingoItemMaterials {
         return result;
     }
 
+    /**
+     * Randomly pick a number of materials from the given bingo item set and store them in result
+     * @param bingoItemSets The list of bingo item sets to choose from
+     * @param result The list of results in which to store the picked materials
+     * @param number The number of materials to pick
+     * @param random Instance of Random to use
+     */
     private void pickNumberOfRandomFromItemSets(
             List<BingoItemSet> bingoItemSets,
             List<Material> result,
@@ -175,6 +244,12 @@ public class BingoItemMaterials {
         }
     }
 
+    /**
+     * Pick a random bingo item set from a list of bingo item sets
+     * @param bingoItemSets The list to pick from
+     * @param random Instance of Random to use
+     * @return A random bingo item set
+     */
     private BingoItemSet pickRandomFromItemSets(List<BingoItemSet> bingoItemSets, Random random) {
         return bingoItemSets.get(
                 random.nextInt(bingoItemSets.size())

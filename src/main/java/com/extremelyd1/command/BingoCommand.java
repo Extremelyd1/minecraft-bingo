@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 
 public class BingoCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public BingoCommand(Game game) {

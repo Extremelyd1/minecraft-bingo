@@ -7,9 +7,18 @@ import org.bukkit.map.MapView;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * Custom map renderer, that renders the map exactly once
+ */
 public class ImageRenderer extends MapRenderer {
 
+    /**
+     * The image to render
+     */
     private final BufferedImage image;
+    /**
+     * Whether this image has been rendered already
+     */
     private boolean isRendered;
 
     public ImageRenderer(BufferedImage image) {

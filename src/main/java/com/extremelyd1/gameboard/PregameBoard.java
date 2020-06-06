@@ -6,8 +6,14 @@ import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
 import org.bukkit.ChatColor;
 
+/**
+ * Represents the scoreboard in the pregame state
+ */
 public class PregameBoard extends GameBoard {
 
+    /**
+     * The entry representing the number of players online
+     */
     private final DynamicBoardEntry<Integer> numPlayersEntry;
 
     public PregameBoard(Game game) {
@@ -34,6 +40,10 @@ public class PregameBoard extends GameBoard {
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
     }
 
+    /**
+     * Updates this board with the new number of players
+     * @param numPlayers The new number of players
+     */
     public void update(int numPlayers) {
         numPlayersEntry.setValue(numPlayers);
 

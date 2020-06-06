@@ -19,24 +19,48 @@ import java.util.Map;
 
 public class BingoCardItemFactory {
 
+    /**
+     * The number of pixels of padding around the outside of the card
+     */
     private static final int CARD_PADDING = 5;
+    /**
+     * The number of pixels of padding between each item
+     */
     private static final int ITEM_PADDING = 2;
+    /**
+     * The size in pixels of each item
+     */
     private static final int ITEM_SIZE = 22;
+    /**
+     * The size in pixels of each image within the items
+     */
     private static final int IMAGE_SIZE = 16;
+    /**
+     * The number of pixels of padding between the images and the item border
+     */
     private static final int IMAGE_PADDING = 3;
 
+    /**
+     * The game instance
+     */
     private final Game game;
-    private final World world;
 
+    /**
+     * A map containing cached buffered images
+     */
     private final Map<Material, BufferedImage> cachedImages;
 
-    public BingoCardItemFactory(Game game, World world) {
+    public BingoCardItemFactory(Game game) {
         this.game = game;
-        this.world = world;
 
         this.cachedImages = new HashMap<>();
     }
 
+    /**
+     * Create an ItemStack from the given bingo card
+     * @param bingoCard The BingoCard to make the itemstack from
+     * @return The created ItemStack
+     */
     public ItemStack create(BingoCard bingoCard) {
         BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
         // Base layer of map color
@@ -113,7 +137,7 @@ public class BingoCardItemFactory {
 
         ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
 
-        MapView mapView = Bukkit.createMap(world);
+        MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
         mapView.getRenderers().clear();
         mapView.addRenderer(new ImageRenderer(image));
 

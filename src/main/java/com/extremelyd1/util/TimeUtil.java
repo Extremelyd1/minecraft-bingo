@@ -6,6 +6,11 @@ import org.bukkit.ChatColor;
 
 public class TimeUtil {
 
+    /**
+     * Broadcasts a time left message to all online players
+     * This method decides when to send the message
+     * @param timeLeft The time left in seconds
+     */
     public static void broadcastTimeLeft(long timeLeft) {
         String message = Game.PREFIX + "Time left: " + ChatColor.YELLOW + "%d" + ChatColor.WHITE + " %s";
         long minutesLeft = timeLeft / 60;
@@ -42,6 +47,11 @@ public class TimeUtil {
         }
     }
 
+    /**
+     * Format the time left in seconds to a nice human-readable string
+     * @param timeLeft The time left in seconds
+     * @return A nice human-readable string
+     */
     public static String formatTimeLeft(long timeLeft) {
         long hours = timeLeft / (60 * 60);
         long minutes = timeLeft % (60 * 60) / 60;

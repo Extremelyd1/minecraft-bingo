@@ -9,6 +9,9 @@ import org.bukkit.entity.Player;
 
 public class StartCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public StartCommand(Game game) {

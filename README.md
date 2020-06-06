@@ -18,10 +18,11 @@ The first time you run the plugin a config file will be generated in `<server>/p
 
 ## Commands
 #### Team manage command
-- `/team [random|create|add]`
+- `/team [random|add|remove]`
   - `/team random <number of teams>` Create a set number of teams dividing the players randomly over them
-  - `/team create` Create a new team
-  - `/team add <player name> <team name>` Add a player to a given team
+  - `/team add <player name> <team name>` Add a player to a given team  
+  Possible team names are: Red, Blue, Green, Yellow, Pink, Aqua, White, Gray
+  - `/team remove <player name>` Remove a player from a given team
 
 #### Game start/end commands
 - `/start` Start the game

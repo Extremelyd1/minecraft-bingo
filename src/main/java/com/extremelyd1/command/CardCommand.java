@@ -11,6 +11,9 @@ import org.bukkit.entity.Player;
 
 public class CardCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public CardCommand(Game game) {

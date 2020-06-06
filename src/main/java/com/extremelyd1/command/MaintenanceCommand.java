@@ -10,6 +10,9 @@ import org.bukkit.command.CommandSender;
 
 public class MaintenanceCommand implements CommandExecutor {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
     public MaintenanceCommand(Game game) {
