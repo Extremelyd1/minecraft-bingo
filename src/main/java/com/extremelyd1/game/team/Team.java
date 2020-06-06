@@ -86,6 +86,13 @@ public class Team {
         return this.players.contains(player);
     }
 
+    /**
+     * Removes all players from this team
+     */
+    public void clear() {
+        players.clear();
+    }
+
     public String getName() {
         return name;
     }

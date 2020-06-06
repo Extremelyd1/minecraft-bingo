@@ -51,13 +51,13 @@ public class TeamManager {
             int numTeams,
             boolean notify
     ) {
-        game.getLogger().info("Clearing teams and creating randomized teams...");
+        Game.getLogger().info("Clearing teams and creating randomized teams...");
 
         if (numTeams > MAX_TEAMS) {
             throw new IllegalArgumentException("Can not create more than " + MAX_TEAMS + " teams");
         }
 
-        this.activeTeams.clear();
+        clearTeams();
 
         int playersPerTeam = players.size() / numTeams;
 
@@ -66,19 +66,21 @@ public class TeamManager {
         int teamIndex = 0;
 
         for (int i = 0; i < numTeams; i++) {
-            Team team = teams.get(teamIndex);
+            Team team = teams.get(teamIndex++);
 
             for (int p = 0; p < playersPerTeam; p++) {
                 Player randomPlayer = playersLeft.get(
                         new Random().nextInt(playersLeft.size())
                 );
 
-                team.addPlayer(randomPlayer, notify);
+                addPlayerToTeam(randomPlayer, team, notify);
 
                 playersLeft.remove(randomPlayer);
             }
 
-            activeTeams.add(team);
+            if (!activeTeams.contains(team)) {
+                activeTeams.add(team);
+            }
         }
 
         // Loop over the leftover players until they have
@@ -89,7 +91,7 @@ public class TeamManager {
                     new Random().nextInt(teamsLeft.size())
             );
 
-            team.addPlayer(player, notify);
+            addPlayerToTeam(player, team, notify);
 
             teamsLeft.remove(team);
         }
@@ -161,6 +163,19 @@ public class TeamManager {
         }
 
         return null;
+    }
+
+    /**
+     * Removes all players from all active teams
+     */
+    public void clearTeams() {
+        while (!activeTeams.isEmpty()) {
+            Team team = activeTeams.get(0);
+
+            team.clear();
+
+            activeTeams.remove(team);
+        }
     }
 
     /**

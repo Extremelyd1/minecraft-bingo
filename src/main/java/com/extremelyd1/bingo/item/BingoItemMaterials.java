@@ -95,7 +95,7 @@ public class BingoItemMaterials {
             try {
                 materialList.add(Material.valueOf(line));
             } catch (IllegalArgumentException e) {
-                game.getLogger().warning(
+                Game.getLogger().warning(
                         String.format(
                                 "Could not find material with name %s in file %s",
                                 line,
@@ -145,7 +145,7 @@ public class BingoItemMaterials {
             try {
                 itemSetMaterials.add(Material.valueOf(material));
             } catch (IllegalArgumentException e) {
-                game.getLogger().warning(
+                Game.getLogger().warning(
                         String.format(
                                 "Could not find material with name %s in file %s",
                                 material,

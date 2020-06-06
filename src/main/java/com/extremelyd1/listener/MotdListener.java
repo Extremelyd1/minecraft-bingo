@@ -31,7 +31,7 @@ public class MotdListener implements Listener {
             );
         } else {
             e.setMotd(
-                    Game.PREFIX
+                    Game.PREFIX + ChatColor.WHITE + game.getState().getName()
                             + ChatColor.RESET + "\nPlayers: "
                             + ChatColor.AQUA + Bukkit.getOnlinePlayers().size()
             );

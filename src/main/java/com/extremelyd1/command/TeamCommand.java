@@ -61,7 +61,7 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            int numTeams = 0;
+            int numTeams;
             try {
                 numTeams = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
@@ -129,7 +129,7 @@ public class TeamCommand implements CommandExecutor {
 
             // Remove player from team if he is already on a team
             if (teamManager.removePlayerFromTeam(argumentPlayer)) {
-                game.getLogger().info("Player was already on a team, removing...");
+                Game.getLogger().info("Player was already on a team, removing...");
             }
 
             teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);

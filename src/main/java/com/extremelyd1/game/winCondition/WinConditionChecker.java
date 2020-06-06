@@ -2,11 +2,13 @@ package com.extremelyd1.game.winCondition;
 
 import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.config.Config;
+import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * A class that stores and handles win conditions
@@ -57,18 +59,18 @@ public class WinConditionChecker {
         }
 
         List<Team> potentialWinners = new ArrayList<>();
-        int score = 0;
+        int maxScore = 0;
         for (Team team : teams) {
-            int newScore;
+            int score = team.getBingoCard().getNumberOfCollectedItems();
 
-            newScore = team.getBingoCard().getNumberOfCollectedItems();
+            Game.getLogger().info("Team " + team.getName() + " has a score of " + score);
 
-            if (newScore > score) {
+            if (score > maxScore) {
                 potentialWinners.clear();
-                score = newScore;
+                maxScore = score;
             }
 
-            if (newScore >= score) {
+            if (score >= maxScore) {
                 potentialWinners.add(team);
             }
         }

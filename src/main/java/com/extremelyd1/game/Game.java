@@ -64,7 +64,7 @@ public class Game {
     /**
      * The logger instance to log messages to
      */
-    private final Logger logger;
+    private static Logger logger;
 
     /**
      * The current state of the game
@@ -126,8 +126,9 @@ public class Game {
     private GameTimer gameTimer;
 
     public Game(Bingo bingo) {
+        Game.logger = bingo.getLogger();
+
         this.plugin = bingo;
-        this.logger = bingo.getLogger();
         state = State.PRE_GAME;
 
         config = new Config(bingo);
@@ -224,18 +225,17 @@ public class Game {
 
         this.state = State.IN_GAME;
 
-        Bukkit.broadcastMessage(
-                DIVIDER + "\n"
-                + PREFIX + "                           Game has started!\n"
-                + DIVIDER
-        );
-
         // Spread out players
         List<Location> locations = LocationUtil.getRandomCircleLocations(
                 worldManager.getSpawnLocation(),
                 teamManager.getNumTeams(),
                 BASE_RADIUS + RADIUS_TEAM_INCREASE * teamManager.getNumTeams()
         );
+
+        // Force load chunks that teams are going to spawn in
+        for (Location location : locations) {
+            worldManager.loadChunkAt(location);
+        }
 
         int index = 0;
         for (Team team : teamManager.getTeams()) {
@@ -270,6 +270,13 @@ public class Game {
         // Enable scoreboards
         gameBoardManager.createIngameBoards(teamManager.getTeams());
         gameBoardManager.broadcast();
+
+        // Broadcast start message
+        Bukkit.broadcastMessage(
+                DIVIDER + "\n"
+                        + PREFIX + "                           Game has started!\n"
+                        + DIVIDER
+        );
 
         // Send sounds
         soundManager.broadcastStart();
@@ -407,10 +414,6 @@ public class Game {
         }
     }
 
-    public Logger getLogger() {
-        return logger;
-    }
-
     public State getState() {
         return state;
     }
@@ -455,10 +458,24 @@ public class Game {
         return worldManager;
     }
 
+    public static Logger getLogger() {
+        return logger;
+    }
+
     public enum State {
-        PRE_GAME,
-        IN_GAME,
-        POST_GAME
+        PRE_GAME("Pre-game"),
+        IN_GAME("In-game"),
+        POST_GAME("Post-game");
+
+        private final String name;
+
+        State(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
 }
