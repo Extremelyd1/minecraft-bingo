@@ -36,6 +36,11 @@ public class Config {
     private final int defaultNumLinesComplete;
 
     /**
+     * Whether to show the currently winning team on the scoreboard
+     */
+    private final boolean showCurrentlyWinningTeam;
+
+    /**
      * Whether a world border is enabled
      */
     private final boolean borderEnabled;
@@ -76,6 +81,8 @@ public class Config {
         numDTierItems = parseItemDistribution(itemDistributions[4]);
 
         defaultNumLinesComplete = plugin.getConfig().getInt("defaultBingoLinesCompleteForWin");
+
+        showCurrentlyWinningTeam = plugin.getConfig().getBoolean("showCurrentlyWinningTeam");
 
         borderEnabled = plugin.getConfig().getBoolean("border.enable");
         borderSize = plugin.getConfig().getInt("border.size");
@@ -137,6 +144,10 @@ public class Config {
 
     public int getDefaultNumLinesComplete() {
         return defaultNumLinesComplete;
+    }
+
+    public boolean showCurrentlyWinningTeam() {
+        return showCurrentlyWinningTeam;
     }
 
     public boolean isBorderEnabled() {

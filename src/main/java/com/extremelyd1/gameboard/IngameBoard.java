@@ -29,6 +29,10 @@ public class IngameBoard extends GameBoard {
      * The entry representing the timer
      */
     private final DynamicBoardEntry<String> timeLeftEntry;
+    /**
+     * The entry representing the currently winning team
+     */
+    private final DynamicBoardEntry<String> winningTeamEntry;
 
     public IngameBoard(Game game, Team team) {
         super(game);
@@ -65,14 +69,23 @@ public class IngameBoard extends GameBoard {
         this.boardEntries.add(new BoardEntry("Number of items collected:"));
         numItemsEntry = new DynamicBoardEntry<>(ChatColor.AQUA + "  %d", 0);
         this.boardEntries.add(numItemsEntry);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
+        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+
+        if (game.getConfig().showCurrentlyWinningTeam() && game.getWinConditionChecker().isFullCard()) {
+            this.boardEntries.add(new BoardEntry("Leading team:"));
+            winningTeamEntry = new DynamicBoardEntry<>("  %s", ChatColor.GRAY + "Tie");
+            this.boardEntries.add(winningTeamEntry);
+            this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
+        } else {
+            winningTeamEntry = null;
+        }
     }
 
     /**
      * Updates this board with a new number of items
      * @param numItems The new number of items
      */
-    public void update(int numItems) {
+    public void updateNumItems(int numItems) {
         numItemsEntry.setValue(numItems);
 
         super.update();
@@ -84,6 +97,24 @@ public class IngameBoard extends GameBoard {
      */
     public void updateTime(long timeLeft) {
         timeLeftEntry.setValue(TimeUtil.formatTimeLeft(timeLeft));
+
+        super.update();
+    }
+
+    /**
+     * Updates this board with the currently winning team
+     * @param team The currently winning team
+     */
+    public void updateWinningTeam(Team team) {
+        if (winningTeamEntry == null) {
+            return;
+        }
+
+        if (team == null) {
+            winningTeamEntry.setValue(ChatColor.GRAY + "Tie");
+        } else {
+            winningTeamEntry.setValue(team.getColor() + team.getName());
+        }
 
         super.update();
     }

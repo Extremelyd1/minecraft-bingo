@@ -23,6 +23,11 @@ public class BingoCard {
     private final BingoItem[][] bingoItems;
 
     /**
+     * The number of collected items on this bingo card
+     */
+    private int numCollected;
+
+    /**
      * Creates a bingo card by randomly picking from the list of materials given
      * @param materials The list of materials to pick from
      */
@@ -89,8 +94,11 @@ public class BingoCard {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
-                if (bingoItem.getMaterial().equals(material)) {
+                if (bingoItem.getMaterial().equals(material)
+                        && !bingoItem.isCollected()) {
                     bingoItem.setCollected();
+
+                    numCollected++;
                 }
             }
         }
@@ -151,17 +159,6 @@ public class BingoCard {
      * @return The number of collected items
      */
     public int getNumberOfCollectedItems() {
-        int numCollected = 0;
-
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                BingoItem bingoItem = bingoItems[y][x];
-                if (bingoItem.isCollected()) {
-                    numCollected++;
-                }
-            }
-        }
-
         return numCollected;
     }
 

@@ -4,6 +4,7 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import org.bukkit.Bukkit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,34 @@ public class GameBoardManager {
 
     public void onItemCollected(Team team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
-            ingameBoards.get(team).update(team.getBingoCard().getNumberOfCollectedItems());
+            ingameBoards.get(team).updateNumItems(team.getBingoCard().getNumberOfCollectedItems());
+
+            if (game.getConfig().showCurrentlyWinningTeam() && game.getWinConditionChecker().isFullCard()) {
+                List<Team> winningTeams = new ArrayList<>();
+                int highestNumItems = 0;
+
+                for (Team activeTeam : game.getTeamManager().getTeams()) {
+                    int numCollectedItems = activeTeam.getBingoCard().getNumberOfCollectedItems();
+                    if (numCollectedItems > highestNumItems) {
+                        winningTeams.clear();
+                        highestNumItems = numCollectedItems;
+                    }
+
+                    if (numCollectedItems >= highestNumItems) {
+                        winningTeams.add(activeTeam);
+                    }
+                }
+
+                if (winningTeams.size() != 1) {
+                    for (Team activeTeam : game.getTeamManager().getTeams()) {
+                        ingameBoards.get(activeTeam).updateWinningTeam(null);
+                    }
+                } else {
+                    for (Team activeTeam : game.getTeamManager().getTeams()) {
+                        ingameBoards.get(activeTeam).updateWinningTeam(winningTeams.get(0));
+                    }
+                }
+            }
         }
     }
 
