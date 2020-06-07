@@ -2,6 +2,12 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.util.InventoryUtil;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -10,8 +16,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -56,13 +65,32 @@ public class InteractListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if (!game.getState().equals(Game.State.IN_GAME)) {
-            e.setCancelled(true);
+        Action action = e.getAction();
+        if (game.getState().equals(Game.State.POST_GAME)) {
+            // Check if we right clicked a block
+            if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+                Block clickedBlock = e.getClickedBlock();
+                if (clickedBlock != null) {
+                    // Get block state and check if it is a container
+                    BlockState blockState = clickedBlock.getState();
+                    if (blockState instanceof Container) {
+                        // Create copy of inventory
+                        Inventory inventory = InventoryUtil.copyInventory(((Container) blockState).getInventory());
+                        // Show the player the copied inventory
+                        e.getPlayer().openInventory(inventory);
+                    }
+                }
+            }
 
+            e.setCancelled(true);
             return;
         }
 
-        Action action = e.getAction();
+        if (!game.getState().equals(Game.State.IN_GAME)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (!action.equals(Action.RIGHT_CLICK_AIR)
                 && !action.equals(Action.RIGHT_CLICK_BLOCK)) {
             return;
@@ -92,6 +120,23 @@ public class InteractListener implements Listener {
         }
 
         team.getBingoCardInventory().show(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        if (game.getState().equals(Game.State.POST_GAME)) {
+            Entity entity = e.getRightClicked();
+
+            // If the player clicked an entity with an inventory
+            // show them the inventory
+            if (entity instanceof InventoryHolder) {
+                InventoryHolder inventoryHolder = (InventoryHolder) entity;
+
+                e.getPlayer().openInventory(inventoryHolder.getInventory());
+            }
+
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
