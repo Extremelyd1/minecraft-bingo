@@ -185,6 +185,8 @@ public class Game {
             put("reroll", new RerollCommand(game));
             put("itemdistribution", new ItemDistributionCommand(game));
             put("timer", new TimerCommand(game));
+            put("coordinates", new CoordinatesCommand(game));
+            put("all", new AllCommand(game));
         }};
 
         for (String cmdName : executors.keySet()) {

@@ -74,7 +74,7 @@ public class WinConditionCommand implements CommandExecutor {
             game.getWinConditionChecker().setNumLinesComplete(numLines);
 
             Bukkit.broadcastMessage(
-                    Game.PREFIX + "Number of lines (rows, columns or diagonals) to achieve bingo has been set to  "
+                    Game.PREFIX + "Number of lines (rows, columns or diagonals) to achieve bingo has been set to "
                             + ChatColor.YELLOW + numLines
             );
         }

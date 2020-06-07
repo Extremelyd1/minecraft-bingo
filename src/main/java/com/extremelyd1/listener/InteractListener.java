@@ -100,6 +100,11 @@ public class InteractListener implements Listener {
             return;
         }
 
+        if (game.getState().equals(Game.State.POST_GAME)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (e.getClick().equals(ClickType.MIDDLE)) {
             ItemStack itemStack = e.getCurrentItem();
             if (itemStack != null

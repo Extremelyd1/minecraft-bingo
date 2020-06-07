@@ -34,6 +34,7 @@ commands:
     usage: /<command>
 
   wincondition:
+    aliases: [wincon]
     description: Command to change win conditions, such as enabling full card mode
     usage: /<command> <fullCard|numLines>
 
@@ -49,3 +50,13 @@ commands:
   timer:
     description: Command to set the max timer length
     usage: /<command> <enable|disable|length>
+
+  coordinates:
+    aliases: [coord, coords]
+    description: Command to send your coordinates to your teammates
+    usage: /<command>
+
+  all:
+    aliases: [a, g, global]
+    description: Command to send a message to all players
+    usage: /<command> <message>

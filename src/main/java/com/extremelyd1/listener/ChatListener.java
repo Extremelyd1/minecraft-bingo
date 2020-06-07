@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 
 public class ChatListener implements Listener {
 
@@ -30,10 +32,14 @@ public class ChatListener implements Listener {
                     player.getName() + ": " + e.getMessage()
             );
         } else {
-            Bukkit.broadcastMessage(
-                    team.getColor() + player.getName()
-                            + ChatColor.WHITE + ": " + e.getMessage()
-            );
+            for (Player teamPlayer : team.getPlayers()) {
+                teamPlayer.sendMessage(
+                        team.getColor() + "TEAM "
+                                + player.getName()
+                                + ChatColor.WHITE + ": "
+                                + e.getMessage()
+                );
+            }
         }
 
         e.setCancelled(true);

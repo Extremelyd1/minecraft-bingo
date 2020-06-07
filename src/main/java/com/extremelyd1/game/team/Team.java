@@ -107,7 +107,7 @@ public class Team {
 
     /**
      * Gets the number of players on this team
-     * @return
+     * @return The number of players on this team
      */
     public int getNumPlayers() {
         return players.size();
@@ -115,6 +115,8 @@ public class Team {
 
     public void setBingoCard(BingoCard bingoCard) {
         this.bingoCard = bingoCard;
+        // Reset the bingo card inventory to create a new one when requested
+        this.bingoCardInventory = null;
     }
 
     public BingoCard getBingoCard() {

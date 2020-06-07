@@ -74,7 +74,7 @@ public class ItemDistributionCommand implements CommandExecutor {
         );
 
         sender.sendMessage(
-                ChatColor.GREEN + "Successfully "
+                ChatColor.GREEN + "Successfully"
                         + ChatColor.WHITE + " set item distribution to "
                         + ChatColor.YELLOW
                         + numSTierItems + " "

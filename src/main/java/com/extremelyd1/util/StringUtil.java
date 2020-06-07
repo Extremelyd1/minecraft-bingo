@@ -1,6 +1,10 @@
 package com.extremelyd1.util;
 
+import com.extremelyd1.game.team.Team;
+import com.extremelyd1.game.team.TeamManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 public class StringUtil {
 
@@ -47,6 +51,27 @@ public class StringUtil {
         }
 
         return input.substring(0, maxSize - 3) + "...";
+    }
+
+    /**
+     * Replaces all occurrences of names of players in the given iterable of players
+     * with their name prefixed with their team color, if they are on a team
+     * @param string The original string to replace occurrences in
+     * @param players The iterable of players to check for
+     * @param teamManager The team manager instance holding all teams
+     * @return A string with all occurrences replaced
+     */
+    public static String replaceNamesWithTeamColors(String string, Iterable<? extends Player> players, TeamManager teamManager) {
+        for (Player player : players) {
+            if (string.contains(player.getName())) {
+                Team team = teamManager.getTeamByPlayer(player);
+                if (team != null) {
+                    string = string.replace(player.getName(), team.getColor() + player.getName() + ChatColor.RESET);
+                }
+            }
+        }
+
+        return string;
     }
 
 }

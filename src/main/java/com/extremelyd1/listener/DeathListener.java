@@ -3,6 +3,8 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.potion.PotionEffects;
+import com.extremelyd1.util.StringUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,6 +35,12 @@ public class DeathListener implements Listener {
                 i--;
             }
         }
+
+        e.setDeathMessage(StringUtil.replaceNamesWithTeamColors(
+                e.getDeathMessage(),
+                Bukkit.getOnlinePlayers(),
+                game.getTeamManager()
+        ));
     }
 
     @EventHandler
