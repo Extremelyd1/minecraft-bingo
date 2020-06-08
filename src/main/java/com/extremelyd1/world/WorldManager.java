@@ -69,18 +69,14 @@ public class WorldManager {
     }
 
     /**
-     * Loads the chunk at the given location
-     * @param location The location to load the chunk at
-     */
-    public void loadChunkAt(Location location) {
-        world.getChunkAt(location).load();
-    }
-
-    /**
      * Gets the spawn location of the overworld
      * @return The spawn location
      */
     public Location getSpawnLocation() {
         return world.getSpawnLocation();
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

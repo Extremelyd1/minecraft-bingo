@@ -20,14 +20,13 @@ import com.extremelyd1.util.TimeUtil;
 import com.extremelyd1.util.ItemUtil;
 import com.extremelyd1.util.LocationUtil;
 import com.extremelyd1.util.StringUtil;
+import com.extremelyd1.world.ChunkLoader;
 import com.extremelyd1.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
 import java.util.HashMap;
@@ -218,94 +217,98 @@ public class Game {
             return;
         }
 
-        // Create random bingo card
-        BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
-
-        for (Team team : teamManager.getTeams()) {
-            team.setBingoCard(bingoCard.copy());
-        }
-
-        this.state = State.IN_GAME;
-
-        // Spread out players
+        // Gather locations to spread teams
         List<Location> locations = LocationUtil.getRandomCircleLocations(
                 worldManager.getSpawnLocation(),
                 teamManager.getNumTeams(),
                 BASE_RADIUS + RADIUS_TEAM_INCREASE * teamManager.getNumTeams()
         );
 
-        // Force load chunks that teams are going to spawn in
-        for (Location location : locations) {
-            worldManager.loadChunkAt(location);
-        }
+        // Create chunk loader,
+        // and do rest of start logic once chunks are loaded
+        new ChunkLoader(
+                plugin,
+                worldManager,
+                locations,
+                () -> {
+                    this.state = State.IN_GAME;
 
-        int index = 0;
-        for (Team team : teamManager.getTeams()) {
-            Location location = locations.get(index++);
+                    // Create random bingo card
+                    BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
-            for (Player teamPlayer : team.getPlayers()) {
-                // Give player resistance 5 before teleporting to prevent fall damage
-                teamPlayer.addPotionEffect(PotionEffects.RESISTANCE);
-
-                teamPlayer.teleport(location);
-                teamPlayer.setBedSpawnLocation(location, true);
-
-                // Just to be sure, reset player again
-                teamPlayer.getInventory().clear();
-                teamPlayer.setGameMode(GameMode.SURVIVAL);
-                teamPlayer.setHealth(20D);
-                teamPlayer.setFoodLevel(20);
-                teamPlayer.setSaturation(5);
-
-                // Give all players a bingo card
-                teamPlayer.getInventory().addItem(
-                        bingoCardItemFactory.create(team.getBingoCard())
-                );
-
-                titleManager.sendStartTitle();
-            }
-        }
-
-        // Prepare world for game start
-        worldManager.onGameStart();
-
-        // Enable scoreboards
-        gameBoardManager.createIngameBoards(teamManager.getTeams());
-        gameBoardManager.broadcast();
-
-        // Broadcast start message
-        Bukkit.broadcastMessage(
-                DIVIDER + "\n"
-                        + PREFIX + "                           Game has started!\n"
-                        + DIVIDER
-        );
-
-        // Send sounds
-        soundManager.broadcastStart();
-
-        if (config.isTimerEnabled()) {
-            // Start timer
-            gameTimer = new GameTimer(
-                    plugin,
-                    1,
-                    config.getTimerLength(),
-                    timeLeft -> {
-                        gameBoardManager.onTimeUpdate(timeLeft);
-
-                        if (timeLeft <= 0) {
-                            WinReason winReason = winConditionChecker.decideWinner(teamManager.getTeams());
-                            end(winReason);
-
-                            return true;
-                        } else {
-                            TimeUtil.broadcastTimeLeft(timeLeft);
-                        }
-
-                        return false;
+                    for (Team team : teamManager.getTeams()) {
+                        team.setBingoCard(bingoCard.copy());
                     }
-            );
-            gameTimer.start();
-        }
+
+                    int index = 0;
+                    for (Team team : teamManager.getTeams()) {
+                        Location location = locations.get(index++);
+
+                        for (Player teamPlayer : team.getPlayers()) {
+                            // Give player resistance 5 before teleporting to prevent fall damage
+                            teamPlayer.addPotionEffect(PotionEffects.RESISTANCE);
+
+                            teamPlayer.teleport(location);
+                            teamPlayer.setBedSpawnLocation(location, true);
+
+                            // Just to be sure, reset player again
+                            teamPlayer.getInventory().clear();
+                            teamPlayer.setGameMode(GameMode.SURVIVAL);
+                            teamPlayer.setHealth(20D);
+                            teamPlayer.setFoodLevel(20);
+                            teamPlayer.setSaturation(5);
+
+                            // Give all players a bingo card
+                            teamPlayer.getInventory().addItem(
+                                    bingoCardItemFactory.create(team.getBingoCard())
+                            );
+
+                            titleManager.sendStartTitle();
+                        }
+                    }
+
+                    // Prepare world for game start
+                    worldManager.onGameStart();
+
+                    // Enable scoreboards
+                    gameBoardManager.createIngameBoards(teamManager.getTeams());
+                    gameBoardManager.broadcast();
+
+                    // Broadcast start message
+                    Bukkit.broadcastMessage(
+                            DIVIDER + "\n"
+                                    + PREFIX + "                           Game has started!\n"
+                                    + DIVIDER
+                    );
+
+                    // Send sounds
+                    soundManager.broadcastStart();
+
+                    if (config.isTimerEnabled()) {
+                        // Start timer
+                        gameTimer = new GameTimer(
+                                plugin,
+                                1,
+                                config.getTimerLength(),
+                                timeLeft -> {
+                                    gameBoardManager.onTimeUpdate(timeLeft);
+
+                                    if (timeLeft <= 0) {
+                                        WinReason winReason = winConditionChecker.decideWinner(teamManager.getTeams());
+                                        end(winReason);
+
+                                        return true;
+                                    } else {
+                                        TimeUtil.broadcastTimeLeft(timeLeft);
+                                    }
+
+                                    return false;
+                                }
+                        );
+                        gameTimer.start();
+                    }
+                }
+        ).start();
     }
 
     /**
