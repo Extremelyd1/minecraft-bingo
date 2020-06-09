@@ -10,6 +10,8 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.UUID;
+
 public class PlayerJoinLeaveListener implements Listener {
 
     /**
@@ -39,8 +41,8 @@ public class PlayerJoinLeaveListener implements Listener {
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             for (Team team : game.getTeamManager().getTeams()) {
-                for (Player player : team.getPlayers()) {
-                    if (player.getUniqueId().equals(e.getUniqueId())) {
+                for (UUID uuid : team.getUUIDs()) {
+                    if (uuid.equals(e.getUniqueId())) {
                         return;
                     }
                 }
@@ -90,7 +92,7 @@ public class PlayerJoinLeaveListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerQuitEvent e) {
+    public void onPlayerQuit(PlayerQuitEvent e) {
         this.game.onPregameUpdate();
 
         Player player = e.getPlayer();

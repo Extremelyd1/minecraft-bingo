@@ -3,11 +3,13 @@ package com.extremelyd1.game.team;
 import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.BingoCardInventory;
 import com.extremelyd1.game.Game;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents a list of players that are on the same team
@@ -23,9 +25,9 @@ public class Team {
      */
     private final ChatColor color;
     /**
-     * The list of players in this team
+     * The list of players in this team, stored as UUIDs
      */
-    private final List<Player> players;
+    private final List<UUID> uuids;
 
     /**
      * The bingo card associated with this team
@@ -40,7 +42,7 @@ public class Team {
         this.name = name;
         this.color = color;
 
-        this.players = new ArrayList<>();
+        this.uuids = new ArrayList<>();
     }
 
     /**
@@ -57,7 +59,7 @@ public class Team {
      * @param notify Whether to notify the player of their new team
      */
     void addPlayer(Player player, boolean notify) {
-        this.players.add(player);
+        this.uuids.add(player.getUniqueId());
 
         if (notify) {
             player.sendMessage(
@@ -74,7 +76,7 @@ public class Team {
      * @param player The player to remove
      */
     void removePlayer(Player player) {
-        this.players.remove(player);
+        this.uuids.remove(player.getUniqueId());
     }
 
     /**
@@ -83,14 +85,14 @@ public class Team {
      * @return Whether to player is on this team
      */
     public boolean contains(Player player) {
-        return this.players.contains(player);
+        return this.uuids.contains(player.getUniqueId());
     }
 
     /**
      * Removes all players from this team
      */
     public void clear() {
-        players.clear();
+        uuids.clear();
     }
 
     public String getName() {
@@ -101,8 +103,23 @@ public class Team {
         return color;
     }
 
+    /**
+     * Gets player objects in this team by retrieving them by UUID,
+     * does not return any null objects
+     * @return An iterable of Player instances
+     */
     public Iterable<Player> getPlayers() {
-        return players;
+        return () -> uuids.stream()
+                // Filter out players that are not valid anymore
+                .filter(uuid -> Bukkit.getPlayer(uuid) != null)
+                // Map everything to their respective Player instance
+                .map(Bukkit::getPlayer)
+                // Return an iterator
+                .iterator();
+    }
+
+    public Iterable<UUID> getUUIDs() {
+        return uuids;
     }
 
     /**
@@ -110,7 +127,7 @@ public class Team {
      * @return The number of players on this team
      */
     public int getNumPlayers() {
-        return players.size();
+        return uuids.size();
     }
 
     public void setBingoCard(BingoCard bingoCard) {
