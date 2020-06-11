@@ -42,7 +42,7 @@ public class WinConditionChecker {
             if (numLinesComplete == 1) {
                 return card.hasLineComplete();
             } else {
-                return card.getNumLinesComplete() == numLinesComplete;
+                return card.getNumLinesComplete() >= numLinesComplete;
             }
         }
     }
