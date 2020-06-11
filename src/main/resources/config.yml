@@ -3,8 +3,12 @@ defaultItemDistribution: "2,6,9,6,2"
 defaultBingoLinesCompleteForWin: 1
 showCurrentlyWinningTeam: True
 border:
-  enable: True
-  size: 3000
+  overworld:
+    enable: True
+    size: 3000
+  nether:
+    enable: True
+    size: 1500
 timer:
   enable: True
   length: 1800

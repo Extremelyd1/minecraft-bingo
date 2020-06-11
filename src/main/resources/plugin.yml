@@ -60,3 +60,7 @@ commands:
     aliases: [a, g, global]
     description: Command to send a message to all players
     usage: /<command> <message>
+
+  test:
+    description: Command to test a new feature
+    usage: /<command>

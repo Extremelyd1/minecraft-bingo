@@ -3,6 +3,7 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -31,7 +32,7 @@ public class MoveListener implements Listener {
                 return;
             }
 
-            Location spawnLocation = game.getWorldManager().getSpawnLocation();
+            Location spawnLocation = game.getWorldManager().getSpawnLocation(World.Environment.NORMAL);
             if (e.getTo().distance(spawnLocation) > SPAWN_AREA) {
                 e.getPlayer().sendMessage(
                         ChatColor.DARK_RED + "Error: "
