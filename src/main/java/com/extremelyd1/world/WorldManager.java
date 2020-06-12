@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.Random;
 
 public class WorldManager {
 
@@ -82,7 +83,7 @@ public class WorldManager {
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         world.setTime(0);
 
-        if (config.isOverworldBorderEnabled()) {
+        if (config.isBorderEnabled()) {
             setWorldBorder(
                     world,
                     StructureType.STRONGHOLD,
@@ -92,9 +93,13 @@ public class WorldManager {
                     3000,
                     config.getOverworldBorderSize()
             );
-        }
 
-        if (config.isNetherBorderEnabled()) {
+            // Set the world spawn location to the world border center
+            // with the Y coordinate as the highest at that location
+            Location spawnLocation = world.getWorldBorder().getCenter();
+            spawnLocation.setY(world.getHighestBlockYAt(spawnLocation));
+            world.setSpawnLocation(spawnLocation);
+
             setWorldBorder(
                     nether,
                     StructureType.NETHER_FORTRESS,
@@ -180,22 +185,19 @@ public class WorldManager {
         StructureBoundingBox boundingBox = structureStartMap.get(structureName).c();
 
         // Increase size of border if structure does not fit
-        if (boundingBox.d - boundingBox.a > size) {
-            size = boundingBox.d - boundingBox.a;
+        // c() is size in X direction
+        if (boundingBox.c() > size) {
+            size = boundingBox.c();
         }
-        if (boundingBox.f - boundingBox.c > size) {
-            size = boundingBox.f - boundingBox.c;
+        // e() is size in Z direction
+        if (boundingBox.e() > size) {
+            size = boundingBox.e();
         }
 
         // Make sure size is divisible by 2
         if (size % 2 == 1) {
             size += 1;
         }
-
-        System.out.println("Structure bounding box:");
-        System.out.println(String.format("  Min: %d, %d, %d", boundingBox.a, boundingBox.b, boundingBox.c));
-        System.out.println(String.format("  Max: %d, %d, %d", boundingBox.d, boundingBox.e, boundingBox.f));
-        System.out.println("Border size: " + size);
 
         // Calculate mins and maxes based on bounding box and border size
         int centerMinX = boundingBox.d - size / 2;
@@ -204,11 +206,14 @@ public class WorldManager {
         int centerMaxX = boundingBox.a + size / 2;
         int centerMaxZ = boundingBox.c + size / 2;
 
-        // For now put border on center of mins and maxes
-        int centerX = centerMinX + (centerMaxX - centerMinX) / 2;
-        int centerZ = centerMinZ + (centerMaxZ - centerMinZ) / 2;
+        // Uncomment below to center world border on structure
+//        int centerX = centerMinX + (centerMaxX - centerMinX) / 2;
+//        int centerZ = centerMinZ + (centerMaxZ - centerMinZ) / 2;
 
-        System.out.println(String.format("Border center: %d, %d", centerX, centerZ));
+        // Put border at random location to include the structure
+        Random random = new Random(world.getSeed());
+        int centerX = random.nextInt(centerMaxX - centerMinX + 1) + centerMinX;
+        int centerZ = random.nextInt(centerMaxZ - centerMinZ + 1) + centerMinZ;
 
         WorldBorder border = world.getWorldBorder();
         border.setCenter(centerX, centerZ);
@@ -227,17 +232,15 @@ public class WorldManager {
      * Gets the spawn location of the given environment
      * @return The spawn location
      */
-    public Location getSpawnLocation(World.Environment environment) {
-        if (environment.equals(World.Environment.NORMAL)) {
-            return world.getSpawnLocation();
-        } else if (environment.equals(World.Environment.NETHER)) {
-            return nether.getSpawnLocation();
-        }
-
-        return null;
+    public Location getSpawnLocation() {
+        return world.getSpawnLocation();
     }
 
     public World getWorld() {
         return world;
+    }
+
+    public World getNether() {
+        return nether;
     }
 }

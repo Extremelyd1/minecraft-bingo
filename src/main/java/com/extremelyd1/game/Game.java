@@ -164,6 +164,11 @@ public class Game {
         Bukkit.getPluginManager().registerEvents(new DamageListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new FoodListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new MoveListener(this), plugin);
+
+        // Register events for correctly handling nether portal with offset borders
+        if (config.isBorderEnabled()) {
+            Bukkit.getPluginManager().registerEvents(new WorldListener(this), plugin);
+        }
     }
 
     /**
@@ -186,7 +191,6 @@ public class Game {
             put("timer", new TimerCommand(game));
             put("coordinates", new CoordinatesCommand(game));
             put("all", new AllCommand(game));
-            put("test", new TestCommand(game));
         }};
 
         for (String cmdName : executors.keySet()) {
@@ -220,7 +224,7 @@ public class Game {
 
         // Gather locations to spread teams
         List<Location> locations = LocationUtil.getRandomCircleLocations(
-                worldManager.getSpawnLocation(World.Environment.NORMAL),
+                worldManager.getSpawnLocation(),
                 teamManager.getNumTeams(),
                 BASE_RADIUS + RADIUS_TEAM_INCREASE * teamManager.getNumTeams()
         );

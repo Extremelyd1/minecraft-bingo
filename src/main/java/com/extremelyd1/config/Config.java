@@ -43,16 +43,12 @@ public class Config {
     /**
      * Whether a world border is enabled
      */
-    private final boolean overworldBorderEnabled;
+    private final boolean borderEnabled;
     /**
      * The size of the world border
      */
     private final int overworldBorderSize;
 
-    /**
-     * Whether a nether border is enabled
-     */
-    private final boolean netherBorderEnabled;
     /**
      * The size of the nether border
      */
@@ -93,11 +89,13 @@ public class Config {
 
         showCurrentlyWinningTeam = plugin.getConfig().getBoolean("showCurrentlyWinningTeam");
 
-        overworldBorderEnabled = plugin.getConfig().getBoolean("border.overworld.enable");
-        overworldBorderSize = plugin.getConfig().getInt("border.overworld.size");
+        borderEnabled = plugin.getConfig().getBoolean("border.enable");
+        overworldBorderSize = plugin.getConfig().getInt("border.overworld-size");
+        netherBorderSize = plugin.getConfig().getInt("border.nether-size");
 
-        netherBorderEnabled = plugin.getConfig().getBoolean("border.nether.enable");
-        netherBorderSize = plugin.getConfig().getInt("border.nether.size");
+        if (overworldBorderSize < netherBorderSize) {
+            throw new IllegalArgumentException("Nether border should be at most as large as the overworld border size");
+        }
 
         timerEnabled = plugin.getConfig().getBoolean("timer.enable");
         timerLength = plugin.getConfig().getInt("timer.length");
@@ -162,16 +160,12 @@ public class Config {
         return showCurrentlyWinningTeam;
     }
 
-    public boolean isOverworldBorderEnabled() {
-        return overworldBorderEnabled;
+    public boolean isBorderEnabled() {
+        return borderEnabled;
     }
 
     public int getOverworldBorderSize() {
         return overworldBorderSize;
-    }
-
-    public boolean isNetherBorderEnabled() {
-        return netherBorderEnabled;
     }
 
     public int getNetherBorderSize() {

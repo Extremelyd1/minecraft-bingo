@@ -68,7 +68,7 @@ public class PlayerJoinLeaveListener implements Listener {
             player.setFoodLevel(20);
             player.setSaturation(5);
 
-            Location spawnLocation = game.getWorldManager().getSpawnLocation(World.Environment.NORMAL);
+            Location spawnLocation = game.getWorldManager().getSpawnLocation();
             player.teleport(spawnLocation);
             player.setBedSpawnLocation(spawnLocation);
         }

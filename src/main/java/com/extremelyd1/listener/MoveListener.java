@@ -32,7 +32,7 @@ public class MoveListener implements Listener {
                 return;
             }
 
-            Location spawnLocation = game.getWorldManager().getSpawnLocation(World.Environment.NORMAL);
+            Location spawnLocation = game.getWorldManager().getSpawnLocation();
             if (e.getTo().distance(spawnLocation) > SPAWN_AREA) {
                 e.getPlayer().sendMessage(
                         ChatColor.DARK_RED + "Error: "
