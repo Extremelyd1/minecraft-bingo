@@ -47,7 +47,12 @@ public class Config {
     /**
      * The size of the world border
      */
-    private final int borderSize;
+    private final int overworldBorderSize;
+
+    /**
+     * The size of the nether border
+     */
+    private final int netherBorderSize;
 
     /**
      * Whether a timer is enabled
@@ -85,7 +90,12 @@ public class Config {
         showCurrentlyWinningTeam = plugin.getConfig().getBoolean("showCurrentlyWinningTeam");
 
         borderEnabled = plugin.getConfig().getBoolean("border.enable");
-        borderSize = plugin.getConfig().getInt("border.size");
+        overworldBorderSize = plugin.getConfig().getInt("border.overworld-size");
+        netherBorderSize = plugin.getConfig().getInt("border.nether-size");
+
+        if (overworldBorderSize < netherBorderSize) {
+            throw new IllegalArgumentException("Nether border should be at most as large as the overworld border size");
+        }
 
         timerEnabled = plugin.getConfig().getBoolean("timer.enable");
         timerLength = plugin.getConfig().getInt("timer.length");
@@ -154,8 +164,12 @@ public class Config {
         return borderEnabled;
     }
 
-    public int getBorderSize() {
-        return borderSize;
+    public int getOverworldBorderSize() {
+        return overworldBorderSize;
+    }
+
+    public int getNetherBorderSize() {
+        return netherBorderSize;
     }
 
     public boolean isTimerEnabled() {

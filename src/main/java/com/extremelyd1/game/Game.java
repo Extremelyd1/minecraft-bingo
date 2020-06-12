@@ -164,6 +164,11 @@ public class Game {
         Bukkit.getPluginManager().registerEvents(new DamageListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new FoodListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new MoveListener(this), plugin);
+
+        // Register events for correctly handling nether portal with offset borders
+        if (config.isBorderEnabled()) {
+            Bukkit.getPluginManager().registerEvents(new WorldListener(this), plugin);
+        }
     }
 
     /**

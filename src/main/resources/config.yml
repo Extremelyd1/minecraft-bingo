@@ -4,7 +4,8 @@ defaultBingoLinesCompleteForWin: 1
 showCurrentlyWinningTeam: True
 border:
   enable: True
-  size: 3000
+  overworld-size: 3000
+  nether-size: 1000
 timer:
   enable: True
   length: 1800
