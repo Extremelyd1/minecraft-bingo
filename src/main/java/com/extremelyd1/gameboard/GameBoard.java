@@ -91,7 +91,7 @@ public class GameBoard {
                 scoreboardTeam = scoreboard.registerNewTeam(gameTeam.getColor().name());
 
                 // Set prefix to color code
-                scoreboardTeam.setPrefix(gameTeam.getColor().toString() + gameTeam.getName().toUpperCase() + " ");
+                scoreboardTeam.setColor(gameTeam.getColor());
             }
 
             // Add player name to this scoreboard team

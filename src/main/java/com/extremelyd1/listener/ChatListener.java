@@ -2,12 +2,22 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.v1_15_R1.Advancement;
+import net.minecraft.server.v1_15_R1.AdvancementFrameType;
+import net.minecraft.server.v1_15_R1.ChatComponentText;
+import net.minecraft.server.v1_15_R1.ChatMessage;
+import net.minecraft.server.v1_15_R1.EnumChatFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
 public class ChatListener implements Listener {
 
@@ -41,6 +51,33 @@ public class ChatListener implements Listener {
         }
 
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onAdvancementDone(PlayerAdvancementDoneEvent e) {
+        // Get the NMS advancement
+        Advancement advancement = ((CraftAdvancement) e.getAdvancement()).getHandle();
+
+        // c() = the AdvancementDisplay corresponding to this advancement
+        // c().i() = A boolean in AdvancementDisplay (probably something to do with whether to display it
+        if (advancement.c() != null && advancement.c().i()) {
+            // Get the type of advancement from the AdvancementDisplay
+            Player player = e.getPlayer();
+            // Get the team for the color
+            Team team = game.getTeamManager().getTeamByPlayer(player);
+            // Create NMS chat message with translation key
+            ChatMessage message = new ChatMessage(
+                    "chat.type.advancement." + advancement.c().e().a(),
+                    // Color the player name with the color of their team
+                    new ChatComponentText(player.getName()).a(EnumChatFormat.valueOf(team.getColor().name())),
+                    // Get the display component of the Advancement
+                    advancement.j()
+            );
+            // Send the message to all players
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                ((CraftPlayer) onlinePlayer).getHandle().sendMessage(message);
+            }
+        }
     }
 
 }

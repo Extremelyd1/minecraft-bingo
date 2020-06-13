@@ -83,6 +83,10 @@ public class WorldManager {
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         world.setTime(0);
 
+        world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        nether.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        end.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+
         if (config.isBorderEnabled()) {
             setWorldBorder(
                     world,
