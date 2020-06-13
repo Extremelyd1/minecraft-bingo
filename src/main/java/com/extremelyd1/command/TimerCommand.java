@@ -2,6 +2,7 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.CommandUtil;
+import com.extremelyd1.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -21,7 +22,7 @@ public class TimerCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender)) {
+        if (!CommandUtil.checkCommandSender(sender, false)) {
             return true;
         }
 
@@ -66,34 +67,46 @@ public class TimerCommand implements CommandExecutor {
         int timerLength;
         try {
             timerLength = Integer.parseInt(args[0]);
-        } catch (NumberFormatException e) {
+            trySetTimer(sender, timerLength);
+            return true;
+        } catch (NumberFormatException ignored) {
+            // Timer is not specified in a single integer
+        }
+
+        // Try to parse the argument as a length
+        int parsedTime = TimeUtil.parseTimeArgument(args[0]);
+        if (parsedTime == -1) {
             sender.sendMessage(
                     ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "Could not parse arguments, please provide max timer length in seconds"
+                            + ChatColor.WHITE + "Could not parse timer length. "
+                            + ChatColor.YELLOW + "Example: "
+                            + ChatColor.WHITE + "1h23m45s or 34m"
             );
 
             return true;
         }
 
-        if (timerLength < 1) {
+        trySetTimer(sender, parsedTime);
+
+        return true;
+    }
+
+    private void trySetTimer(CommandSender sender, int seconds) {
+        if (seconds < 1) {
             sender.sendMessage(
                     ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "Timer length must be "
-                            + ChatColor.BOLD + "at least"
-                            + ChatColor.RESET + " 1"
+                            + ChatColor.WHITE + "Timer length cannot be "
+                            + ChatColor.BOLD + "negative"
             );
 
-            return true;
+            return;
         }
 
-        game.getConfig().setTimerLength(timerLength);
+        game.getConfig().setTimerLength(seconds);
 
         Bukkit.broadcastMessage(
                 Game.PREFIX + "Max timer length has been set to "
-                        + ChatColor.YELLOW + timerLength
-                        + ChatColor.WHITE + " seconds"
+                        + ChatColor.YELLOW + TimeUtil.formatTimeLeft(seconds)
         );
-
-        return true;
     }
 }

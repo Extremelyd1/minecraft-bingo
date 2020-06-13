@@ -67,4 +67,74 @@ public class TimeUtil {
         return timeString;
     }
 
+    /**
+     * Try to parse the given argument into seconds, given it is in the format
+     * [integer h][integer m][integer s]
+     * @param argument The argument to parse
+     * @return An integer representing the number of seconds or -1 if not parsable
+     */
+    public static int parseTimeArgument(String argument) {
+        // If there is no "h", "m" or "s" in the string, we cannot parse it
+        if (!argument.contains("h") && !argument.contains("m") && !argument.contains("s")) {
+            return -1;
+        }
+
+        System.out.println("Argument: " + argument);
+
+        // Keep track of result in seconds
+        int result = 0;
+
+        // Check whether there is an "h" in the string
+        int hourIndex = argument.indexOf("h");
+        if (hourIndex > 0) {
+            String hourString = argument.substring(0, hourIndex);
+            try {
+                result += Integer.parseInt(hourString) * 3600;
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+            argument = argument.substring(hourIndex + 1);
+        } else if (hourIndex == 0) {
+            // Provided an "h" but no integer before it
+            return -1;
+        }
+
+        System.out.println("Current result: " + result + ", argument: " + argument);
+
+        // Check whether there is an "m" in the string
+        int minuteIndex = argument.indexOf("m");
+        if (minuteIndex > 0) {
+            String minuteString = argument.substring(0, minuteIndex);
+            try {
+                result += Integer.parseInt(minuteString) * 60;
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+            argument = argument.substring(minuteIndex + 1);
+        } else if (minuteIndex == 0) {
+            // Provided an "m" but no integer before it
+            return -1;
+        }
+
+        System.out.println("Current result: " + result + ", argument: " + argument);
+
+        // Check whether there is an "s" in the string
+        int secondIndex = argument.indexOf("s");
+        if (secondIndex > 0) {
+            String secondString = argument.substring(0, secondIndex);
+            try {
+                result += Integer.parseInt(secondString);
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else if (secondIndex == 0) {
+            // Provided an "s" but no integer before it
+            return -1;
+        }
+
+        System.out.println("End result: " + result);
+
+        return result;
+    }
+
 }
