@@ -79,8 +79,6 @@ public class TimeUtil {
             return -1;
         }
 
-        System.out.println("Argument: " + argument);
-
         // Keep track of result in seconds
         int result = 0;
 
@@ -99,8 +97,6 @@ public class TimeUtil {
             return -1;
         }
 
-        System.out.println("Current result: " + result + ", argument: " + argument);
-
         // Check whether there is an "m" in the string
         int minuteIndex = argument.indexOf("m");
         if (minuteIndex > 0) {
@@ -116,8 +112,6 @@ public class TimeUtil {
             return -1;
         }
 
-        System.out.println("Current result: " + result + ", argument: " + argument);
-
         // Check whether there is an "s" in the string
         int secondIndex = argument.indexOf("s");
         if (secondIndex > 0) {
@@ -131,8 +125,6 @@ public class TimeUtil {
             // Provided an "s" but no integer before it
             return -1;
         }
-
-        System.out.println("End result: " + result);
 
         return result;
     }
