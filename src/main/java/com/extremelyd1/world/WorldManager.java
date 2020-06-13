@@ -97,7 +97,8 @@ public class WorldManager {
             // Set the world spawn location to the world border center
             // with the Y coordinate as the highest at that location
             Location spawnLocation = world.getWorldBorder().getCenter();
-            spawnLocation.setY(world.getHighestBlockYAt(spawnLocation));
+            // Increase y by 1 due to block location being at the bottom of the block
+            spawnLocation.setY(world.getHighestBlockYAt(spawnLocation) + 1);
             world.setSpawnLocation(spawnLocation);
 
             setWorldBorder(
