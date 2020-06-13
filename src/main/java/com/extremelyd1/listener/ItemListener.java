@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -52,21 +53,4 @@ public class ItemListener implements Listener {
             e.setCancelled(true);
         }
     }
-
-    @EventHandler
-    public void onCraftItem(CraftItemEvent e) {
-        if (!game.getState().equals(Game.State.IN_GAME)) {
-            e.setCancelled(true);
-            return;
-        }
-
-        if (!(e.getWhoClicked() instanceof Player)) {
-            e.setCancelled(true);
-            return;
-        }
-
-        Player player = (Player) e.getWhoClicked();
-        game.onMaterialCollected(player, e.getRecipe().getResult().getType());
-    }
-
 }

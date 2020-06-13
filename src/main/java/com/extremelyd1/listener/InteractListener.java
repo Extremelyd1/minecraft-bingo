@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -86,7 +87,7 @@ public class InteractListener implements Listener {
             return;
         }
 
-        if (!game.getState().equals(Game.State.IN_GAME)) {
+        if (game.getState().equals(Game.State.PRE_GAME)) {
             e.setCancelled(true);
             return;
         }
@@ -124,11 +125,23 @@ public class InteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        // Disallow interaction with entities in pre-game
+        if (game.getState().equals(Game.State.PRE_GAME)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (game.getState().equals(Game.State.POST_GAME)) {
             Entity entity = e.getRightClicked();
 
             // If the player clicked an entity with an inventory
             // show them the inventory
+            // TODO: replicate villager trade window, since they only allow a single
+            //  player to interact with them
+            if (entity.getType().equals(EntityType.VILLAGER)) {
+                return;
+            }
+
             if (entity instanceof InventoryHolder) {
                 InventoryHolder inventoryHolder = (InventoryHolder) entity;
 
@@ -145,6 +158,8 @@ public class InteractListener implements Listener {
             return;
         }
 
+        Player player = (Player) e.getWhoClicked();
+
         if (game.getState().equals(Game.State.POST_GAME)) {
             e.setCancelled(true);
             return;
@@ -155,7 +170,7 @@ public class InteractListener implements Listener {
             if (itemStack != null
                     && itemStack.hasItemMeta()
                     && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
-                Team team = game.getTeamManager().getTeamByPlayer((Player) e.getWhoClicked());
+                Team team = game.getTeamManager().getTeamByPlayer(player);
                 if (team == null) {
                     return;
                 }
@@ -166,6 +181,11 @@ public class InteractListener implements Listener {
 
         if (e.getView().getTitle().contains("Bingo Card")) {
             e.setCancelled(true);
+            return;
+        }
+
+        if (e.getCurrentItem() != null) {
+            game.onMaterialCollected(player, e.getCurrentItem().getType());
         }
     }
 }
