@@ -21,9 +21,9 @@ import java.util.Random;
 public class WorldManager {
 
     /**
-     * The config instance
+     * The game instance
      */
-    private final Config config;
+    private final Game game;
 
     /**
      * The overworld world instance
@@ -38,32 +38,33 @@ public class WorldManager {
      */
     private World end;
 
-    public WorldManager(Config config) {
-        this.config = config;
+    public WorldManager(Game game) {
+        this.game = game;
+    }
 
-        if (Bukkit.getWorlds().size() > 3) {
-            throw new IllegalStateException("There is no support for more than 3 worlds");
+    /**
+     * Called when a world is loaded
+     * @param world The loaded world
+     */
+    public void onWorldLoaded(World world) {
+        World.Environment environment = world.getEnvironment();
+        Game.getLogger().info("World " + environment + " is loading");
+        switch (environment) {
+            case NORMAL:
+                this.world = world;
+                break;
+            case NETHER:
+                this.nether = world;
+                break;
+            case THE_END:
+                this.end = world;
+                break;
         }
 
-        for (World world : Bukkit.getWorlds()) {
-            switch (world.getEnvironment()) {
-                case NORMAL:
-                    this.world = world;
-                    break;
-                case NETHER:
-                    this.nether = world;
-                    break;
-                case THE_END:
-                    this.end = world;
-                    break;
-            }
+        if (this.world != null && this.nether != null && this.end != null) {
+            // Everything is loaded, initialize the worlds
+            initialize();
         }
-
-        if (world == null) {
-            throw new IllegalStateException("There is no overworld loaded");
-        }
-
-        initialize();
     }
 
     /**
@@ -87,7 +88,7 @@ public class WorldManager {
         nether.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         end.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 
-        if (config.isBorderEnabled()) {
+        if (game.getConfig().isBorderEnabled()) {
             setWorldBorder(
                     world,
                     StructureType.STRONGHOLD,
@@ -95,7 +96,7 @@ public class WorldManager {
                     // According to the wiki: https://minecraft.gamepedia.com/Stronghold
                     // Strongholds spawn in rings of which the first ring spawn at most 2688 blocks aways from 0, 0, 0
                     3000,
-                    config.getOverworldBorderSize()
+                    game.getConfig().getOverworldBorderSize()
             );
 
             // Set the world spawn location to the world border center
@@ -112,9 +113,11 @@ public class WorldManager {
                     // Don't know what the search radius should be, but I think
                     // there should be a fortress within this radius always
                     3000,
-                    config.getNetherBorderSize()
+                    game.getConfig().getNetherBorderSize()
             );
         }
+
+        game.onWorldsLoaded();
     }
 
     /**

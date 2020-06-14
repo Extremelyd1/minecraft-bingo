@@ -78,7 +78,7 @@ public class Game {
     /**
      * The game board manager instance
      */
-    private final GameBoardManager gameBoardManager;
+    private GameBoardManager gameBoardManager;
     /**
      * The team manager instance
      */
@@ -132,10 +132,9 @@ public class Game {
 
         config = new Config(bingo);
 
-        gameBoardManager = new GameBoardManager(this);
-        teamManager = new TeamManager(this);
+        worldManager = new WorldManager(this);
 
-        worldManager = new WorldManager(config);
+        teamManager = new TeamManager(this);
 
         bingoCardItemFactory = new BingoCardItemFactory(this);
         bingoItemMaterials = new BingoItemMaterials(this);
@@ -201,6 +200,13 @@ public class Game {
                 throw new IllegalStateException("Command " + cmdName + " could not be registered");
             }
         }
+    }
+
+    /**
+     * Called when the world manager has successfully loaded all worlds
+     */
+    public void onWorldsLoaded() {
+        gameBoardManager = new GameBoardManager(this);
     }
 
     /**

@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 
 public class WorldListener implements Listener {
 
@@ -13,6 +14,11 @@ public class WorldListener implements Listener {
 
     public WorldListener(Game game) {
         this.game = game;
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent e) {
+        game.getWorldManager().onWorldLoaded(e.getWorld());
     }
 
     @EventHandler
