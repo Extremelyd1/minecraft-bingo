@@ -124,7 +124,7 @@ public class Game {
      */
     private GameTimer gameTimer;
 
-    public Game(Bingo bingo) {
+    public Game(Bingo bingo) throws IllegalArgumentException {
         Game.logger = bingo.getLogger();
 
         this.plugin = bingo;
@@ -134,6 +134,7 @@ public class Game {
 
         worldManager = new WorldManager(this);
 
+        gameBoardManager = new GameBoardManager(this);
         teamManager = new TeamManager(this);
 
         bingoCardItemFactory = new BingoCardItemFactory(this);
@@ -200,13 +201,6 @@ public class Game {
                 throw new IllegalStateException("Command " + cmdName + " could not be registered");
             }
         }
-    }
-
-    /**
-     * Called when the world manager has successfully loaded all worlds
-     */
-    public void onWorldsLoaded() {
-        gameBoardManager = new GameBoardManager(this);
     }
 
     /**

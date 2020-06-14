@@ -17,11 +17,6 @@ public class WorldListener implements Listener {
     }
 
     @EventHandler
-    public void onWorldLoad(WorldLoadEvent e) {
-        game.getWorldManager().onWorldLoaded(e.getWorld());
-    }
-
-    @EventHandler
     public void onPlayerPortal(PlayerPortalEvent e) {
         // Check if there exists a location that we are portalling to
         if (e.getTo() == null) {

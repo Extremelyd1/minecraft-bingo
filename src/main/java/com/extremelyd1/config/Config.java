@@ -63,7 +63,7 @@ public class Config {
      */
     private long timerLength;
 
-    public Config(JavaPlugin plugin) {
+    public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
 
         enableBlacklist = plugin.getConfig().getBoolean("enableBlacklist");
