@@ -27,6 +27,10 @@ public class LocationUtil {
             int numLocations,
             float radius
     ) {
+        if (center == null || center.getWorld() == null) {
+            return null;
+        }
+
         double radiansPerLocation = 2 * Math.PI / numLocations;
         double currentAngle = new Random().nextDouble() * 2 * Math.PI;
 
@@ -40,10 +44,10 @@ public class LocationUtil {
                     Math.floor(center.getZ() + Math.sin(currentAngle) * radius)
             );
 
-            // Decrease y value, until it is a valid spawn location
-            while (!isValidSpawnLocation(circleLocation)) {
-                circleLocation.subtract(0, 1, 0);
-            }
+            // Simply get highest block's Y value at the calculated position and increase it by 1
+            circleLocation.setY(
+                    center.getWorld().getHighestBlockYAt(circleLocation) + 1
+            );
 
             // Add 0.5 to X and Z to spawn on center of block
             result.add(circleLocation.add(0.5, 0, 0.5));
