@@ -9,3 +9,4 @@ border:
 timer:
   enable: True
   length: 1800
+pregenerate-worlds: False

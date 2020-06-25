@@ -1,6 +1,5 @@
 package com.extremelyd1.world;
 
-import com.extremelyd1.config.Config;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.ReflectionUtil;
 import net.minecraft.server.v1_15_R1.Chunk;
@@ -20,47 +19,36 @@ import java.util.Random;
 
 public class WorldManager {
 
+    private static int CHUNK_SIZE = 16;
+    private static int BUFFER = 1;
+
     /**
-     * The config instance
+     * The game instance
      */
-    private final Config config;
+    private final Game game;
 
     /**
      * The overworld world instance
      */
-    private World world;
+    private final World world;
     /**
      * The nether world instance
      */
-    private World nether;
+    private final World nether;
     /**
      * The end world instance
      */
-    private World end;
+    private final World end;
 
-    public WorldManager(Config config) {
-        this.config = config;
+    public WorldManager(Game game) throws IllegalArgumentException {
+        this.game = game;
 
-        if (Bukkit.getWorlds().size() > 3) {
-            throw new IllegalStateException("There is no support for more than 3 worlds");
-        }
+        this.world = Bukkit.getWorld("world");
+        this.nether = Bukkit.getWorld("world_nether");
+        this.end = Bukkit.getWorld("world_the_end");
 
-        for (World world : Bukkit.getWorlds()) {
-            switch (world.getEnvironment()) {
-                case NORMAL:
-                    this.world = world;
-                    break;
-                case NETHER:
-                    this.nether = world;
-                    break;
-                case THE_END:
-                    this.end = world;
-                    break;
-            }
-        }
-
-        if (world == null) {
-            throw new IllegalStateException("There is no overworld loaded");
+        if (this.world == null) {
+            throw new IllegalArgumentException("There is no overworld named 'world' loaded, cannot start game");
         }
 
         initialize();
@@ -74,20 +62,20 @@ public class WorldManager {
         world.setAutoSave(false);
         if (nether != null) {
             nether.setAutoSave(false);
+            nether.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         }
         if (end != null) {
             end.setAutoSave(false);
+            end.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         }
 
         world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         world.setTime(0);
 
-        world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        nether.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        end.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-
-        if (config.isBorderEnabled()) {
+        if (game.getConfig().isBorderEnabled()) {
+            Game.getLogger().info("Settings overworld world border...");
             setWorldBorder(
                     world,
                     StructureType.STRONGHOLD,
@@ -95,8 +83,9 @@ public class WorldManager {
                     // According to the wiki: https://minecraft.gamepedia.com/Stronghold
                     // Strongholds spawn in rings of which the first ring spawn at most 2688 blocks aways from 0, 0, 0
                     3000,
-                    config.getOverworldBorderSize()
+                    game.getConfig().getOverworldBorderSize()
             );
+            Game.getLogger().info("Overworld border set");
 
             // Set the world spawn location to the world border center
             // with the Y coordinate as the highest at that location
@@ -105,15 +94,26 @@ public class WorldManager {
             spawnLocation.setY(world.getHighestBlockYAt(spawnLocation) + 1);
             world.setSpawnLocation(spawnLocation);
 
-            setWorldBorder(
-                    nether,
-                    StructureType.NETHER_FORTRESS,
-                    "Fortress",
-                    // Don't know what the search radius should be, but I think
-                    // there should be a fortress within this radius always
-                    3000,
-                    config.getNetherBorderSize()
-            );
+            if (nether != null) {
+                Game.getLogger().info("Settings nether world border...");
+                setWorldBorder(
+                        nether,
+                        StructureType.NETHER_FORTRESS,
+                        "Fortress",
+                        // Don't know what the search radius should be, but I think
+                        // there should be a fortress within this radius always
+                        3000,
+                        game.getConfig().getNetherBorderSize()
+                );
+                Game.getLogger().info("Nether border set");
+            }
+        }
+
+        if (game.getConfig().isPregenerateWorlds()) {
+            pregenerateWorldInBorder(world);
+            if (nether != null) {
+                pregenerateWorldInBorder(nether);
+            }
         }
     }
 
@@ -133,6 +133,7 @@ public class WorldManager {
             int searchRadius,
             int size
     ) {
+        Game.getLogger().info("Locating structure " + structureName + " to determine border center");
         // Find the closest structure
         Location structureLocation = world.locateNearestStructure(
                 new Location(world, 0, 0, 0),
@@ -223,6 +224,59 @@ public class WorldManager {
         WorldBorder border = world.getWorldBorder();
         border.setCenter(centerX, centerZ);
         border.setSize(size);
+    }
+
+    private void pregenerateWorldInBorder(World world) {
+        Game.getLogger().info(
+                "Pregenerating all chunks within the world border for world " + world.getEnvironment()
+        );
+
+        WorldBorder worldBorder = world.getWorldBorder();
+
+        double size = worldBorder.getSize();
+
+        Location corner1 = worldBorder.getCenter().clone().add(size / 2.0D, size / 2.0D, size / 2.0D);
+        Location corner2 = worldBorder.getCenter().clone().subtract(size / 2.0D, size / 2.0D, size / 2.0D);
+        int x1 = Integer.min(corner1.getBlockX() / CHUNK_SIZE, corner2.getBlockX() / CHUNK_SIZE) - BUFFER;
+        int z1 = Integer.min(corner1.getBlockZ() / CHUNK_SIZE, corner2.getBlockZ() / CHUNK_SIZE) - BUFFER;
+        int x2 = Integer.max(corner1.getBlockX() / CHUNK_SIZE, corner2.getBlockX() / CHUNK_SIZE) + BUFFER;
+        int z2 = Integer.max(corner1.getBlockZ() / CHUNK_SIZE, corner2.getBlockZ() / CHUNK_SIZE) + BUFFER;
+
+        int totalChunks = (x2 - x1 + 1) * (z2 - z1 + 1);
+
+        Game.getLogger().info(String.format(
+                "Generating %d chunks in total",
+                totalChunks
+        ));
+
+        int chunksDone = 0;
+        boolean sentMessage = false;
+        for (int x = x1; x <= x2; x++) {
+            for (int z = z1; z <= z2; z++) {
+                if (!world.isChunkGenerated(x, z)) {
+                    // This generates the chunk
+                    world.getChunkAt(x, z);
+                }
+                chunksDone++;
+
+                int percentage = chunksDone * 100 / totalChunks;
+                if (percentage != 0 && percentage % 5 == 0) {
+                    if (!sentMessage) {
+                        Game.getLogger().info(String.format(
+                                "Generated %d/%d (%d%%) of chunks",
+                                chunksDone,
+                                totalChunks,
+                                percentage
+                        ));
+                        sentMessage = true;
+                    }
+                } else {
+                    sentMessage = false;
+                }
+            }
+        }
+
+        Game.getLogger().info("Generation for world " + world.getEnvironment() + " finished");
     }
 
     /**

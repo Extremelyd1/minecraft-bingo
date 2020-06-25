@@ -78,7 +78,7 @@ public class Game {
     /**
      * The game board manager instance
      */
-    private final GameBoardManager gameBoardManager;
+    private GameBoardManager gameBoardManager;
     /**
      * The team manager instance
      */
@@ -124,7 +124,7 @@ public class Game {
      */
     private GameTimer gameTimer;
 
-    public Game(Bingo bingo) {
+    public Game(Bingo bingo) throws IllegalArgumentException {
         Game.logger = bingo.getLogger();
 
         this.plugin = bingo;
@@ -132,10 +132,10 @@ public class Game {
 
         config = new Config(bingo);
 
+        worldManager = new WorldManager(this);
+
         gameBoardManager = new GameBoardManager(this);
         teamManager = new TeamManager(this);
-
-        worldManager = new WorldManager(config);
 
         bingoCardItemFactory = new BingoCardItemFactory(this);
         bingoItemMaterials = new BingoItemMaterials(this);
