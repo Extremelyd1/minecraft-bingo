@@ -63,6 +63,11 @@ public class Config {
      */
     private long timerLength;
 
+    /**
+     * Whether to pregenerate the worlds within the border in advance
+     */
+    private boolean pregenerateWorlds;
+
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
 
@@ -99,6 +104,9 @@ public class Config {
 
         timerEnabled = plugin.getConfig().getBoolean("timer.enable");
         timerLength = plugin.getConfig().getInt("timer.length");
+
+        // Only allow pregeneration of worlds if there is the border is enabled
+        pregenerateWorlds = borderEnabled && plugin.getConfig().getBoolean("pregenerate-worlds");
     }
 
     /**
@@ -186,5 +194,9 @@ public class Config {
 
     public void setTimerLength(long timerLength) {
         this.timerLength = timerLength;
+    }
+
+    public boolean isPregenerateWorlds() {
+        return pregenerateWorlds;
     }
 }

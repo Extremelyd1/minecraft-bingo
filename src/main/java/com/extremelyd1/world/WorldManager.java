@@ -19,6 +19,9 @@ import java.util.Random;
 
 public class WorldManager {
 
+    private static int CHUNK_SIZE = 16;
+    private static int BUFFER = 1;
+
     /**
      * The game instance
      */
@@ -103,6 +106,13 @@ public class WorldManager {
                         game.getConfig().getNetherBorderSize()
                 );
                 Game.getLogger().info("Nether border set");
+            }
+        }
+
+        if (game.getConfig().isPregenerateWorlds()) {
+            pregenerateWorldInBorder(world);
+            if (nether != null) {
+                pregenerateWorldInBorder(nether);
             }
         }
     }
@@ -214,6 +224,59 @@ public class WorldManager {
         WorldBorder border = world.getWorldBorder();
         border.setCenter(centerX, centerZ);
         border.setSize(size);
+    }
+
+    private void pregenerateWorldInBorder(World world) {
+        Game.getLogger().info(
+                "Pregenerating all chunks within the world border for world " + world.getEnvironment()
+        );
+
+        WorldBorder worldBorder = world.getWorldBorder();
+
+        double size = worldBorder.getSize();
+
+        Location corner1 = worldBorder.getCenter().clone().add(size / 2.0D, size / 2.0D, size / 2.0D);
+        Location corner2 = worldBorder.getCenter().clone().subtract(size / 2.0D, size / 2.0D, size / 2.0D);
+        int x1 = Integer.min(corner1.getBlockX() / CHUNK_SIZE, corner2.getBlockX() / CHUNK_SIZE) - BUFFER;
+        int z1 = Integer.min(corner1.getBlockZ() / CHUNK_SIZE, corner2.getBlockZ() / CHUNK_SIZE) - BUFFER;
+        int x2 = Integer.max(corner1.getBlockX() / CHUNK_SIZE, corner2.getBlockX() / CHUNK_SIZE) + BUFFER;
+        int z2 = Integer.max(corner1.getBlockZ() / CHUNK_SIZE, corner2.getBlockZ() / CHUNK_SIZE) + BUFFER;
+
+        int totalChunks = (x2 - x1 + 1) * (z2 - z1 + 1);
+
+        Game.getLogger().info(String.format(
+                "Generating %d chunks in total",
+                totalChunks
+        ));
+
+        int chunksDone = 0;
+        boolean sentMessage = false;
+        for (int x = x1; x <= x2; x++) {
+            for (int z = z1; z <= z2; z++) {
+                if (!world.isChunkGenerated(x, z)) {
+                    // This generates the chunk
+                    world.getChunkAt(x, z);
+                }
+                chunksDone++;
+
+                int percentage = chunksDone * 100 / totalChunks;
+                if (percentage != 0 && percentage % 5 == 0) {
+                    if (!sentMessage) {
+                        Game.getLogger().info(String.format(
+                                "Generated %d/%d (%d%%) of chunks",
+                                chunksDone,
+                                totalChunks,
+                                percentage
+                        ));
+                        sentMessage = true;
+                    }
+                } else {
+                    sentMessage = false;
+                }
+            }
+        }
+
+        Game.getLogger().info("Generation for world " + world.getEnvironment() + " finished");
     }
 
     /**
