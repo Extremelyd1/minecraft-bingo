@@ -1,19 +1,18 @@
 package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.util.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.Chunk;
-import net.minecraft.server.v1_15_R1.StructureBoundingBox;
-import net.minecraft.server.v1_15_R1.StructureStart;
+import net.minecraft.server.v1_16_R1.Chunk;
+import net.minecraft.server.v1_16_R1.StructureBoundingBox;
+import net.minecraft.server.v1_16_R1.StructureGenerator;
+import net.minecraft.server.v1_16_R1.StructureStart;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.StructureType;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
-import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_16_R1.CraftChunk;
 
-import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.Random;
 
@@ -79,7 +78,7 @@ public class WorldManager {
             setWorldBorder(
                     world,
                     StructureType.STRONGHOLD,
-                    "Stronghold",
+                    "stronghold",
                     // According to the wiki: https://minecraft.gamepedia.com/Stronghold
                     // Strongholds spawn in rings of which the first ring spawn at most 2688 blocks aways from 0, 0, 0
                     3000,
@@ -99,7 +98,7 @@ public class WorldManager {
                 setWorldBorder(
                         nether,
                         StructureType.NETHER_FORTRESS,
-                        "Fortress",
+                        "fortress",
                         // Don't know what the search radius should be, but I think
                         // there should be a fortress within this radius always
                         3000,
@@ -153,18 +152,8 @@ public class WorldManager {
         // Get the chunk at the structure location and cast to CraftChunk
         CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
 
-        // Get the chunk reference from the CraftChunk
-        // Suppress warnings are needed due to generic cast and type erasure
-        @SuppressWarnings("unchecked")
-        WeakReference<Chunk> chunkReference = (WeakReference<Chunk>) ReflectionUtil.getField(craftChunk, "weakChunk");
-
-        if (chunkReference == null) {
-            Game.getLogger().warning("Weak reference in CraftChunk field is null");
-            return;
-        }
-
         // Get the chunk from the reference
-        Chunk chunk = chunkReference.get();
+        Chunk chunk = craftChunk.getHandle();
 
         if (chunk == null) {
             Game.getLogger().warning("Chunk in weak reference is null");
@@ -173,31 +162,40 @@ public class WorldManager {
 
         // Get the structure start map from the NMS Chunk
         // Suppress warnings are again needed due to generic cast and type erasure
-        @SuppressWarnings("unchecked")
-        Map<String, StructureStart> structureStartMap =
-                (Map<String, StructureStart>) ReflectionUtil.getField(chunk, "l");
+        Map<StructureGenerator<?>, StructureStart<?>> structureStartMap = chunk.h();
 
         if (structureStartMap == null) {
             Game.getLogger().warning("Structure start map is null");
             return;
         }
 
-        if (!structureStartMap.containsKey(structureName)) {
+        StructureStart<?> structureStart = null;
+
+        for (StructureGenerator<?> structureGenerator : structureStartMap.keySet()) {
+            // Check name of structure generator
+            if (structureGenerator.i().equals(structureName)) {
+                structureStart = structureStartMap.get(structureGenerator);
+                break;
+            }
+        }
+
+        // Check if the structure was actually found
+        if (structureStart == null) {
             Game.getLogger().warning("Structure start map does not contain structure with name: " + structureName);
             return;
         }
 
         // Finally get the bounding box of the structure
-        StructureBoundingBox boundingBox = structureStartMap.get(structureName).c();
+        StructureBoundingBox boundingBox = structureStart.c();
 
         // Increase size of border if structure does not fit
         // c() is size in X direction
-        if (boundingBox.c() > size) {
-            size = boundingBox.c();
+        if (boundingBox.d() > size) {
+            size = boundingBox.d();
         }
         // e() is size in Z direction
-        if (boundingBox.e() > size) {
-            size = boundingBox.e();
+        if (boundingBox.f() > size) {
+            size = boundingBox.f();
         }
 
         // Make sure size is divisible by 2

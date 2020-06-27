@@ -8,9 +8,9 @@ import com.extremelyd1.util.FileUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 import java.awt.image.BufferedImage;
@@ -138,7 +138,12 @@ public class BingoCardItemFactory {
         ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
 
         MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
-        mapView.getRenderers().clear();
+
+        // We get a copy of the list from mapView.getRenderers()
+        // So loop over it and individually delete all renderers
+        for (MapRenderer mapRenderer : mapView.getRenderers()) {
+            mapView.removeRenderer(mapRenderer);
+        }
         mapView.addRenderer(new ImageRenderer(image));
 
         MapMeta meta = (MapMeta) itemStack.getItemMeta();

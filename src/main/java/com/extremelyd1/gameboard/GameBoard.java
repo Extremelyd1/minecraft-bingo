@@ -49,7 +49,7 @@ public class GameBoard {
         this.objective = this.scoreboard.registerNewObjective(
                 String.valueOf(lastObjectiveId++),
                 "dummy",
-                ""
+                "scoreboard"
         );
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         this.boardEntries = new ArrayList<>();
