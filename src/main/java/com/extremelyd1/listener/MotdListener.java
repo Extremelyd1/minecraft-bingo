@@ -26,6 +26,12 @@ public class MotdListener implements Listener {
                             + ChatColor.RESET + "\nPlayers: "
                             + ChatColor.AQUA + Bukkit.getOnlinePlayers().size()
             );
+        } else if (game.getConfig().isPregenerateWorlds()) {
+            e.setMotd(
+                    Game.PREFIX + ChatColor.WHITE + "Pregenerating worlds"
+                            + ChatColor.RESET + "\nPlayers: "
+                            + ChatColor.AQUA + Bukkit.getOnlinePlayers().size()
+            );
         } else {
             e.setMotd(
                     Game.PREFIX + ChatColor.WHITE + game.getState().getName()

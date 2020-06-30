@@ -64,3 +64,8 @@ commands:
   test:
     description: Command to test a new feature
     usage: /<command>
+
+  generate:
+    aliases: [worlds, gen]
+    description: Pre-generate worlds
+    usage: /<command> <start> <numWorlds>

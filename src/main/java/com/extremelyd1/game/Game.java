@@ -191,6 +191,10 @@ public class Game {
             put("timer", new TimerCommand(game));
             put("coordinates", new CoordinatesCommand(game));
             put("all", new AllCommand(game));
+
+            if (config.isPregenerateWorlds()) {
+                put("generate", new GenerateCommand(game));
+            }
         }};
 
         for (String cmdName : executors.keySet()) {
@@ -458,6 +462,10 @@ public class Game {
 
     public void togglePvp() {
         pvpEnabled = !pvpEnabled;
+    }
+
+    public JavaPlugin getPlugin() {
+        return plugin;
     }
 
     public File getDataFolder() {

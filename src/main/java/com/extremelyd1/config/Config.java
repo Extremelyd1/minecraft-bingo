@@ -106,7 +106,7 @@ public class Config {
         timerLength = plugin.getConfig().getInt("timer.length");
 
         // Only allow pregeneration of worlds if there is the border is enabled
-        pregenerateWorlds = borderEnabled && plugin.getConfig().getBoolean("pregenerate-worlds");
+        pregenerateWorlds = borderEnabled && plugin.getConfig().getBoolean("enable-pregeneration-mode");
     }
 
     /**
