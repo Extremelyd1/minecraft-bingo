@@ -23,15 +23,15 @@ public class MotdListener implements Listener {
         if (game.isMaintenance()) {
             e.setMotd(
                     Game.PREFIX + ChatColor.WHITE + "Maintenance mode"
-                            + ChatColor.RESET + "\nPlayers: "
-                            + ChatColor.AQUA + Bukkit.getOnlinePlayers().size()
+                            + ChatColor.DARK_RED + "\nUnable to join"
             );
+            e.setMaxPlayers(0);
         } else if (game.getConfig().isPregenerateWorlds()) {
             e.setMotd(
                     Game.PREFIX + ChatColor.WHITE + "Pregenerating worlds"
-                            + ChatColor.RESET + "\nPlayers: "
-                            + ChatColor.AQUA + Bukkit.getOnlinePlayers().size()
+                            + ChatColor.DARK_RED + "\nUnable to join"
             );
+            e.setMaxPlayers(0);
         } else {
             e.setMotd(
                     Game.PREFIX + ChatColor.WHITE + game.getState().getName()
