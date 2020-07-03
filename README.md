@@ -21,7 +21,7 @@ Note that the bingo card can be right-clicked in order to view which items need 
 
 ## Install
 The plugin can be downloaded from one of the [releases](https://github.com/Extremelyd1/minecraft-bingo/releases) or compiled yourself using Spigot.
-The plugin requires a Spigot server running version 1.15.2. 
+The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server running version 1.15.2. 
 Move the `.txt` files and the `images/images.zip` in the `item_data` folder to `<server>/plugins/MinecraftBingo/item_data`. 
 Then unzip the `images/images.zip` archive.
 The first time you run the plugin a config file will be generated in `<server>/plugins/MinecraftBingo`, in which you can edit some configuration settings.
@@ -51,7 +51,8 @@ The first time you run the plugin a config file will be generated in `<server>/p
 - `/reroll` Reroll the items on the bingo card
 
 ## World generation
-The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.  
+The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.
+This feature currently is only functional on [Paper](https://papermc.io/) (a different minecraft server).
 The following command can be used to manage this:
 - `/generate stop | <start> <numWorlds>` Start/stop pre-generating worlds and storing them in zip format  
 
