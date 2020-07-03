@@ -37,7 +37,9 @@ public class PendingChunk {
      * Generates this chunk
      */
     public void generate() {
-        world.getChunkAt(x, z);
+        if (!world.isChunkGenerated(x, z)) {
+            world.getChunkAt(x, z);
+        }
 
         isGenerated = true;
     }
