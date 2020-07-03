@@ -21,7 +21,7 @@ public class WinConditionCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender)) {
+        if (!CommandUtil.checkCommandSender(sender, false)) {
             return true;
         }
 

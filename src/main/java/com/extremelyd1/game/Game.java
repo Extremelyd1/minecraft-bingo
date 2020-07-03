@@ -202,6 +202,13 @@ public class Game {
 
     /**
      * Starts the game
+     */
+    public void start() {
+        start(null);
+    }
+
+    /**
+     * Starts the game
      * @param player The player that started the game, or null if no player started the game
      */
     public void start(Player player) {

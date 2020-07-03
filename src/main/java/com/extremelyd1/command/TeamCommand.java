@@ -24,20 +24,18 @@ public class TeamCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender)) {
+        if (!CommandUtil.checkCommandSender(sender, false)) {
             return true;
         }
 
-        Player player = (Player) sender;
-
         if (args.length <= 0) {
-            sendUsage(player, command);
+            sendUsage(sender, command);
 
             return true;
         }
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
-            player.sendMessage(
+            sender.sendMessage(
                     ChatColor.DARK_RED
                             + "Error: "
                             + ChatColor.WHITE
@@ -49,7 +47,7 @@ public class TeamCommand implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("random")) {
             if (args.length < 2) {
-                player.sendMessage(
+                sender.sendMessage(
                         ChatColor.DARK_RED
                                 + "Usage: "
                                 + ChatColor.WHITE
@@ -65,7 +63,7 @@ public class TeamCommand implements CommandExecutor {
             try {
                 numTeams = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                player.sendMessage(
+                sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Could not parse team size argument"
                 );
@@ -74,7 +72,7 @@ public class TeamCommand implements CommandExecutor {
             }
 
             if (numTeams >= TeamManager.MAX_TEAMS) {
-                player.sendMessage(
+                sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Cannot create more than 8 teams"
                 );
@@ -89,7 +87,7 @@ public class TeamCommand implements CommandExecutor {
             );
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 3) {
-                player.sendMessage(
+                sender.sendMessage(
                         ChatColor.DARK_RED
                                 + "Usage: "
                                 + ChatColor.WHITE
@@ -103,7 +101,7 @@ public class TeamCommand implements CommandExecutor {
 
             Player argumentPlayer = getPlayerByName(args[1]);
             if (argumentPlayer == null) {
-                player.sendMessage(
+                sender.sendMessage(
                         ChatColor.DARK_RED
                                 + "Error: "
                                 + ChatColor.WHITE
@@ -117,7 +115,7 @@ public class TeamCommand implements CommandExecutor {
 
             Team argumentTeam = teamManager.getTeamByName(args[2]);
             if (argumentTeam == null) {
-                player.sendMessage(
+                sender.sendMessage(
                         ChatColor.DARK_RED
                                 + "Error: "
                                 + ChatColor.WHITE
@@ -135,7 +133,7 @@ public class TeamCommand implements CommandExecutor {
             teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);
         } else if (args[0].equalsIgnoreCase("remove")) {
                 if (args.length < 2) {
-                    player.sendMessage(
+                    sender.sendMessage(
                             ChatColor.DARK_RED
                                     + "Usage: "
                                     + ChatColor.WHITE
@@ -149,7 +147,7 @@ public class TeamCommand implements CommandExecutor {
 
                 Player argumentPlayer = getPlayerByName(args[1]);
                 if (argumentPlayer == null) {
-                    player.sendMessage(
+                    sender.sendMessage(
                             ChatColor.DARK_RED
                                     + "Error: "
                                     + ChatColor.WHITE
@@ -163,7 +161,7 @@ public class TeamCommand implements CommandExecutor {
 
                 Team team = teamManager.getTeamByPlayer(argumentPlayer);
                 if (team == null) {
-                    player.sendMessage(
+                    sender.sendMessage(
                             ChatColor.DARK_RED
                                     + "Error: "
                                     + ChatColor.WHITE
@@ -176,7 +174,7 @@ public class TeamCommand implements CommandExecutor {
                 // Remove player from team
                 teamManager.removePlayerFromTeam(argumentPlayer);
         } else {
-            sendUsage(player, command);
+            sendUsage(sender, command);
 
             return true;
         }
@@ -187,12 +185,12 @@ public class TeamCommand implements CommandExecutor {
     }
 
     /**
-     * Send the usage of this command to the given player
-     * @param player The player to send the command to
+     * Send the usage of this command to the given sender
+     * @param sender The sender to send the command to
      * @param command The command instance
      */
-    private void sendUsage(Player player, Command command) {
-        player.sendMessage(
+    private void sendUsage(CommandSender sender, Command command) {
+        sender.sendMessage(
                 ChatColor.DARK_RED
                         + "Usage: "
                         + ChatColor.WHITE

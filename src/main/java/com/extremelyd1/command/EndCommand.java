@@ -22,7 +22,7 @@ public class EndCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!CommandUtil.checkCommandSender(sender)) {
+        if (!CommandUtil.checkCommandSender(sender, false)) {
             return true;
         }
 

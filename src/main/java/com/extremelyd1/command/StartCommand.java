@@ -20,11 +20,15 @@ public class StartCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!CommandUtil.checkCommandSender(sender)) {
+        if (!CommandUtil.checkCommandSender(sender, false)) {
             return true;
         }
 
-        game.start((Player) sender);
+        if (sender instanceof Player) {
+            game.start((Player) sender);
+        } else {
+            game.start();
+        }
 
         return true;
     }
