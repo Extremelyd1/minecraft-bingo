@@ -1,12 +1,10 @@
-package com.extremelyd1.world;
+package com.extremelyd1.world.generation;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.world.generation.ChunkGenerationThread;
-import com.extremelyd1.world.generation.PendingChunk;
-import com.extremelyd1.world.generation.PendingWorld;
-import com.extremelyd1.world.zip.PendingZip;
-import com.extremelyd1.world.zip.WorldZippingThread;
+import com.extremelyd1.world.generation.zip.PendingZip;
+import com.extremelyd1.world.generation.zip.WorldZippingThread;
 import org.bukkit.*;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,27 +13,54 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PregenerationManager {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
+    /**
+     * The chunk generation thread
+     */
     private final ChunkGenerationThread chunkGenerationThread;
+    /**
+     * The zipping thread
+     */
     private final WorldZippingThread worldZippingThread;
 
-    private final Queue<PendingWorld> pendingWorldQueue;
-    private final Queue<PendingWorld> pendingZipQueue;
+    /**
+     * The bukkit task checking for updates
+     */
+    private BukkitTask updateTask;
 
-    private final Queue<PendingWorld> generatedWorldQueue;
+    /**
+     * A queue containing worlds that are pending generation
+     */
+    private final Queue<PendingGeneration> pendingGenerationQueue;
+    /**
+     * A queue containing pending zips that are pending zipping
+     */
+    private final Queue<PendingGeneration> pendingZipQueue;
+
+    /**
+     * A queue containing worlds that are done generating
+     */
+    private final Queue<PendingGeneration> generatedWorldQueue;
 
     public PregenerationManager(Game game) {
         this.game = game;
 
-        this.pendingWorldQueue = new ConcurrentLinkedQueue<>();
+        this.pendingGenerationQueue = new ConcurrentLinkedQueue<>();
         this.pendingZipQueue = new ConcurrentLinkedQueue<>();
 
         this.generatedWorldQueue = new ConcurrentLinkedQueue<>();
 
-        this.chunkGenerationThread = new ChunkGenerationThread(this);
+        this.chunkGenerationThread = new ChunkGenerationThread(
+                this,
+                game.getConfig().getPregenerationTicksPerCycle(),
+                game.getConfig().getPregenerationChunksPerCycle()
+        );
 
-        this.worldZippingThread = new WorldZippingThread(this);
+        this.worldZippingThread = new WorldZippingThread();
 
         Game.getLogger().info("Starting chunk generation thread");
         Bukkit.getScheduler().runTaskTimerAsynchronously(
@@ -45,15 +70,7 @@ public class PregenerationManager {
                 1L
         );
 
-        Game.getLogger().info("Starting world zipping thread");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(
-                this.game.getPlugin(),
-                this.worldZippingThread,
-                0L,
-                1L
-        );
-
-        Bukkit.getScheduler().runTaskTimer(
+        this.updateTask = Bukkit.getScheduler().runTaskTimer(
                 this.game.getPlugin(),
                 this::checkThreadUpdates,
                 0L,
@@ -67,16 +84,27 @@ public class PregenerationManager {
      * @param number The total number of worlds te create
      */
     public void createWorlds(int start, int number) {
+        // Checked whether the update task is stopped
+        if (this.updateTask.isCancelled()) {
+            // Restart the update task
+            this.updateTask = Bukkit.getScheduler().runTaskTimer(
+                    this.game.getPlugin(),
+                    this::checkThreadUpdates,
+                    0L,
+                    1L
+            );
+        }
+
         for (int i = start; i < number + start; i++) {
             // Add overworld with index
-            this.pendingWorldQueue.add(new PendingWorld(
+            this.pendingGenerationQueue.add(new PendingGeneration(
                     i,
                     World.Environment.NORMAL
             ));
 
             // If nether is enabled, add nether with index
             if (Bukkit.getAllowNether()) {
-                this.pendingWorldQueue.add(new PendingWorld(
+                this.pendingGenerationQueue.add(new PendingGeneration(
                         i,
                         World.Environment.NETHER
                 ));
@@ -84,11 +112,49 @@ public class PregenerationManager {
 
             // If end is enabled, add end with index
             if (Bukkit.getAllowEnd()) {
-                this.pendingWorldQueue.add(new PendingWorld(
+                this.pendingGenerationQueue.add(new PendingGeneration(
                         i,
                         World.Environment.THE_END
                 ));
             }
+        }
+    }
+
+    /**
+     * Stops all current world generation and zipping
+     * Shuts down world generation immediately and finishes the
+     * last zipping task before shutting down
+     */
+    public void stop() {
+        Game.getLogger().info("Stopping pregeneration...");
+
+        // Stop the update task
+        this.updateTask.cancel();
+
+        // Stop the chunk generation thread
+        // This will add all scheduled worlds in the thread
+        // to the generated queue
+        this.chunkGenerationThread.stop();
+
+        Game.getLogger().info("Unloading all active worlds");
+        while (!this.generatedWorldQueue.isEmpty()) {
+            PendingGeneration pendingGeneration = this.generatedWorldQueue.poll();
+
+            // Unload the world without saving
+            Bukkit.unloadWorld(pendingGeneration.getWorld(), false);
+
+            // Delete the world folder
+            pendingGeneration.deleteWorldFolder();
+        }
+
+        // Clear the rest of the queues
+        this.pendingGenerationQueue.clear();
+        this.pendingZipQueue.clear();
+
+        if (this.worldZippingThread.isIdle()) {
+            Game.getLogger().info("Pregeneration stopped successfully!");
+        } else {
+            Game.getLogger().info("Please wait for the current zip to finish before shutting down");
         }
     }
 
@@ -98,18 +164,19 @@ public class PregenerationManager {
     private void checkThreadUpdates() {
         // Check whether there are worlds generated that are ready for zipping
         if (!this.generatedWorldQueue.isEmpty()) {
-            PendingWorld pendingWorld = this.generatedWorldQueue.poll();
+            PendingGeneration pendingGeneration = this.generatedWorldQueue.poll();
 
             // Save world folder and unload world
-            Game.getLogger().info("Unloading generated " + pendingWorld + ", saving world folder");
-            pendingWorld.setWorldFolder(pendingWorld.getWorld().getWorldFolder());
+            Game.getLogger().info("Unloading generated " + pendingGeneration + ", saving world folder");
+            pendingGeneration.setWorldFolder(pendingGeneration.getWorld().getWorldFolder());
 
             // Unload world
-            Bukkit.unloadWorld(pendingWorld.getWorld(), true);
+            Bukkit.unloadWorld(pendingGeneration.getWorld(), true);
 
             // Add current generated world to zipping queue
-            Game.getLogger().info("Added generated " + pendingWorld + " to zipping queue");
-            this.pendingZipQueue.add(pendingWorld);
+            this.pendingZipQueue.add(pendingGeneration);
+
+            Game.getLogger().info("World " + pendingGeneration + " has generated, now zipping...");
         }
 
         checkGenerationThread();
@@ -121,26 +188,26 @@ public class PregenerationManager {
      * Checks the generation thread for updates
      */
     private void checkGenerationThread() {
-        if (this.chunkGenerationThread.isIdle() && !this.pendingWorldQueue.isEmpty()) {
+        if (this.chunkGenerationThread.isIdle() && !this.pendingGenerationQueue.isEmpty()) {
             Game.getLogger().info("Creating new pending world for chunk generation");
-            PendingWorld pendingWorld = this.pendingWorldQueue.poll();
+            PendingGeneration pendingGeneration = this.pendingGenerationQueue.poll();
 
             // Decide world creator based on world environment
             WorldCreator worldCreator = null;
-            switch (pendingWorld.getEnvironment()) {
+            switch (pendingGeneration.getEnvironment()) {
                 case NORMAL:
                     worldCreator = new WorldCreator(
-                            "world" + pendingWorld.getIndex()
+                            "world" + pendingGeneration.getIndex()
                     ).copy(this.game.getWorldManager().getWorld());
                     break;
                 case NETHER:
                     worldCreator = new WorldCreator(
-                            "world" + pendingWorld.getIndex() + "_nether"
+                            "world" + pendingGeneration.getIndex() + "_nether"
                     ).copy(this.game.getWorldManager().getNether());
                     break;
                 case THE_END:
                     worldCreator = new WorldCreator(
-                            "world" + pendingWorld.getIndex() + "_the_end"
+                            "world" + pendingGeneration.getIndex() + "_the_end"
                     ).copy(this.game.getWorldManager().getEnd());
                     break;
             }
@@ -148,11 +215,12 @@ public class PregenerationManager {
             // Create the new world
             World newWorld = Bukkit.createWorld(worldCreator);
 
-            // Set the world
-            pendingWorld.setWorld(newWorld);
             if (newWorld != null) {
-                Game.getLogger().info("World created successfully, scheduling chunk generation for " + pendingWorld);
-                World.Environment environment = pendingWorld.getEnvironment();
+                // Set the world
+                pendingGeneration.setWorld(newWorld);
+
+                Game.getLogger().info("World created successfully, scheduling chunk generation for " + pendingGeneration);
+                World.Environment environment = pendingGeneration.getEnvironment();
 
                 // Check whether it is the end environment
                 if (!environment.equals(World.Environment.THE_END)) {
@@ -160,12 +228,16 @@ public class PregenerationManager {
                     this.game.getWorldManager().setWorldBorder(newWorld);
 
                     // Schedule chunk generation of the world
-                    scheduleChunksInBorder(pendingWorld, this.chunkGenerationThread);
+                    scheduleChunksInBorder(pendingGeneration, this.chunkGenerationThread);
                 } else {
-                    Game.getLogger().info("End world, no chunk generation needed for " + pendingWorld + ", adding to zip queue");
+                    Game.getLogger().info(
+                            "End world, no chunk generation needed for "
+                                    + pendingGeneration
+                                    + ", adding to generated queue"
+                    );
 
                     // Pass pending world directly to generated queue
-                    this.generatedWorldQueue.add(pendingWorld);
+                    this.generatedWorldQueue.add(pendingGeneration);
                 }
             }
         }
@@ -177,11 +249,11 @@ public class PregenerationManager {
     private void checkZippingThread() {
         // Only start new zip if thread is idle and the queue is non-empty
         if (this.worldZippingThread.isIdle() && !this.pendingZipQueue.isEmpty()) {
-            PendingWorld pendingWorld = this.pendingZipQueue.poll();
-            Game.getLogger().info("Creating new pending zip for zipping for " + pendingWorld);
+            PendingGeneration pendingGeneration = this.pendingZipQueue.poll();
+            Game.getLogger().info("Creating new pending zip for zipping for " + pendingGeneration);
 
             String dirName = "world";
-            switch (pendingWorld.getEnvironment()) {
+            switch (pendingGeneration.getEnvironment()) {
                 case NORMAL:
                     break;
                 case NETHER:
@@ -194,23 +266,25 @@ public class PregenerationManager {
 
             PendingZip pendingZip = new PendingZip(
                     getWorldsZip(),
-                    "world" + pendingWorld.getIndex(),
-                    pendingWorld.getWorldFolder(),
-                    dirName
+                    "world" + pendingGeneration.getIndex(),
+                    pendingGeneration.getWorldFolder(),
+                    dirName,
+                    pendingGeneration.getEnvironment(),
+                    pendingGeneration.getIndex()
             );
 
             Game.getLogger().info("Scheduling pending zip " + pendingZip);
-            worldZippingThread.scheduleZip(pendingZip);
+            worldZippingThread.scheduleZip(game.getPlugin(), pendingZip);
         }
     }
 
     /**
      * Schedules all chunks within the world border to be generated by the given generation thread
-     * @param pendingWorld The pending world in which the chunks need to be generated
+     * @param pendingGeneration The pending world in which the chunks need to be generated
      * @param generationThread The thread to generate them in
      */
-    private void scheduleChunksInBorder(PendingWorld pendingWorld, ChunkGenerationThread generationThread) {
-        World world = pendingWorld.getWorld();
+    private void scheduleChunksInBorder(PendingGeneration pendingGeneration, ChunkGenerationThread generationThread) {
+        World world = pendingGeneration.getWorld();
         WorldBorder worldBorder = world.getWorldBorder();
 
         double size = worldBorder.getSize();
@@ -228,11 +302,11 @@ public class PregenerationManager {
 
         for (int x = x1; x <= x2; x++) {
             for (int z = z1; z <= z2; z++) {
-                pendingWorld.getPendingChunks().add(new PendingChunk(world, x, z));
+                pendingGeneration.add(new PendingChunk(world, x, z));
             }
         }
 
-        generationThread.scheduleWorld(pendingWorld);
+        generationThread.scheduleWorld(pendingGeneration);
     }
 
     /**
@@ -255,8 +329,12 @@ public class PregenerationManager {
         return worldsZipFile;
     }
 
-    public void addGeneratedWorld(PendingWorld pendingWorld) {
-        this.generatedWorldQueue.add(pendingWorld);
+    /**
+     * Add a world to the generated queue to indicate it is done generating chunks
+     * @param pendingGeneration The pending world that needs to be added
+     */
+    public void addGeneratedWorld(PendingGeneration pendingGeneration) {
+        this.generatedWorldQueue.add(pendingGeneration);
     }
 
 }

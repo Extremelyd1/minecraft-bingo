@@ -28,7 +28,17 @@ public class GenerateCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length < 2) {
+        if (args.length < 1) {
+            sendUsage(sender, command);
+
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("stop")) {
+            game.getWorldManager().stopPregeneration();
+
+            return true;
+        } else if (args.length < 2) {
             sendUsage(sender, command);
 
             return true;
@@ -73,7 +83,7 @@ public class GenerateCommand implements CommandExecutor {
                         + ChatColor.WHITE
                         + "/"
                         + command.getName()
-                        + " <start> <numberOfWorlds>"
+                        + " stop | <start> <numberOfWorlds>"
         );
     }
 }

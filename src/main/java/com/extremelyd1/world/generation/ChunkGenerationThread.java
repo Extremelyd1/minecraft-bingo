@@ -1,61 +1,105 @@
 package com.extremelyd1.world.generation;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.world.PregenerationManager;
 import com.google.common.collect.Queues;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
 public class ChunkGenerationThread implements Runnable {
 
-    private static final int TICKS_PER_CYCLE = 20;
-    private static final int CHUNKS_PER_CYCLE = 50;
+    /**
+     * The number of ticks between notifications
+     */
     private static final int TICKS_PER_NOTIFICATION = 5 * 20;
 
+    /**
+     * The pregeneration manager instance
+     */
     private final PregenerationManager pregenerationManager;
 
-    private final Queue<PendingWorld> pendingGenerations;
+    /**
+     * A queue containing worlds that are pending chunk generation
+     */
+    private final Queue<PendingGeneration> pendingGenerations;
 
+    /**
+     * The number of ticks in between generation cycles
+     */
+    private final int ticksPerCycle;
+    /**
+     * The number of chunks to generate per cycle
+     */
+    private final int chunksPerCycle;
+
+    /**
+     * Number of ticks passed
+     */
     private long ticked;
 
-    private int lastSchedulesLeft;
+    /**
+     * The number of chunks left since last check
+     */
+    private int lastChunksLeft;
 
+    /**
+     * The number of nanoseconds since the last call
+     */
     private long lastCallNanos;
 
+    /**
+     * Total number of chunks for this pending world
+     */
     private int numberOfChunks;
 
+    /**
+     * Whether the thread is idle and not generating anything
+     */
     private boolean idle;
 
-    public ChunkGenerationThread(PregenerationManager pregenerationManager) {
+    public ChunkGenerationThread(
+            PregenerationManager pregenerationManager,
+            int ticksPerCycle,
+            int chunksPerCycle
+    ) {
         this.pregenerationManager = pregenerationManager;
+
+        this.ticksPerCycle = ticksPerCycle;
+        this.chunksPerCycle = chunksPerCycle;
 
         this.pendingGenerations = Queues.newConcurrentLinkedQueue();
 
         this.ticked = 0;
-        this.lastSchedulesLeft = 0;
+        this.lastChunksLeft = 0;
         this.lastCallNanos = 0;
 
         this.idle = true;
     }
 
-    private double percentDone(int schedulesLeft) {
-        return 100.0D / this.numberOfChunks * (this.numberOfChunks - schedulesLeft);
-    }
-
+    /**
+     * Check whether to send a notification and if so, create and send it
+     */
     private void checkNotification() {
-        int schedulesLeft = this.pendingGenerations.size();
-        // There are no schedules left, no need to send a nofitication
-        if (schedulesLeft == 0 && this.lastSchedulesLeft == 0) {
+        PendingGeneration pendingGeneration = this.pendingGenerations.peek();
+        if (pendingGeneration == null) {
             return;
         }
 
-        NumberFormat formatter = new DecimalFormat("#0.00");
-        String percent = "   [" + formatter.format(percentDone(schedulesLeft)) + "% Done]";
-        String scheduleMessage = "Pending chunk generations: " + schedulesLeft + "/" + this.numberOfChunks + percent;
+        int chunksLeft = pendingGeneration.getPendingChunks().size();
+        // There are no chunks left to generate, no need to send a notification
+        if (chunksLeft == 0 && this.lastChunksLeft == 0) {
+            return;
+        }
 
+        // Calculate chunk progress percentage
+        NumberFormat formatter = new DecimalFormat("#0.00", new DecimalFormatSymbols(Locale.UK));
+        double percentage = 100.0 / this.numberOfChunks * (this.numberOfChunks - chunksLeft);
+
+        // Calculate chunks per second
         long currentTime = System.nanoTime();
         double delta = (currentTime - this.lastCallNanos);
         this.lastCallNanos = currentTime;
@@ -63,29 +107,36 @@ public class ChunkGenerationThread implements Runnable {
         // Divide by 1 * 10^9 (nanos)
         delta /= 1000000000;
 
-        double chunksPerSecond = (this.lastSchedulesLeft - schedulesLeft) / delta;
-        chunksPerSecond = (int)(chunksPerSecond * 100.0D) / 100.0D;
-        String generationMessage = "Generated " + chunksPerSecond + " chunks per second";
-        if (chunksPerSecond < 0.1) {
-            generationMessage = "Low generation cycle";
+        double chunksPerSecond = (this.lastChunksLeft - chunksLeft) / delta;
+        if (chunksPerSecond < 0) {
+            chunksPerSecond = 0;
         }
 
-        Game.getLogger().info(scheduleMessage);
-        Game.getLogger().info(generationMessage);
+        String progressMessage = "Chunk gen progress for %s: %d/%d [%s%%, %s chunks/s]";
+        progressMessage = String.format(
+                progressMessage,
+                pendingGeneration.toString(),
+                chunksLeft,
+                this.numberOfChunks,
+                formatter.format(percentage),
+                formatter.format(chunksPerSecond)
+        );
 
-        this.lastSchedulesLeft = schedulesLeft;
+        Game.getLogger().info(progressMessage);
+
+        this.lastChunksLeft = chunksLeft;
     }
 
     /**
      * Schedules the given pending world to be generated
-     * @param pendingWorld The pending world to be generated
+     * @param pendingGeneration The pending world to be generated
      */
-    public void scheduleWorld(PendingWorld pendingWorld) {
-        this.pendingGenerations.add(pendingWorld);
+    public void scheduleWorld(PendingGeneration pendingGeneration) {
+        this.pendingGenerations.add(pendingGeneration);
 
         // If the generation thread was idle, update new number of chunks
         if (this.idle) {
-            this.numberOfChunks = pendingWorld.getPendingChunks().size();
+            this.numberOfChunks = pendingGeneration.getPendingChunks().size();
 
             this.idle = false;
         }
@@ -105,45 +156,50 @@ public class ChunkGenerationThread implements Runnable {
         }
 
         // Check whether we are generation a new chunk batch
-        if (this.ticked % TICKS_PER_CYCLE != 0) {
+        if (this.ticked % ticksPerCycle != 0) {
             return;
         }
 
-        PendingWorld pendingWorld = this.pendingGenerations.peek();
-        if (pendingWorld == null) {
+        PendingGeneration pendingGeneration = this.pendingGenerations.peek();
+        if (pendingGeneration == null) {
             // No more worlds to generate
             this.idle = true;
             return;
         }
 
-        if (generateAsync(pendingWorld)) {
+        if (generateAsync(pendingGeneration)) {
+            // Check if all chunks have been generated
+            if (!pendingGeneration.isGenerated()) {
+                return;
+            }
+
             // Remove world from pending generations, because all
             // chunks have been generated
             this.pendingGenerations.poll();
 
             // Add it to the generated queue for unloading
-            this.pregenerationManager.addGeneratedWorld(pendingWorld);
+            this.pregenerationManager.addGeneratedWorld(pendingGeneration);
 
             // Update number of chunks for new pending world
-            pendingWorld = this.pendingGenerations.peek();
-            if (pendingWorld != null) {
-                this.numberOfChunks = pendingWorld.getPendingChunks().size();
+            pendingGeneration = this.pendingGenerations.peek();
+            if (pendingGeneration != null) {
+                this.numberOfChunks = pendingGeneration.getPendingChunks().size();
             }
         }
     }
 
     /**
      * Generate a given number of chunks asynchronously
-     * @param pendingWorld A non-empty pending world
+     * @param pendingGeneration A non-empty pending world
      * @return Whether a pending world is completed
      */
-    private boolean generateAsync(PendingWorld pendingWorld) {
-        Queue<PendingChunk> pendingChunks = pendingWorld.getPendingChunks();
+    private boolean generateAsync(PendingGeneration pendingGeneration) {
+        Queue<PendingChunk> pendingChunks = pendingGeneration.getPendingChunks();
         if (pendingChunks.peek() == null) {
             return true;
         }
 
-        for (int i = 0; i < CHUNKS_PER_CYCLE; i++) {
+        for (int i = 0; i < chunksPerCycle; i++) {
             CompletableFuture.supplyAsync(pendingChunks::poll)
                     .thenAccept(pending -> {
                         if (pending != null) {
@@ -153,6 +209,21 @@ public class ChunkGenerationThread implements Runnable {
         }
 
         return false;
+    }
+
+    /**
+     * Stops world generation immediately
+     */
+    public void stop() {
+        // Add all pending worlds to generated queue for unloading
+        while (!this.pendingGenerations.isEmpty()) {
+            this.pregenerationManager.addGeneratedWorld(
+                    this.pendingGenerations.poll()
+            );
+        }
+
+        // Set this thread to idle
+        this.idle = true;
     }
 
     /**

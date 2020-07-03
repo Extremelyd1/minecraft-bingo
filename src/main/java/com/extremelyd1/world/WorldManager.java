@@ -1,18 +1,14 @@
 package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.util.FileUtil;
+import com.extremelyd1.world.generation.PregenerationManager;
 import net.minecraft.server.v1_16_R1.*;
 import net.minecraft.server.v1_16_R1.Chunk;
 import org.bukkit.*;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.craftbukkit.v1_16_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
@@ -245,8 +241,20 @@ public class WorldManager {
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
     }
 
+    /**
+     * Instructs the pregeneration manager to construct the given worlds
+     * @param start The start index of the worlds
+     * @param numberOfWorlds The number of worlds to create
+     */
     public void createWorlds(int start, int numberOfWorlds) {
         this.pregenerationManager.createWorlds(start, numberOfWorlds);
+    }
+
+    /**
+     * Instructs the pregeneration manager to stop the pregeneration process
+     */
+    public void stopPregeneration() {
+        this.pregenerationManager.stop();
     }
 
     /**

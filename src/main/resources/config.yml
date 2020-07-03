@@ -9,4 +9,7 @@ border:
 timer:
   enable: True
   length: 1800
-enable-pregeneration-mode: False
+pregeneration-mode:
+  enable: False
+  ticks-per-cycle: 100
+  chunks-per-cycle: 200

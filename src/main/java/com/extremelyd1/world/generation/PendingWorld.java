@@ -1,45 +1,32 @@
 package com.extremelyd1.world.generation;
 
-import org.bukkit.World;
+import com.extremelyd1.game.Game;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.io.IOException;
 
 public class PendingWorld {
 
-    private final int index;
-    private final World.Environment environment;
-    private final Queue<PendingChunk> pendingChunks;
+    /**
+     * The folder where this world resides
+     */
+    protected File worldFolder;
 
-    private World world;
-    private File worldFolder;
-
-    public PendingWorld(int index, World.Environment environment) {
-        this.index = index;
-        this.environment = environment;
-
-        this.pendingChunks = new ConcurrentLinkedQueue<>();
+    public PendingWorld() {
     }
 
-    public int getIndex() {
-        return index;
-    }
-
-    public World.Environment getEnvironment() {
-        return environment;
-    }
-
-    public Queue<PendingChunk> getPendingChunks() {
-        return pendingChunks;
-    }
-
-    public World getWorld() {
-        return world;
-    }
-
-    public void setWorld(World world) {
-        this.world = world;
+    /**
+     * Delete the world folder
+     */
+    public void deleteWorldFolder() {
+        Game.getLogger().info("Deleting world folder for " + toString());
+        try {
+            FileUtils.deleteDirectory(worldFolder);
+        } catch (IOException e) {
+            Game.getLogger().warning("Could not delete world folder for " + toString() + ":");
+            e.printStackTrace();
+        }
     }
 
     public File getWorldFolder() {
@@ -48,9 +35,5 @@ public class PendingWorld {
 
     public void setWorldFolder(File worldFolder) {
         this.worldFolder = worldFolder;
-    }
-
-    public String toString() {
-        return "PendingWorld[" + index + ", " + environment + "]";
     }
 }

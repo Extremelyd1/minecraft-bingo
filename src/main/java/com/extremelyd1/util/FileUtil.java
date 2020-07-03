@@ -68,10 +68,6 @@ public class FileUtil {
         }
     }
 
-    public static void packZip(File zipFile, String startPath, File file) {
-        packZip(zipFile, startPath, file, "");
-    }
-
     /**
      * Packages a file/directory into a zip
      * @param zipFile The destination zip file
@@ -81,15 +77,22 @@ public class FileUtil {
      */
     public static void packZip(File zipFile, String startPath, File file, String dirName) {
         Game.getLogger().info(
-                "Packaging " + startPath + file.getName() + " to zip " + zipFile.getName()
+                "Packaging "
+                        + startPath
+                        + "/"
+                        + (dirName.equals("") ? file.getName() : dirName)
+                        + " to zip "
+                        + zipFile.getName()
         );
 
         try {
             // Create a temp file
-            File tempFile = File.createTempFile(zipFile.getName(), null);
+            File tempFile = File.createTempFile(zipFile.getName(), null, zipFile.getParentFile());
 
             // Delete it to rename existing zip to it
-            tempFile.delete();
+            if (!tempFile.delete()) {
+                Game.getLogger().info("Could not delete temp file for zip");
+            }
 
             if (!zipFile.renameTo(tempFile)) {
                 Game.getLogger().warning("Could not rename zip to temp file");
@@ -142,6 +145,12 @@ public class FileUtil {
         Game.getLogger().info("Done packaging");
     }
 
+    /**
+     * Adds a directory to a zip file
+     * @param zos The zip file
+     * @param path The path to which to write the file
+     * @param dir The directory
+     */
     private static void zipDirectory(ZipOutputStream zos, String path, File dir) throws IOException {
         zipDirectory(zos, path, dir, "");
     }
@@ -215,6 +224,12 @@ public class FileUtil {
         zos.closeEntry();
     }
 
+    /**
+     * Builds a path string from the given existing path string and a file
+     * @param path The existing path string
+     * @param file The file to append to this path string
+     * @return A string containing a path
+     */
     private static String buildPath(String path, String file) {
         if (path == null || path.isEmpty()) {
             return file;
