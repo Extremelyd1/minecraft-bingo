@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.File;
 import java.io.IOException;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PregenerationManager {
@@ -211,6 +212,9 @@ public class PregenerationManager {
                     ).copy(this.game.getWorldManager().getEnd());
                     break;
             }
+
+            // Randomize seed of worldcreator
+            worldCreator.seed(new Random().nextLong());
 
             // Create the new world
             World newWorld = Bukkit.createWorld(worldCreator);
