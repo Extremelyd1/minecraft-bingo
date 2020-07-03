@@ -66,7 +66,15 @@ public class Config {
     /**
      * Whether to pregenerate the worlds within the border in advance
      */
-    private boolean pregenerateWorlds;
+    private final boolean pregenerateWorlds;
+    /**
+     * The number of ticks in between generation cycles
+     */
+    private final int pregenerationTicksPerCycle;
+    /**
+     * The number of chunks to generate per cycle
+     */
+    private final int pregenerationChunksPerCycle;
 
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
@@ -106,7 +114,11 @@ public class Config {
         timerLength = plugin.getConfig().getInt("timer.length");
 
         // Only allow pregeneration of worlds if there is the border is enabled
-        pregenerateWorlds = borderEnabled && plugin.getConfig().getBoolean("pregenerate-worlds");
+        pregenerateWorlds = borderEnabled && plugin.getConfig().getBoolean("pregeneration-mode.enable");
+
+        pregenerationTicksPerCycle = plugin.getConfig().getInt("pregeneration-mode.ticks-per-cycle");
+
+        pregenerationChunksPerCycle = plugin.getConfig().getInt("pregeneration-mode.chunks-per-cycle");
     }
 
     /**
@@ -198,5 +210,13 @@ public class Config {
 
     public boolean isPregenerateWorlds() {
         return pregenerateWorlds;
+    }
+
+    public int getPregenerationTicksPerCycle() {
+        return pregenerationTicksPerCycle;
+    }
+
+    public int getPregenerationChunksPerCycle() {
+        return pregenerationChunksPerCycle;
     }
 }

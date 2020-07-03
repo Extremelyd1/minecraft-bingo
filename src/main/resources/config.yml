@@ -9,4 +9,7 @@ border:
 timer:
   enable: True
   length: 1800
-pregenerate-worlds: False
+pregeneration-mode:
+  enable: False
+  ticks-per-cycle: 100
+  chunks-per-cycle: 200

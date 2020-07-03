@@ -1,5 +1,5 @@
 name: MinecraftBingo
-version: 1.2.0
+version: 1.3.0
 main: com.extremelyd1.main.Bingo
 author: Extremelyd1
 api-version: 1.15
@@ -64,3 +64,8 @@ commands:
   test:
     description: Command to test a new feature
     usage: /<command>
+
+  generate:
+    aliases: [worlds, gen]
+    description: Pre-generate worlds
+    usage: /<command> stop | <start> <numWorlds>

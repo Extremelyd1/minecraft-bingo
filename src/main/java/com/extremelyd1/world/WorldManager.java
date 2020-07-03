@@ -1,14 +1,10 @@
 package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.world.generation.PregenerationManager;
+import net.minecraft.server.v1_16_R1.*;
 import net.minecraft.server.v1_16_R1.Chunk;
-import net.minecraft.server.v1_16_R1.StructureBoundingBox;
-import net.minecraft.server.v1_16_R1.StructureGenerator;
-import net.minecraft.server.v1_16_R1.StructureStart;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.StructureType;
+import org.bukkit.*;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.craftbukkit.v1_16_R1.CraftChunk;
@@ -17,9 +13,6 @@ import java.util.Map;
 import java.util.Random;
 
 public class WorldManager {
-
-    private static int CHUNK_SIZE = 16;
-    private static int BUFFER = 1;
 
     /**
      * The game instance
@@ -38,6 +31,12 @@ public class WorldManager {
      * The end world instance
      */
     private final World end;
+
+    /**
+     * The pregeneration manager instance
+     * Only created if config value for pregeneration is true
+     */
+    private PregenerationManager pregenerationManager;
 
     public WorldManager(Game game) throws IllegalArgumentException {
         this.game = game;
@@ -73,17 +72,16 @@ public class WorldManager {
         world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         world.setTime(0);
 
+        // If the server is in pregeneration mode, create manager
+        // and stop further initialization
+        if (this.game.getConfig().isPregenerateWorlds()) {
+            this.pregenerationManager = new PregenerationManager(this.game);
+            return;
+        }
+
         if (game.getConfig().isBorderEnabled()) {
             Game.getLogger().info("Settings overworld world border...");
-            setWorldBorder(
-                    world,
-                    StructureType.STRONGHOLD,
-                    "stronghold",
-                    // According to the wiki: https://minecraft.gamepedia.com/Stronghold
-                    // Strongholds spawn in rings of which the first ring spawn at most 2688 blocks aways from 0, 0, 0
-                    3000,
-                    game.getConfig().getOverworldBorderSize()
-            );
+            setWorldBorder(world);
             Game.getLogger().info("Overworld border set");
 
             // Set the world spawn location to the world border center
@@ -95,24 +93,35 @@ public class WorldManager {
 
             if (nether != null) {
                 Game.getLogger().info("Settings nether world border...");
-                setWorldBorder(
-                        nether,
-                        StructureType.NETHER_FORTRESS,
-                        "fortress",
-                        // Don't know what the search radius should be, but I think
-                        // there should be a fortress within this radius always
-                        3000,
-                        game.getConfig().getNetherBorderSize()
-                );
+                setWorldBorder(nether);
                 Game.getLogger().info("Nether border set");
             }
         }
+    }
 
-        if (game.getConfig().isPregenerateWorlds()) {
-            pregenerateWorldInBorder(world);
-            if (nether != null) {
-                pregenerateWorldInBorder(nether);
-            }
+    /**
+     * Sets the world border with given size in the given world ensuring that the closest structure given by
+     * structureType and structureName are within this border
+     * The size is determined by the config value
+     * @param world The world to set the border on
+     */
+    public void setWorldBorder(World world) {
+        if (world.getEnvironment().equals(World.Environment.NORMAL)) {
+            setWorldBorder(
+                    world,
+                    StructureType.STRONGHOLD,
+                    "stronghold",
+                    3000,
+                    this.game.getConfig().getOverworldBorderSize()
+            );
+        } else if (world.getEnvironment().equals(World.Environment.NETHER)) {
+            setWorldBorder(
+                    world,
+                    StructureType.NETHER_FORTRESS,
+                    "fortress",
+                    3000,
+                    this.game.getConfig().getNetherBorderSize()
+            );
         }
     }
 
@@ -224,65 +233,28 @@ public class WorldManager {
         border.setSize(size);
     }
 
-    private void pregenerateWorldInBorder(World world) {
-        Game.getLogger().info(
-                "Pregenerating all chunks within the world border for world " + world.getEnvironment()
-        );
-
-        WorldBorder worldBorder = world.getWorldBorder();
-
-        double size = worldBorder.getSize();
-
-        Location corner1 = worldBorder.getCenter().clone().add(size / 2.0D, size / 2.0D, size / 2.0D);
-        Location corner2 = worldBorder.getCenter().clone().subtract(size / 2.0D, size / 2.0D, size / 2.0D);
-        int x1 = Integer.min(corner1.getBlockX() / CHUNK_SIZE, corner2.getBlockX() / CHUNK_SIZE) - BUFFER;
-        int z1 = Integer.min(corner1.getBlockZ() / CHUNK_SIZE, corner2.getBlockZ() / CHUNK_SIZE) - BUFFER;
-        int x2 = Integer.max(corner1.getBlockX() / CHUNK_SIZE, corner2.getBlockX() / CHUNK_SIZE) + BUFFER;
-        int z2 = Integer.max(corner1.getBlockZ() / CHUNK_SIZE, corner2.getBlockZ() / CHUNK_SIZE) + BUFFER;
-
-        int totalChunks = (x2 - x1 + 1) * (z2 - z1 + 1);
-
-        Game.getLogger().info(String.format(
-                "Generating %d chunks in total",
-                totalChunks
-        ));
-
-        int chunksDone = 0;
-        boolean sentMessage = false;
-        for (int x = x1; x <= x2; x++) {
-            for (int z = z1; z <= z2; z++) {
-                if (!world.isChunkGenerated(x, z)) {
-                    // This generates the chunk
-                    world.getChunkAt(x, z);
-                }
-                chunksDone++;
-
-                int percentage = chunksDone * 100 / totalChunks;
-                if (percentage != 0 && percentage % 5 == 0) {
-                    if (!sentMessage) {
-                        Game.getLogger().info(String.format(
-                                "Generated %d/%d (%d%%) of chunks",
-                                chunksDone,
-                                totalChunks,
-                                percentage
-                        ));
-                        sentMessage = true;
-                    }
-                } else {
-                    sentMessage = false;
-                }
-            }
-        }
-
-        Game.getLogger().info("Generation for world " + world.getEnvironment() + " finished");
-    }
-
     /**
      * Resets the gamerules of the overworld to default vanilla behaviour
      */
     public void onGameStart() {
         world.setGameRule(GameRule.DO_MOB_SPAWNING, true);
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+    }
+
+    /**
+     * Instructs the pregeneration manager to construct the given worlds
+     * @param start The start index of the worlds
+     * @param numberOfWorlds The number of worlds to create
+     */
+    public void createWorlds(int start, int numberOfWorlds) {
+        this.pregenerationManager.createWorlds(start, numberOfWorlds);
+    }
+
+    /**
+     * Instructs the pregeneration manager to stop the pregeneration process
+     */
+    public void stopPregeneration() {
+        this.pregenerationManager.stop();
     }
 
     /**
@@ -299,5 +271,9 @@ public class WorldManager {
 
     public World getNether() {
         return nether;
+    }
+
+    public World getEnd() {
+        return end;
     }
 }

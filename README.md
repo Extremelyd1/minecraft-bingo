@@ -9,11 +9,21 @@ The first team to reach a completed row, column or diagonal wins the game.
 Collecting items is simply done through the vanilla game experience of minecraft.
 
 ## Usage
-Players that have OP on the server have access to all commands. Before being able to start the game, a player needs to create teams with the /team command. Other settings can be configured as explained in the commands section below. As soon as the game is started, teams are scattered across the map (players within teams are grouped together). The teams work together to gather the items on their bingo card. If a team successfully completed the card, the game ends. When, however, the time limit is reached, a winner is decided based on the number of items collected by each of the teams. The team with the highest number of items wins, or the game ends in a tie.
+Players that have OP on the server have access to all commands. 
+Before being able to start the game, a player needs to create teams with the /team command. 
+Other settings can be configured as explained in the commands section below. 
+As soon as the game is started, teams are scattered across the map (players within teams are grouped together). 
+The teams work together to gather the items on their bingo card. 
+If a team successfully completed the card, the game ends. 
+When, however, the time limit is reached, a winner is decided based on the number of items collected by each of the teams. 
+The team with the highest number of items wins, or the game ends in a tie.
 Note that the bingo card can be right-clicked in order to view which items need to be gathered.
 
 ## Install
-The plugin requires a Spigot server running version 1.15.2. Move the `.txt` files and the `images/images.zip` in the `item_data` folder to `<server>/plugins/MinecraftBingo/item_data`. Then unzip the `images/images.zip` archive.
+The plugin can be downloaded from one of the [releases](https://github.com/Extremelyd1/minecraft-bingo/releases) or compiled yourself using Spigot.
+The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server running version 1.15.2. 
+Move the `.txt` files and the `images/images.zip` in the `item_data` folder to `<server>/plugins/MinecraftBingo/item_data`. 
+Then unzip the `images/images.zip` archive.
 The first time you run the plugin a config file will be generated in `<server>/plugins/MinecraftBingo`, in which you can edit some configuration settings.
 
 ## Commands
@@ -33,9 +43,21 @@ The first time you run the plugin a config file will be generated in `<server>/p
 - `/maintenance` Enable maintenance mode (this will disallow all non-op players from joining)
 - `/wincondition <full|number of lines to complete>` Change the wincondition to either a full card or a number of lines (rows, columns or diagonals) to complete in order to win
 - `/itemdistribution <S,A,B,C,D>` Change the item distribution scales, the number of S, A, B, C, D tier items that appear on the bingo card
-- `/timer <enable|disable|length>` Enable/disable the timer or set the length of the timer
+- `/timer <enable|disable|length>` Enable/disable the timer or set the length of the timer (the length can be specified in hours/minutes/seconds, such as `/timer 10m` or `/timer 1h20m30s`)
 
 #### Miscellaneous commands
 - `/bingo` Check the items on the card
 - `/card` Receive a new bingo card (if somehow lost)
 - `/reroll` Reroll the items on the bingo card
+
+## World generation
+The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.
+This feature currently is only functional on [Paper](https://papermc.io/) (a different minecraft server).
+The following command can be used to manage this:
+- `/generate stop | <start> <numWorlds>` Start/stop pre-generating worlds and storing them in zip format  
+
+This command only works if the config value `pregeneration-mode` is enabled.
+The config file also include two parameters that can tweak/boost the chunk generation based on the processing power of your machine.
+The `ticks-per-cycle` parameter denotes the time between chunk generation cycles and `chunks-per-cycle` denotes how many chunks it should generate in a single cycle.
+A lower `ticks-per-cycle` and higher `chunks-per-cycle` will require more RAM and processing speed.
+Note that using this feature and increasing these parameters drastically may crash your server. 
