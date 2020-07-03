@@ -194,6 +194,8 @@ public class Game {
 
             if (config.isPregenerateWorlds()) {
                 put("generate", new GenerateCommand(game));
+            } else {
+                put("generate", new DisabledCommand());
             }
         }};
 
