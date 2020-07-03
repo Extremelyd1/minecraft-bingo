@@ -37,15 +37,6 @@ import java.util.logging.Logger;
 public class Game {
 
     /**
-     * The base value of the spread radius
-     */
-    private static final float BASE_RADIUS = 200;
-    /**
-     * The increase in spread radius for each team
-     */
-    private static final float RADIUS_TEAM_INCREASE = 100;
-
-    /**
      * The prefix string
      */
     public static final String PREFIX = ChatColor.BOLD.toString() + ChatColor.BLUE + "BINGO " + ChatColor.RESET;
@@ -228,11 +219,21 @@ public class Game {
             return;
         }
 
+        // Calculate radius of spawn circle based on whether a border is enabled
+        int radius;
+        if (config.isBorderEnabled()) {
+            // A point on the circle is at most as far away from the border as from the center
+            radius = Math.round(config.getOverworldBorderSize() / 4f);
+        } else {
+            // Base radius of 200, with an increase of 100 per team
+            radius = 200 + 100 * teamManager.getNumTeams();
+        }
+
         // Gather locations to spread teams
         List<Location> locations = LocationUtil.getRandomCircleLocations(
                 worldManager.getSpawnLocation(),
                 teamManager.getNumTeams(),
-                BASE_RADIUS + RADIUS_TEAM_INCREASE * teamManager.getNumTeams()
+                radius
         );
 
         // Create chunk loader,

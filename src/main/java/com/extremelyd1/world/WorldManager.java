@@ -258,7 +258,7 @@ public class WorldManager {
     }
 
     /**
-     * Gets the spawn location of the given environment
+     * Gets the spawn location of the overworld
      * @return The spawn location
      */
     public Location getSpawnLocation() {
