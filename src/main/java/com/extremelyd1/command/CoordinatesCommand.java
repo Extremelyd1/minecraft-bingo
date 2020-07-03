@@ -23,7 +23,7 @@ public class CoordinatesCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute this command as console");
             return true;
@@ -51,6 +51,17 @@ public class CoordinatesCommand implements CommandExecutor {
 
         Location location = player.getLocation();
 
+        // Either empty or the text that the player sends after the command
+        String description = "";
+        if (args.length > 0) {
+            StringBuilder descBuilder = new StringBuilder();
+            for (String arg : args) {
+                descBuilder.append(" ").append(arg);
+            }
+
+            description = descBuilder.toString();
+        }
+
         for (Player teamPlayer : team.getPlayers()) {
             teamPlayer.sendMessage(
                     team.getColor() + "TEAM "
@@ -60,6 +71,7 @@ public class CoordinatesCommand implements CommandExecutor {
                             + Math.round(location.getX()) + ", "
                             + Math.round(location.getY()) + ", "
                             + Math.round(location.getZ()) + "]"
+                            + ChatColor.WHITE + description
             );
         }
 

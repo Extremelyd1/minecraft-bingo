@@ -49,6 +49,8 @@ The first time you run the plugin a config file will be generated in `<server>/p
 - `/bingo` Check the items on the card
 - `/card` Receive a new bingo card (if somehow lost)
 - `/reroll` Reroll the items on the bingo card
+- `/coords [message]` Sends your current coordinates to your team (optionally with a message)
+- `/all [message]` Allows players to talk to all players in the game, bypassing the team chat
 
 ## World generation
 The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.
