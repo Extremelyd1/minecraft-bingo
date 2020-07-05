@@ -2,6 +2,8 @@ package com.extremelyd1.util;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,20 +61,41 @@ public class LocationUtil {
     }
 
     /**
+     * Checks whether the block column given by x and z contains a valid spawn location at the highest y block
+     * @param x The x coordinate
+     * @param z The z coordinate
+     * @return True if the highest y block in this column is a valid spawn
+     */
+    public static boolean containsValidSpawnLocation(World world, int x, int z) {
+        Location location = new Location(
+                world,
+                x,
+                world.getHighestBlockYAt(x, z),
+                z
+        );
+        return isValidSpawnLocation(location);
+    }
+
+    /**
      * Checks whether a given location is valid for spawning a player
      * @param location The location to check
      * @return Whether this is a valid location to spawn
      */
-    private static boolean isValidSpawnLocation(Location location) {
+    public static boolean isValidSpawnLocation(Location location) {
         Material topMaterial = copyLocation(location).add(0, 1, 0).getBlock().getType();
         Material middleMaterial = location.getBlock().getType();
-        Material bottomMaterial = copyLocation(location).subtract(0, 1, 0).getBlock().getType();
+        Block bottomBlock = copyLocation(location).subtract(0, 1, 0).getBlock();
+        // Check whether the bottom block is valid
+        // Non-empty, non-liquid, non-passable
+        boolean bottomValid = !bottomBlock.isEmpty()
+                && !bottomBlock.isLiquid()
+                && !bottomBlock.isPassable();
 
-        // If the top is not air, middle is not air, or bottom is not a non-air block
-        // It is not a valid spawn
+        // If the top is not air, middle is not air, or bottom is not a non-air block,
+        // it is not a valid spawn
         return airMaterials.contains(topMaterial)
                 && airMaterials.contains(middleMaterial)
-                && !airMaterials.contains(bottomMaterial);
+                && bottomValid;
     }
 
     /**
@@ -80,7 +103,7 @@ public class LocationUtil {
      * @param location The location to copy
      * @return A copy of the location
      */
-    private static Location copyLocation(Location location) {
+    public static Location copyLocation(Location location) {
         return new Location(
                 location.getWorld(),
                 location.getX(),

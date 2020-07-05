@@ -20,7 +20,7 @@ import com.extremelyd1.util.TimeUtil;
 import com.extremelyd1.util.ItemUtil;
 import com.extremelyd1.util.LocationUtil;
 import com.extremelyd1.util.StringUtil;
-import com.extremelyd1.world.ChunkLoader;
+import com.extremelyd1.world.spawn.SpawnLoader;
 import com.extremelyd1.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
@@ -243,13 +243,25 @@ public class Game {
                 radius
         );
 
+        if (player != null) {
+            player.sendMessage(
+                    Game.PREFIX + "Preparing spawn locations for teams..."
+            );
+        }
+
         // Create chunk loader,
         // and do rest of start logic once chunks are loaded
-        new ChunkLoader(
+        new SpawnLoader(
                 plugin,
                 worldManager,
                 locations,
                 () -> {
+                    if (player != null) {
+                        player.sendMessage(
+                                Game.PREFIX + "Spawn locations found, starting game"
+                        );
+                    }
+
                     this.state = State.IN_GAME;
 
                     // Create random bingo card
