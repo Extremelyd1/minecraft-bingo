@@ -273,14 +273,16 @@ public class Game {
 
                     int index = 0;
                     for (Team team : teamManager.getTeams()) {
-                        Location location = locations.get(index++);
+                        // Get location from list and convert from block position to spawn position
+                        Location location = locations.get(index++).add(0.5, 1, 0.5);
+
+                        team.setSpawnLocation(location);
 
                         for (Player teamPlayer : team.getPlayers()) {
                             // Give player resistance 5 before teleporting to prevent fall damage
                             teamPlayer.addPotionEffect(PotionEffects.RESISTANCE);
 
                             teamPlayer.teleport(location);
-                            teamPlayer.setBedSpawnLocation(location, true);
 
                             // Just to be sure, reset player again
                             teamPlayer.getInventory().clear();

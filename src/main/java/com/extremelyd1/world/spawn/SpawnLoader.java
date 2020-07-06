@@ -79,6 +79,8 @@ public class SpawnLoader implements Listener {
      */
     public void start() {
         if (game.getConfig().isPreventWaterSpawns()) {
+            Game.getLogger().info("Starting threads to find team spawns");
+
             this.findThreads = new HashMap<>();
 
             // Create all the threads for finding spawns
@@ -145,7 +147,12 @@ public class SpawnLoader implements Listener {
         }
     }
 
+    /**
+     * Starts the chunk loading process with the list of locations
+     */
     private void startChunkLoading() {
+        Game.getLogger().info("Starting chunk loading of found spawn locations");
+
         if (this.threadCheckTask != null) {
             this.threadCheckTask.cancel();
         }
@@ -181,6 +188,8 @@ public class SpawnLoader implements Listener {
 
         // If we have loaded all chunks that needed to be loaded
         if (toBeLoadedChunks.isEmpty()) {
+            Game.getLogger().info("All chunks are loaded, executing callback");
+
             // Run on-load method
             onLoad.run();
 

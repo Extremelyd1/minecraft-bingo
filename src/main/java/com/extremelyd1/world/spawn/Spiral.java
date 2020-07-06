@@ -53,8 +53,6 @@ public class Spiral {
         this.stepCounter = 0;
 
         this.numIterations = 0;
-
-        Game.getLogger().info("Starting spiral search at location: " + this.center);
     }
 
     /**
@@ -88,10 +86,6 @@ public class Spiral {
                     || this.direction.equals(EnumDirection.NORTH)) {
                 this.stepSize++;
                 this.currentWidth++;
-
-                if (this.currentWidth % 50 == 0) {
-                    Game.getLogger().info("Increasing width of spiral to " + this.currentWidth);
-                }
             }
 
             this.stepCounter = 0;

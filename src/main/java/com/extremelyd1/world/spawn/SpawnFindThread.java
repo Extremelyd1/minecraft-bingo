@@ -63,13 +63,6 @@ public class SpawnFindThread extends Thread {
             // Advance the spiral a step and check new location
             ChunkCoords newChunkCoords = this.spiral.step();
 
-            Game.getLogger().info(String.format(
-                    "New spiral step: x=%d, z=%d, biome=%s",
-                    newChunkCoords.getX(),
-                    newChunkCoords.getZ(),
-                    newChunkCoords.getBiome().toString()
-            ));
-
             Location centerLocation = newChunkCoords.getCenter();
             if (!LocationUtil.isInsideWorldBorder(centerLocation)) {
                 Game.getLogger().info(
