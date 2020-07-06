@@ -55,6 +55,11 @@ public class Config {
     private final int netherBorderSize;
 
     /**
+     * Whether to prevent teams from spawning in water
+     */
+    private final boolean preventWaterSpawns;
+
+    /**
      * Whether a timer is enabled
      */
     private boolean timerEnabled;
@@ -79,8 +84,8 @@ public class Config {
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
 
-        enableBlacklist = plugin.getConfig().getBoolean("enableBlacklist");
-        String defaultItemDistributionString = plugin.getConfig().getString("defaultItemDistribution");
+        enableBlacklist = plugin.getConfig().getBoolean("enable-blacklist");
+        String defaultItemDistributionString = plugin.getConfig().getString("default-item-distribution");
 
         if (defaultItemDistributionString == null
                 || !defaultItemDistributionString.contains(",")) {
@@ -98,9 +103,11 @@ public class Config {
         numCTierItems = parseItemDistribution(itemDistributions[3]);
         numDTierItems = parseItemDistribution(itemDistributions[4]);
 
-        defaultNumLinesComplete = plugin.getConfig().getInt("defaultBingoLinesCompleteForWin");
+        defaultNumLinesComplete = plugin.getConfig().getInt("default-num-lines-complete-for-win");
 
-        showCurrentlyWinningTeam = plugin.getConfig().getBoolean("showCurrentlyWinningTeam");
+        showCurrentlyWinningTeam = plugin.getConfig().getBoolean("show-currently-winning-team");
+
+        preventWaterSpawns = plugin.getConfig().getBoolean("prevent-water-spawns");
 
         borderEnabled = plugin.getConfig().getBoolean("border.enable");
         overworldBorderSize = plugin.getConfig().getInt("border.overworld-size");
@@ -178,6 +185,10 @@ public class Config {
 
     public boolean showCurrentlyWinningTeam() {
         return showCurrentlyWinningTeam;
+    }
+
+    public boolean isPreventWaterSpawns() {
+        return preventWaterSpawns;
     }
 
     public boolean isBorderEnabled() {

@@ -20,7 +20,7 @@ import com.extremelyd1.util.TimeUtil;
 import com.extremelyd1.util.ItemUtil;
 import com.extremelyd1.util.LocationUtil;
 import com.extremelyd1.util.StringUtil;
-import com.extremelyd1.world.ChunkLoader;
+import com.extremelyd1.world.spawn.SpawnLoader;
 import com.extremelyd1.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
@@ -243,13 +243,25 @@ public class Game {
                 radius
         );
 
+        if (player != null) {
+            player.sendMessage(
+                    Game.PREFIX + "Preparing spawn locations for teams..."
+            );
+        }
+
         // Create chunk loader,
         // and do rest of start logic once chunks are loaded
-        new ChunkLoader(
-                plugin,
+        new SpawnLoader(
+                this,
                 worldManager,
                 locations,
                 () -> {
+                    if (player != null) {
+                        player.sendMessage(
+                                Game.PREFIX + "Spawn locations found, starting game"
+                        );
+                    }
+
                     this.state = State.IN_GAME;
 
                     // Create random bingo card
@@ -261,14 +273,16 @@ public class Game {
 
                     int index = 0;
                     for (Team team : teamManager.getTeams()) {
-                        Location location = locations.get(index++);
+                        // Get location from list and convert from block position to spawn position
+                        Location location = locations.get(index++).add(0.5, 1, 0.5);
+
+                        team.setSpawnLocation(location);
 
                         for (Player teamPlayer : team.getPlayers()) {
                             // Give player resistance 5 before teleporting to prevent fall damage
                             teamPlayer.addPotionEffect(PotionEffects.RESISTANCE);
 
                             teamPlayer.teleport(location);
-                            teamPlayer.setBedSpawnLocation(location, true);
 
                             // Just to be sure, reset player again
                             teamPlayer.getInventory().clear();

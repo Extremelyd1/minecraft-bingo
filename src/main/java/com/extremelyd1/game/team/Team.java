@@ -5,6 +5,7 @@ import com.extremelyd1.bingo.BingoCardInventory;
 import com.extremelyd1.game.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -37,6 +38,11 @@ public class Team {
      * The bingo card inventory associated with this team
      */
     private BingoCardInventory bingoCardInventory;
+
+    /**
+     * The spawn location of the team
+     */
+    private Location spawnLocation;
 
     public Team(String name, ChatColor color) {
         this.name = name;
@@ -153,5 +159,13 @@ public class Team {
             bingoCardInventory = new BingoCardInventory(bingoCard);
         }
         return bingoCardInventory;
+    }
+
+    public Location getSpawnLocation() {
+        return spawnLocation;
+    }
+
+    public void setSpawnLocation(Location spawnLocation) {
+        this.spawnLocation = spawnLocation;
     }
 }
