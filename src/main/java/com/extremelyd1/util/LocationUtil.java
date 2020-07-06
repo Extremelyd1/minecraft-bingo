@@ -3,6 +3,7 @@ package com.extremelyd1.util;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
@@ -15,7 +16,29 @@ public class LocationUtil {
     /**
      * A list of air materials
      */
-    private static final List<Material> airMaterials = new ArrayList<>(Arrays.asList(Material.AIR, Material.VOID_AIR));
+    private static final List<Material> airMaterials = new ArrayList<>(Arrays.asList(
+            Material.AIR,
+            Material.VOID_AIR
+    ));
+    /**
+     * A list of non-valid spawn biomes
+     */
+    private static final List<Biome> invalidSpawnBiomes = new ArrayList<>(Arrays.asList(
+            Biome.BEACH,
+            Biome.OCEAN,
+            Biome.RIVER,
+            Biome.COLD_OCEAN,
+            Biome.DEEP_OCEAN,
+            Biome.WARM_OCEAN,
+            Biome.SNOWY_BEACH,
+            Biome.FROZEN_RIVER,
+            Biome.FROZEN_OCEAN,
+            Biome.LUKEWARM_OCEAN,
+            Biome.DEEP_WARM_OCEAN,
+            Biome.DEEP_COLD_OCEAN,
+            Biome.DEEP_FROZEN_OCEAN,
+            Biome.DEEP_LUKEWARM_OCEAN
+    ));
 
     /**
      * Gets a list of a number of random locations on a circle with given center and radius
@@ -96,6 +119,29 @@ public class LocationUtil {
         return airMaterials.contains(topMaterial)
                 && airMaterials.contains(middleMaterial)
                 && bottomValid;
+    }
+
+    /**
+     * Checks whether the given biome is valid for spawning a player
+     * @param biome The biome to check
+     * @return True if it is a valid spawn location, false otherwise
+     */
+    public static boolean isValidSpawnBiome(Biome biome) {
+        return !invalidSpawnBiomes.contains(biome);
+    }
+
+    /**
+     * Checks whether a given location is inside the worldborder
+     * @param location The location
+     * @return True if it is in the world border, false otherwise
+     */
+    public static boolean isInsideWorldBorder(Location location) {
+        World world = location.getWorld();
+        if (world == null) {
+            return false;
+        }
+
+        return world.getWorldBorder().isInside(location);
     }
 
     /**

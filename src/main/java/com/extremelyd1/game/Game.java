@@ -252,7 +252,7 @@ public class Game {
         // Create chunk loader,
         // and do rest of start logic once chunks are loaded
         new SpawnLoader(
-                plugin,
+                this,
                 worldManager,
                 locations,
                 () -> {

@@ -1,21 +1,20 @@
 package com.extremelyd1.world.spawn;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.util.LocationUtil;
 import net.minecraft.server.v1_16_R1.EnumDirection;
 import org.bukkit.Location;
 
 public class Spiral {
 
     /**
-     * The center location of the spiral
+     * The center chunk coords of the spiral
      */
-    private final Location center;
+    private final ChunkCoords center;
 
     /**
-     * The current location of the spiral
+     * The current chunk coords of the spiral
      */
-    private final Location location;
+    private final ChunkCoords currentChunk;
     /**
      * The current step size
      * How many steps are taking in a direction until the direction is switched
@@ -29,6 +28,10 @@ public class Spiral {
      * The current width of the spiral
      */
     private int currentWidth;
+    /**
+     * The number of iterations this spiral has done
+     */
+    private int numIterations;
 
     /**
      * The number of steps since the direction has been switched
@@ -36,35 +39,41 @@ public class Spiral {
     private int stepCounter;
 
     public Spiral(Location center) {
+        this(new ChunkCoords(center));
+    }
+
+    public Spiral(ChunkCoords center) {
         this.center = center;
 
-        this.location = LocationUtil.copyLocation(center);
+        this.currentChunk = center.copy();
         this.stepSize = 1;
         this.direction = EnumDirection.NORTH;
         this.currentWidth = 1;
 
         this.stepCounter = 0;
 
+        this.numIterations = 0;
+
         Game.getLogger().info("Starting spiral search at location: " + this.center);
     }
 
     /**
-     * Makes a step on the spiral and returns a copy of the resulting location
-     * @return A copy of the resulting location
+     * Makes a step on the spiral and returns a copy of the resulting chunk coords
+     * @return A copy of the resulting chunk coords
      */
-    public Location step() {
+    public ChunkCoords step() {
         switch (direction) {
             case NORTH:
-                location.add(0, 0, -1);
+                this.currentChunk.add(0, -1);
                 break;
             case EAST:
-                location.add(1, 0, 0);
+                this.currentChunk.add(1, 0);
                 break;
             case SOUTH:
-                location.add(0, 0, 1);
+                this.currentChunk.add(0, 1);
                 break;
             case WEST:
-                location.add(-1, 0, 0);
+                this.currentChunk.add(-1, 0);
                 break;
         }
 
@@ -79,20 +88,30 @@ public class Spiral {
                     || this.direction.equals(EnumDirection.NORTH)) {
                 this.stepSize++;
                 this.currentWidth++;
+
+                if (this.currentWidth % 50 == 0) {
+                    Game.getLogger().info("Increasing width of spiral to " + this.currentWidth);
+                }
             }
 
             this.stepCounter = 0;
         }
 
-        return LocationUtil.copyLocation(this.location);
+        this.numIterations++;
+
+        return this.currentChunk;
     }
 
-    public Location getCenter() {
+    public ChunkCoords getCenter() {
         return center;
     }
 
     public int getCurrentWidth() {
         return currentWidth;
+    }
+
+    public int getNumIterations() {
+        return numIterations;
     }
 
     /**
