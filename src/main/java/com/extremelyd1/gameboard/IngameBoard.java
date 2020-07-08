@@ -71,7 +71,7 @@ public class IngameBoard extends GameBoard {
         this.boardEntries.add(numItemsEntry);
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
 
-        if (game.getConfig().showCurrentlyWinningTeam() && game.getWinConditionChecker().isFullCard()) {
+        if (game.getConfig().showCurrentlyWinningTeam()) {
             this.boardEntries.add(new BoardEntry("Leading team:"));
             winningTeamEntry = new DynamicBoardEntry<>("  %s", ChatColor.GRAY + "Tie");
             this.boardEntries.add(winningTeamEntry);

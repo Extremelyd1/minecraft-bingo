@@ -14,10 +14,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Provides a means of finding valid spawns and loading chunks and executing a method
@@ -49,6 +46,11 @@ public class SpawnLoader implements Listener {
     private final Runnable onLoad;
 
     /**
+     * Whether chunks are loaded and the callback is executed
+     */
+    private boolean callbackExecuted;
+
+    /**
      * A map containing all threads that are finding spawns
      */
     private Map<Integer, SpawnFindThread> findThreads;
@@ -72,6 +74,8 @@ public class SpawnLoader implements Listener {
         this.world = worldManager.getWorld();
         this.locations = locations;
         this.onLoad = onLoad;
+
+        this.callbackExecuted = false;
     }
 
     /**
@@ -120,11 +124,17 @@ public class SpawnLoader implements Listener {
      * And if they are all done, starts the chunk loading
      */
     private void checkThreads() {
-        for (int i = 0; i < this.findThreads.size(); i++) {
-            SpawnFindThread spawnFindThread = this.findThreads.get(i);
+        // Get iterator for spawn find thread mapping
+        Iterator<Map.Entry<Integer, SpawnFindThread>> iterator = this.findThreads.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            // Get next entry from map
+            Map.Entry<Integer, SpawnFindThread> entry = iterator.next();
+
+            SpawnFindThread spawnFindThread = entry.getValue();
             if (spawnFindThread.isDone()) {
                 // Update location in list to found location
-                this.locations.set(i, spawnFindThread.getFoundLocation());
+                this.locations.set(entry.getKey(), spawnFindThread.getFoundLocation());
 
                 // Join the thread
                 try {
@@ -133,10 +143,7 @@ public class SpawnLoader implements Listener {
                 }
 
                 // Remove from lists
-                this.findThreads.remove(i);
-
-                // Update index accordingly
-                i--;
+                iterator.remove();
             }
         }
 
@@ -181,6 +188,11 @@ public class SpawnLoader implements Listener {
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent e) {
+        // Prevent multiple executions of the callback
+        if (this.callbackExecuted) {
+            return;
+        }
+
         Chunk chunk = e.getChunk();
 
         // Whether it is or is not on the list, try to remove it
@@ -189,6 +201,9 @@ public class SpawnLoader implements Listener {
         // If we have loaded all chunks that needed to be loaded
         if (toBeLoadedChunks.isEmpty()) {
             Game.getLogger().info("All chunks are loaded, executing callback");
+
+            // Prevent multiple executions of the callback
+            this.callbackExecuted = true;
 
             // Run on-load method
             onLoad.run();

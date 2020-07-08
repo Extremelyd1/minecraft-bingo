@@ -2,6 +2,7 @@ package com.extremelyd1.gameboard;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.game.winCondition.WinReason;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
@@ -63,29 +64,20 @@ public class GameBoardManager {
         if (game.getState().equals(Game.State.IN_GAME)) {
             ingameBoards.get(team).updateNumItems(team.getBingoCard().getNumberOfCollectedItems());
 
-            if (game.getConfig().showCurrentlyWinningTeam() && game.getWinConditionChecker().isFullCard()) {
-                List<Team> winningTeams = new ArrayList<>();
-                int highestNumItems = 0;
+            if (game.getConfig().showCurrentlyWinningTeam()) {
+                // Obtain a preliminary win reason
+                WinReason winReason = game.getWinConditionChecker().decideWinner(
+                        game.getTeamManager().getTeams()
+                );
 
-                for (Team activeTeam : game.getTeamManager().getTeams()) {
-                    int numCollectedItems = activeTeam.getBingoCard().getNumberOfCollectedItems();
-                    if (numCollectedItems > highestNumItems) {
-                        winningTeams.clear();
-                        highestNumItems = numCollectedItems;
-                    }
-
-                    if (numCollectedItems >= highestNumItems) {
-                        winningTeams.add(activeTeam);
-                    }
-                }
-
-                if (winningTeams.size() != 1) {
+                // Based on this win reason update the in-game boards
+                if (winReason.getReason().equals(WinReason.Reason.RANDOM_TIE)) {
                     for (Team activeTeam : game.getTeamManager().getTeams()) {
                         ingameBoards.get(activeTeam).updateWinningTeam(null);
                     }
                 } else {
                     for (Team activeTeam : game.getTeamManager().getTeams()) {
-                        ingameBoards.get(activeTeam).updateWinningTeam(winningTeams.get(0));
+                        ingameBoards.get(activeTeam).updateWinningTeam(winReason.getTeam());
                     }
                 }
             }

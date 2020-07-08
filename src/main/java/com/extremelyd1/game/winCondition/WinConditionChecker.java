@@ -63,8 +63,6 @@ public class WinConditionChecker {
         for (Team team : teams) {
             int score = team.getBingoCard().getNumberOfCollectedItems();
 
-            Game.getLogger().info("Team " + team.getName() + " has a score of " + score);
-
             if (score > maxScore) {
                 potentialWinners.clear();
                 maxScore = score;
