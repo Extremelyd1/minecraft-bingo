@@ -65,7 +65,7 @@ public class PlayerJoinLeaveListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        this.game.onPregameUpdate();
+        this.game.onPregameUpdate(Bukkit.getOnlinePlayers().size());
 
         Player player = e.getPlayer();
 
@@ -101,7 +101,9 @@ public class PlayerJoinLeaveListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
-        this.game.onPregameUpdate();
+        // Online players - 1, because the player object is not yet removed from
+        // this list when the event is called
+        this.game.onPregameUpdate(Bukkit.getOnlinePlayers().size() - 1);
 
         Player player = e.getPlayer();
 

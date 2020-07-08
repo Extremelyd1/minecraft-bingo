@@ -409,7 +409,16 @@ public class Game {
      * Updates the game board scoreboard
      */
     public void onPregameUpdate() {
-        gameBoardManager.onPregameUpdate();
+        gameBoardManager.onPregameUpdate(Bukkit.getOnlinePlayers().size());
+    }
+
+    /**
+     * Called if the pregame state is updated
+     * Updates the game board scoreboard
+     * @param numOnlinePlayers The number of online players used to update
+     */
+    public void onPregameUpdate(int numOnlinePlayers) {
+        gameBoardManager.onPregameUpdate(numOnlinePlayers);
     }
 
     /**

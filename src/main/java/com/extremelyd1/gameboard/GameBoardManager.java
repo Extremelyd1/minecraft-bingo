@@ -11,9 +11,18 @@ import java.util.Map;
 
 public class GameBoardManager {
 
+    /**
+     * The game instance
+     */
     private final Game game;
 
+    /**
+     * The pregame board instance
+     */
     private final PregameBoard pregameBoard;
+    /**
+     * A mapping from team to the respective in-game board
+     */
     private Map<Team, IngameBoard> ingameBoards;
 
     public GameBoardManager(Game game) {
@@ -22,6 +31,10 @@ public class GameBoardManager {
         this.pregameBoard = new PregameBoard(game);
     }
 
+    /**
+     * Creates the boards used while in the in-game phase
+     * @param teams An iterable of teams for which to create the boards
+     */
     public void createIngameBoards(Iterable<Team> teams) {
         ingameBoards = new HashMap<>();
 
@@ -30,14 +43,22 @@ public class GameBoardManager {
         }
     }
 
-    public void onPregameUpdate() {
+    /**
+     * Updates scoreboards in pregame
+     * @param numOnlinePlayers The number of online players
+     */
+    public void onPregameUpdate(int numOnlinePlayers) {
         if (game.getState().equals(Game.State.PRE_GAME)) {
-            pregameBoard.update(Bukkit.getOnlinePlayers().size());
+            pregameBoard.update(numOnlinePlayers);
         }
 
         broadcast();
     }
 
+    /**
+     * When an item is collected by a certain team
+     * @param team The team that collects the item
+     */
     public void onItemCollected(Team team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
             ingameBoards.get(team).updateNumItems(team.getBingoCard().getNumberOfCollectedItems());
@@ -71,6 +92,10 @@ public class GameBoardManager {
         }
     }
 
+    /**
+     * Called when scoreboard need to update their time
+     * @param timeLeft The current time left
+     */
     public void onTimeUpdate(long timeLeft) {
         if (game.getState().equals(Game.State.IN_GAME)) {
             for (IngameBoard ingameBoard : ingameBoards.values()) {
@@ -79,6 +104,9 @@ public class GameBoardManager {
         }
     }
 
+    /**
+     * Broadcasts the appropriate scoreboard to all players
+     */
     public void broadcast() {
         if (game.getState().equals(Game.State.PRE_GAME)) {
             pregameBoard.update(Bukkit.getOnlinePlayers().size());
