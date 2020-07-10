@@ -25,6 +25,15 @@ public class WinConditionCommand implements CommandExecutor {
             return true;
         }
 
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            sender.sendMessage(
+                    ChatColor.DARK_RED + "Error: "
+                            + ChatColor.WHITE + "Can only execute this command in pre-game"
+            );
+
+            return true;
+        }
+
         if (args.length == 0) {
             sender.sendMessage(
                     ChatColor.DARK_RED + "Error: "

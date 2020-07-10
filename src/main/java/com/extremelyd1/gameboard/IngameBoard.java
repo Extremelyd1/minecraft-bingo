@@ -2,6 +2,7 @@ package com.extremelyd1.gameboard;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.game.winCondition.WinConditionChecker;
 import com.extremelyd1.gameboard.boardEntry.BlankBoardEntry;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
@@ -49,6 +50,10 @@ public class IngameBoard extends GameBoard {
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
         this.boardEntries.add(new BoardEntry(
                 "Status: " + ChatColor.YELLOW + "In-Game"
+        ));
+
+        this.boardEntries.add(new BoardEntry(
+                "Game type: " + ChatColor.YELLOW + formatWinCondition(game.getWinConditionChecker())
         ));
 
         if (game.getConfig().isTimerEnabled()) {
@@ -126,6 +131,15 @@ public class IngameBoard extends GameBoard {
         for (Player player : team.getPlayers()) {
             player.setScoreboard(scoreboard);
         }
+    }
+
+    private String formatWinCondition(WinConditionChecker winConditionChecker) {
+        if (winConditionChecker.isFullCard()) {
+            return "Full Card";
+        }
+
+        int numLines = winConditionChecker.getNumLinesComplete();
+        return numLines + " lines";
     }
 
 }

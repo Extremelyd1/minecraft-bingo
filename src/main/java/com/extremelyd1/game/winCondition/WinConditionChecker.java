@@ -102,6 +102,10 @@ public class WinConditionChecker {
         this.numLinesComplete = numLinesComplete;
     }
 
+    public int getNumLinesComplete() {
+        return numLinesComplete;
+    }
+
     public void setFullCard(boolean fullCard) {
         this.fullCard = fullCard;
     }
