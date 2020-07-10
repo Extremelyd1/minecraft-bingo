@@ -20,9 +20,30 @@ import java.util.Map;
 public class BingoCardItemFactory {
 
     /**
+     * The integer color of the default map background
+     */
+    private static final int MAP_BACKGROUND_COLOR = ColorUtil.getFromRgb(214, 190, 150);
+    /**
+     * The background color of an item if it has not been collected yet
+     */
+    private static final int NOT_COLLECTED_COLOR = ColorUtil.getFromRgb(120, 120, 120);
+    /**
+     * The background color of an item if it has been collected
+     */
+    private static final int COLLECTED_COLOR = ColorUtil.getFromRgb(0, 220, 0);
+
+    /**
+     * The size of the drawable map canvas
+     */
+    private static final int CANVAS_SIZE = 128;
+    /**
      * The number of pixels of padding around the outside of the card
      */
     private static final int CARD_PADDING = 5;
+    /**
+     * The number of pixels of border around the background of the card
+     */
+    private static final int BACKGROUND_BORDER_SIZE = 3;
     /**
      * The number of pixels of padding between each item
      */
@@ -62,15 +83,40 @@ public class BingoCardItemFactory {
      * @return The created ItemStack
      */
     public ItemStack create(BingoCard bingoCard) {
-        BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
+        return create(bingoCard, MAP_BACKGROUND_COLOR);
+    }
+
+    /**
+     * Create an ItemStack from the given bingo card
+     * @param bingoCard The BingoCard to make the itemstack from
+     * @param borderColor The color of the border of the bingo card
+     * @return The created ItemStack
+     */
+    public ItemStack create(BingoCard bingoCard, int borderColor) {
+        BufferedImage image = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_INT_RGB);
         // Base layer of map color
-        for (int x = 0; x < 128; x++) {
-            for (int y = 0; y < 128; y++) {
-                image.setRGB(
-                        x,
-                        y,
-                        ColorUtil.getFromRgb(214, 190, 150)
-                );
+        for (int x = 0; x < CANVAS_SIZE; x++) {
+            for (int y = 0; y < CANVAS_SIZE; y++) {
+                // Test whether we are drawing the border
+                if (x < BACKGROUND_BORDER_SIZE
+                        || x >= CANVAS_SIZE - BACKGROUND_BORDER_SIZE
+                        || y < BACKGROUND_BORDER_SIZE
+                        || y >= CANVAS_SIZE - BACKGROUND_BORDER_SIZE
+                ) {
+                    // Draw the given border color
+                    image.setRGB(
+                            x,
+                            y,
+                            borderColor
+                    );
+                } else {
+                    // Otherwise, draw the default map color
+                    image.setRGB(
+                            x,
+                            y,
+                            MAP_BACKGROUND_COLOR
+                    );
+                }
             }
         }
 
@@ -81,11 +127,9 @@ public class BingoCardItemFactory {
 
                 int baseColor;
                 if (bingoItem.isCollected()) {
-                    // Green color
-                    baseColor = ColorUtil.getFromRgb(0, 220, 0);
+                    baseColor = COLLECTED_COLOR;
                 } else {
-                    // Gray color
-                    baseColor = ColorUtil.getFromRgb(120, 120, 120);
+                    baseColor = NOT_COLLECTED_COLOR;
                 }
 
                 // Write background

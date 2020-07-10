@@ -16,16 +16,15 @@ import com.extremelyd1.main.Bingo;
 import com.extremelyd1.potion.PotionEffects;
 import com.extremelyd1.sound.SoundManager;
 import com.extremelyd1.title.TitleManager;
-import com.extremelyd1.util.TimeUtil;
-import com.extremelyd1.util.ItemUtil;
-import com.extremelyd1.util.LocationUtil;
-import com.extremelyd1.util.StringUtil;
+import com.extremelyd1.util.*;
 import com.extremelyd1.world.spawn.SpawnLoader;
 import com.extremelyd1.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -378,6 +377,57 @@ public class Game {
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.setGameMode(GameMode.CREATIVE);
+        }
+
+        // Check whether we need to show all maps to all players
+        if (config.isShowAllMapsPostGame()) {
+            // Create all bingo cards for all teams
+            Map<Team, ItemStack> bingoCardItemStacks = new HashMap<>();
+
+            for (Team team : teamManager.getTeams()) {
+                // Put the item stack with appropriate border color in map
+                ItemStack bingoCard = bingoCardItemFactory.create(
+                        team.getBingoCard(),
+                        ColorUtil.chatColorToInt(team.getColor())
+                );
+
+                // Change the item name to include team name and color
+                ItemMeta meta = bingoCard.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(team.getColor() + team.getName() + " Team");
+                }
+                bingoCard.setItemMeta(meta);
+
+                bingoCardItemStacks.put(
+                        team,
+                        bingoCard
+                );
+            }
+
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                // Set own bingo card in offhand if player has a team
+                Team team = teamManager.getTeamByPlayer(onlinePlayer);
+                if (team != null) {
+                    onlinePlayer.getInventory().setItemInOffHand(
+                            bingoCardItemStacks.get(team)
+                    );
+                }
+
+                int inventoryIndex = 0;
+
+                for (Team otherTeam : bingoCardItemStacks.keySet()) {
+                    // Skip own team
+                    if (otherTeam.equals(team)) {
+                        continue;
+                    }
+
+                    // Set bingo card to slot and increase inventory index
+                    onlinePlayer.getInventory().setItem(
+                            inventoryIndex++,
+                            bingoCardItemStacks.get(otherTeam)
+                    );
+                }
+            }
         }
 
         soundManager.broadcastEnd();

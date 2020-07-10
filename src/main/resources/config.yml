@@ -3,6 +3,7 @@ default-item-distribution: "2,6,9,6,2"
 default-num-lines-complete-for-win: 1
 show-currently-winning-team: True
 prevent-water-spawns: True
+show-all-maps-after-game: True
 border:
   enable: True
   overworld-size: 3000

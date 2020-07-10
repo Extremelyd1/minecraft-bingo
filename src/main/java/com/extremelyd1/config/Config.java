@@ -60,6 +60,11 @@ public class Config {
     private final boolean preventWaterSpawns;
 
     /**
+     * Whether to give all players all teams maps after the game
+     */
+    private final boolean showAllMapsPostGame;
+
+    /**
      * Whether a timer is enabled
      */
     private boolean timerEnabled;
@@ -108,6 +113,8 @@ public class Config {
         showCurrentlyWinningTeam = plugin.getConfig().getBoolean("show-currently-winning-team");
 
         preventWaterSpawns = plugin.getConfig().getBoolean("prevent-water-spawns");
+
+        showAllMapsPostGame = plugin.getConfig().getBoolean("show-all-maps-after-game");
 
         borderEnabled = plugin.getConfig().getBoolean("border.enable");
         overworldBorderSize = plugin.getConfig().getInt("border.overworld-size");
@@ -189,6 +196,10 @@ public class Config {
 
     public boolean isPreventWaterSpawns() {
         return preventWaterSpawns;
+    }
+
+    public boolean isShowAllMapsPostGame() {
+        return showAllMapsPostGame;
     }
 
     public boolean isBorderEnabled() {
