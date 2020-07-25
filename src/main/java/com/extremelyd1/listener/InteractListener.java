@@ -142,7 +142,10 @@ public class InteractListener implements Listener {
                 return;
             }
 
-            if (entity instanceof InventoryHolder) {
+            // Only allow the following inventory holding entities as interaction targets
+            if (entity.getType().equals(EntityType.MINECART_CHEST)
+                    || entity.getType().equals(EntityType.MINECART_FURNACE)
+                    || entity.getType().equals(EntityType.MINECART_HOPPER)) {
                 InventoryHolder inventoryHolder = (InventoryHolder) entity;
 
                 e.getPlayer().openInventory(inventoryHolder.getInventory());
