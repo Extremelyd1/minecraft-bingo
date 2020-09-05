@@ -54,7 +54,9 @@ public class DeathListener implements Listener {
 
             player.addPotionEffect(PotionEffects.RESISTANCE);
 
-            e.setRespawnLocation(team.getSpawnLocation());
+            if (player.getBedSpawnLocation() == null) {
+                e.setRespawnLocation(team.getSpawnLocation());
+            }
 
             player.getInventory().addItem(
                     game.getBingoCardItemFactory().create(team.getBingoCard())
