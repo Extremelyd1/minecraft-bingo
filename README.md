@@ -56,7 +56,8 @@ The first time you run the plugin a config file will be generated in `<server>/p
 The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.
 This feature currently is only functional on [Paper](https://papermc.io/) (a different minecraft server).
 The following command can be used to manage this:
-- `/generate stop | <start> <numWorlds>` Start/stop pre-generating worlds and storing them in zip format  
+- `/generate start <numWorlds>` Start pre-generating worlds and storing them in zip format
+- `/generate stop` Stop pre-generating worlds  
 
 This command only works if the config value `pregeneration-mode` is enabled.
 The config file also include two parameters that can tweak/boost the chunk generation based on the processing power of your machine.
