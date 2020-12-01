@@ -21,7 +21,7 @@ Note that the bingo card can be right-clicked in order to view which items need 
 
 ## Install
 The plugin can be downloaded from one of the [releases](https://github.com/Extremelyd1/minecraft-bingo/releases) or compiled yourself using Spigot.
-The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server running version 1.15.2. 
+The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server running version 1.16.4. 
 Move the `.txt` files and the `images/images.zip` in the `item_data` folder to `<server>/plugins/MinecraftBingo/item_data`. 
 Then unzip the `images/images.zip` archive.
 The first time you run the plugin a config file will be generated in `<server>/plugins/MinecraftBingo`, in which you can edit some configuration settings.
@@ -40,7 +40,7 @@ The first time you run the plugin a config file will be generated in `<server>/p
 
 #### Configuration commands  
 - `/pvp` Enable/disable PvP
-- `/maintenance` Enable maintenance mode (this will disallow all non-op players from joining)
+- `/maintenance` Enable maintenance mode (this will disallow all non-OP players from joining)
 - `/wincondition <full|number of lines to complete>` Change the wincondition to either a full card or a number of lines (rows, columns or diagonals) to complete in order to win
 - `/itemdistribution <S,A,B,C,D>` Change the item distribution scales, the number of S, A, B, C, D tier items that appear on the bingo card
 - `/timer <enable|disable|length>` Enable/disable the timer or set the length of the timer (the length can be specified in hours/minutes/seconds, such as `/timer 10m` or `/timer 1h20m30s`)
