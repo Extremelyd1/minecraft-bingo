@@ -2,14 +2,14 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
-import net.minecraft.server.v1_16_R1.Advancement;
-import net.minecraft.server.v1_16_R1.ChatComponentText;
-import net.minecraft.server.v1_16_R1.ChatMessage;
-import net.minecraft.server.v1_16_R1.EnumChatFormat;
+import net.minecraft.server.v1_16_R3.Advancement;
+import net.minecraft.server.v1_16_R3.ChatComponentText;
+import net.minecraft.server.v1_16_R3.ChatMessage;
+import net.minecraft.server.v1_16_R3.EnumChatFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -72,7 +72,7 @@ public class ChatListener implements Listener {
             );
             // Send the message to all players
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                ((CraftPlayer) onlinePlayer).getHandle().sendMessage(new ChatMessage[] { message });
+                ((CraftPlayer) onlinePlayer).getHandle().sendMessage(null, new ChatMessage[] { message });
             }
         }
     }

@@ -22,6 +22,7 @@ import com.extremelyd1.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftRecipe;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -99,6 +100,10 @@ public class Game {
      * The world manager instance
      */
     private final WorldManager worldManager;
+    /**
+     * Recipe util class instance
+     */
+    private final RecipeUtil recipeUtil;
 
     /**
      * Whether maintenance mode is enabled
@@ -135,6 +140,8 @@ public class Game {
 
         soundManager = new SoundManager();
         titleManager = new TitleManager();
+
+        recipeUtil = new RecipeUtil();
 
         registerListeners(bingo);
         registerCommands(bingo);
@@ -294,6 +301,10 @@ public class Game {
                             teamPlayer.getInventory().addItem(
                                     bingoCardItemFactory.create(team.getBingoCard())
                             );
+
+                            if (config.isGiveAllRecipes()) {
+                                recipeUtil.discoverAllRecipes(teamPlayer);
+                            }
 
                             titleManager.sendStartTitle();
                         }

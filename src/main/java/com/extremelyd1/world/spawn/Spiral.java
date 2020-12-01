@@ -1,7 +1,6 @@
 package com.extremelyd1.world.spawn;
 
-import com.extremelyd1.game.Game;
-import net.minecraft.server.v1_16_R1.EnumDirection;
+import net.minecraft.server.v1_16_R3.EnumDirection;
 import org.bukkit.Location;
 
 public class Spiral {

@@ -6,8 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="minecraft-bingo" />
         <module name="MinecraftBingo" />
+        <module name="minecraft-bingo" />
       </profile>
     </annotationProcessing>
   </component>

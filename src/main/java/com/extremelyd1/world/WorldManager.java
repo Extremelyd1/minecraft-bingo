@@ -2,12 +2,12 @@ package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
-import net.minecraft.server.v1_16_R1.*;
-import net.minecraft.server.v1_16_R1.Chunk;
+import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R3.Chunk;
 import org.bukkit.*;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
-import org.bukkit.craftbukkit.v1_16_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;

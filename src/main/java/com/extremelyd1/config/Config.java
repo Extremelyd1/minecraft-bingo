@@ -65,6 +65,11 @@ public class Config {
     private final boolean showAllMapsPostGame;
 
     /**
+     * Whether all players have all recipes unlocked in their inventory
+     */
+    private final boolean giveAllRecipes;
+
+    /**
      * Whether a timer is enabled
      */
     private boolean timerEnabled;
@@ -115,6 +120,8 @@ public class Config {
         preventWaterSpawns = plugin.getConfig().getBoolean("prevent-water-spawns");
 
         showAllMapsPostGame = plugin.getConfig().getBoolean("show-all-maps-after-game");
+
+        giveAllRecipes = plugin.getConfig().getBoolean("give-all-recipes");
 
         borderEnabled = plugin.getConfig().getBoolean("border.enable");
         overworldBorderSize = plugin.getConfig().getInt("border.overworld-size");
@@ -200,6 +207,10 @@ public class Config {
 
     public boolean isShowAllMapsPostGame() {
         return showAllMapsPostGame;
+    }
+
+    public boolean isGiveAllRecipes() {
+        return giveAllRecipes;
     }
 
     public boolean isBorderEnabled() {
