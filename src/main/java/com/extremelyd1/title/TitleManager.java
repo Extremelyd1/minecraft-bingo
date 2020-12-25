@@ -3,7 +3,7 @@ package com.extremelyd1.title;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.winCondition.WinReason;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 
 /**

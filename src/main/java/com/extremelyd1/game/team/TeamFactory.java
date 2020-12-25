@@ -1,6 +1,8 @@
 package com.extremelyd1.game.team;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
+
+import java.awt.Color;
 
 /**
  * Factory class that creates team instances
@@ -22,7 +24,7 @@ public class TeamFactory {
             "Yellow",
             "Pink",
             "Aqua",
-            "White",
+            "Orange",
             "Gray"
     };
 
@@ -30,14 +32,22 @@ public class TeamFactory {
      * The colors of the teams
      */
     private final ChatColor[] colors = {
-            ChatColor.RED,
-            ChatColor.BLUE,
-            ChatColor.GREEN,
-            ChatColor.YELLOW,
-            ChatColor.LIGHT_PURPLE,
-            ChatColor.AQUA,
-            ChatColor.WHITE,
-            ChatColor.GRAY
+            // Red
+            ChatColor.of(new Color(255, 0, 0)),
+            // Blue
+            ChatColor.of(new Color(0, 0, 255)),
+            // Green
+            ChatColor.of(new Color(0, 255, 0)),
+            // Yellow
+            ChatColor.of(new Color(255, 255, 0)),
+            // Pink/Magenta
+            ChatColor.of(new Color(240, 40, 240)),
+            // Aqua
+            ChatColor.of(new Color(0, 255, 255)),
+            // Orange
+            ChatColor.of(new Color(255, 128, 0)),
+            // Gray
+            ChatColor.of(new Color(128, 128, 128)),
     };
 
     public TeamFactory() {
@@ -46,6 +56,7 @@ public class TeamFactory {
 
     /**
      * Creates a new team
+     *
      * @return A new team
      */
     public Team createTeam() {

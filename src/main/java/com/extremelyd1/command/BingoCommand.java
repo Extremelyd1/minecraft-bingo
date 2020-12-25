@@ -4,7 +4,7 @@ import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.StringUtil;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

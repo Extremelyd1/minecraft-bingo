@@ -4,7 +4,7 @@ import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.BingoCardInventory;
 import com.extremelyd1.game.Game;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

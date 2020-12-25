@@ -19,10 +19,13 @@ import com.extremelyd1.title.TitleManager;
 import com.extremelyd1.util.*;
 import com.extremelyd1.world.spawn.SpawnLoader;
 import com.extremelyd1.world.WorldManager;
-import org.bukkit.*;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftRecipe;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -69,7 +72,7 @@ public class Game {
     /**
      * The game board manager instance
      */
-    private GameBoardManager gameBoardManager;
+    private final GameBoardManager gameBoardManager;
     /**
      * The team manager instance
      */

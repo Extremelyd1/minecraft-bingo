@@ -1,6 +1,6 @@
 package com.extremelyd1.util;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 
 import java.util.HashMap;
 import java.util.Map;

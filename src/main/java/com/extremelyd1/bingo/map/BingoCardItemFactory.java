@@ -6,7 +6,7 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.util.ColorUtil;
 import com.extremelyd1.util.FileUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
