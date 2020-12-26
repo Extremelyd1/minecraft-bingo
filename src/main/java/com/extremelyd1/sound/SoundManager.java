@@ -1,6 +1,6 @@
 package com.extremelyd1.sound;
 
-import com.extremelyd1.game.team.Team;
+import com.extremelyd1.game.team.PlayerTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -18,7 +18,7 @@ public class SoundManager {
      * Different sound for the players of the team that collected the item than for others
      * @param team The team that collected the item
      */
-    public void broadcastItemCollected(Team team) {
+    public void broadcastItemCollected(PlayerTeam team) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (team.contains(player)) {
                 player.playSound(
@@ -62,7 +62,7 @@ public class SoundManager {
             player.playSound(
                     player.getLocation(),
                     Sound.BLOCK_PORTAL_TRAVEL,
-                    0.2f,
+                    0.1f,
                     1f
             );
         }

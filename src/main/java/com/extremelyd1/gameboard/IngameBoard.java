@@ -1,15 +1,14 @@
 package com.extremelyd1.gameboard;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.winCondition.WinConditionChecker;
 import com.extremelyd1.gameboard.boardEntry.BlankBoardEntry;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
-import com.extremelyd1.util.StringUtil;
 import com.extremelyd1.util.TimeUtil;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -71,10 +70,15 @@ public class IngameBoard extends GameBoard {
                 "Team: " + team.getColor() + team.getName()
         ));
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
-        this.boardEntries.add(new BoardEntry("Number of items collected:"));
-        numItemsEntry = new DynamicBoardEntry<>(ChatColor.AQUA + "  %d", 0);
-        this.boardEntries.add(numItemsEntry);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+
+        if (!team.isSpectatorTeam()) {
+            this.boardEntries.add(new BoardEntry("Number of items collected:"));
+            numItemsEntry = new DynamicBoardEntry<>(ChatColor.AQUA + "  %d", 0);
+            this.boardEntries.add(numItemsEntry);
+            this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+        } else {
+            numItemsEntry = null;
+        }
 
         if (game.getConfig().showCurrentlyWinningTeam()) {
             this.boardEntries.add(new BoardEntry("Leading team:"));
@@ -110,7 +114,7 @@ public class IngameBoard extends GameBoard {
      * Updates this board with the currently winning team
      * @param team The currently winning team
      */
-    public void updateWinningTeam(Team team) {
+    public void updateWinningTeam(PlayerTeam team) {
         if (winningTeamEntry == null) {
             return;
         }

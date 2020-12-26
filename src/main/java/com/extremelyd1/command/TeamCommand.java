@@ -1,15 +1,20 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
 import com.extremelyd1.util.CommandUtil;
 import org.bukkit.Bukkit;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class TeamCommand implements CommandExecutor {
 
@@ -47,14 +52,7 @@ public class TeamCommand implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("random")) {
             if (args.length < 2) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED
-                                + "Usage: "
-                                + ChatColor.WHITE
-                                + "/"
-                                + command.getName()
-                                + " random <num teams>"
-                );
+                sendUsageRandom(sender, command);
 
                 return true;
             }
@@ -80,10 +78,52 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
+            Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+
+            if (args.length > 2) {
+                if (args[2].equalsIgnoreCase("-e")) {
+                    if (args.length < 4) {
+                        sendUsageRandom(sender, command);
+                        return true;
+                    }
+
+                    Collection<Player> excludedPlayers = parsePlayerArguments(args, 3);
+                    if (excludedPlayers.size() == 0) {
+                        sender.sendMessage(
+                                ChatColor.DARK_RED + "Error: "
+                                        + ChatColor.WHITE + "Could not find the given players"
+                        );
+
+                        return true;
+                    }
+
+                    // Filter the online players to exclude the players given in the command
+                    players = players.stream()
+                            .filter(player -> !excludedPlayers.contains(player))
+                            .collect(Collectors.toList());
+                } else {
+                    players = parsePlayerArguments(args, 2);
+                }
+            }
+
+            if (players.size() == 0) {
+                sender.sendMessage(
+                        ChatColor.DARK_RED + "Error: "
+                                + ChatColor.WHITE + "There are no players to create teams with"
+                );
+
+                return true;
+            }
+
             game.getTeamManager().createRandomizedTeams(
-                    Bukkit.getOnlinePlayers(),
+                    players,
                     numTeams,
                     true
+            );
+
+            sender.sendMessage(
+                    ChatColor.GREEN + "Successfully"
+                    + ChatColor.WHITE + " created random teams"
             );
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 3) {
@@ -113,7 +153,7 @@ public class TeamCommand implements CommandExecutor {
 
             TeamManager teamManager = game.getTeamManager();
 
-            Team argumentTeam = teamManager.getTeamByName(args[2]);
+            PlayerTeam argumentTeam = teamManager.getTeamByName(args[2]);
             if (argumentTeam == null) {
                 sender.sendMessage(
                         ChatColor.DARK_RED
@@ -123,11 +163,6 @@ public class TeamCommand implements CommandExecutor {
                 );
 
                 return true;
-            }
-
-            // Remove player from team if he is already on a team
-            if (teamManager.removePlayerFromTeam(argumentPlayer)) {
-                Game.getLogger().info("Player was already on a team, removing...");
             }
 
             teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);
@@ -160,7 +195,7 @@ public class TeamCommand implements CommandExecutor {
                 TeamManager teamManager = game.getTeamManager();
 
                 Team team = teamManager.getTeamByPlayer(argumentPlayer);
-                if (team == null) {
+                if (team == null || team.isSpectatorTeam()) {
                     sender.sendMessage(
                             ChatColor.DARK_RED
                                     + "Error: "
@@ -171,8 +206,8 @@ public class TeamCommand implements CommandExecutor {
                     return true;
                 }
 
-                // Remove player from team
-                teamManager.removePlayerFromTeam(argumentPlayer);
+                // Add player to spectators
+                teamManager.addPlayerToTeam(argumentPlayer, teamManager.getSpectatorTeam());
         } else {
             sendUsage(sender, command);
 
@@ -201,6 +236,21 @@ public class TeamCommand implements CommandExecutor {
     }
 
     /**
+     * Send the usage of the random sub command
+     * @param sender The sender to send the usag eto
+     */
+    private void sendUsageRandom(CommandSender sender, Command command) {
+        sender.sendMessage(
+                ChatColor.DARK_RED
+                        + "Usage: "
+                        + ChatColor.WHITE
+                        + "/"
+                        + command.getName()
+                        + " random <num teams> [-e] [players...]"
+        );
+    }
+
+    /**
      * Get a player by its name
      * @param name The name of the player
      * @return The player corresponding to this name, or null if no such player exists
@@ -213,5 +263,27 @@ public class TeamCommand implements CommandExecutor {
         }
 
         return null;
+    }
+
+    /**
+     * Parse the given argument list to player instances
+     * @param args The argument list
+     * @param index The index to start parsing at
+     * @return A collection of players that match the names given in the argument list
+     */
+    private Collection<Player> parsePlayerArguments(String[] args, int index) {
+        Collection<Player> players = new ArrayList<>();
+
+        while (index < args.length) {
+            Player player = Bukkit.getPlayer(args[index++]);
+
+            if (player == null) {
+                continue;
+            }
+
+            players.add(player);
+        }
+
+        return players;
     }
 }

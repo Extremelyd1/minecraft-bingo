@@ -5,6 +5,7 @@ import com.extremelyd1.bingo.item.BingoItemMaterials;
 import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.command.*;
 import com.extremelyd1.config.Config;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
 import com.extremelyd1.game.timer.GameTimer;
@@ -19,7 +20,7 @@ import com.extremelyd1.title.TitleManager;
 import com.extremelyd1.util.*;
 import com.extremelyd1.world.spawn.SpawnLoader;
 import com.extremelyd1.world.WorldManager;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -222,7 +223,7 @@ public class Game {
      */
     public void start(Player player) {
         // Sanity checks
-        if (teamManager.getNumTeams() == 0) {
+        if (teamManager.getNumActiveTeams() == 0) {
             getLogger().warning("No teams have been selected, cannot start game");
 
             if (player != null) {
@@ -242,13 +243,13 @@ public class Game {
             radius = Math.round(config.getOverworldBorderSize() / 4f);
         } else {
             // Base radius of 200, with an increase of 100 per team
-            radius = 200 + 100 * teamManager.getNumTeams();
+            radius = 200 + 100 * teamManager.getNumActiveTeams();
         }
 
         // Gather locations to spread teams
         List<Location> locations = LocationUtil.getRandomCircleLocations(
                 worldManager.getSpawnLocation(),
-                teamManager.getNumTeams(),
+                teamManager.getNumActiveTeams(),
                 radius
         );
 
@@ -276,12 +277,12 @@ public class Game {
                     // Create random bingo card
                     BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
-                    for (Team team : teamManager.getTeams()) {
+                    for (PlayerTeam team : teamManager.getActiveTeams()) {
                         team.setBingoCard(bingoCard.copy());
                     }
 
                     int index = 0;
-                    for (Team team : teamManager.getTeams()) {
+                    for (PlayerTeam team : teamManager.getActiveTeams()) {
                         // Get location from list and convert from block position to spawn position
                         Location location = locations.get(index++).add(0.5, 1, 0.5);
 
@@ -308,16 +309,21 @@ public class Game {
                             if (config.isGiveAllRecipes()) {
                                 recipeUtil.discoverAllRecipes(teamPlayer);
                             }
-
-                            titleManager.sendStartTitle();
                         }
                     }
+
+                    for (Player spectatorPlayer : teamManager.getSpectatorTeam().getPlayers()) {
+                        spectatorPlayer.setGameMode(GameMode.SPECTATOR);
+                    }
+
+                    titleManager.sendStartTitle();
 
                     // Prepare world for game start
                     worldManager.onGameStart();
 
                     // Enable scoreboards
-                    gameBoardManager.createIngameBoards(teamManager.getTeams());
+                    gameBoardManager.createIngameBoards(teamManager.getActiveTeams());
+                    gameBoardManager.createSpectatorBoard(teamManager.getSpectatorTeam());
                     gameBoardManager.broadcast();
 
                     // Broadcast start message
@@ -340,7 +346,7 @@ public class Game {
                                     gameBoardManager.onTimeUpdate(timeLeft);
 
                                     if (timeLeft <= 0) {
-                                        WinReason winReason = winConditionChecker.decideWinner(teamManager.getTeams());
+                                        WinReason winReason = winConditionChecker.decideWinner(teamManager.getActiveTeams());
                                         end(winReason);
 
                                         return true;
@@ -366,7 +372,7 @@ public class Game {
 
         switch (winReason.getReason()) {
             case COMPLETE:
-                Team team = winReason.getTeam();
+                PlayerTeam team = winReason.getTeam();
                 message += "                     " + team.getColor() + team.getName()
                         + ChatColor.WHITE + " team "
                         + "has gotten bingo!";
@@ -396,9 +402,9 @@ public class Game {
         // Check whether we need to show all maps to all players
         if (config.isShowAllMapsPostGame()) {
             // Create all bingo cards for all teams
-            Map<Team, ItemStack> bingoCardItemStacks = new HashMap<>();
+            Map<PlayerTeam, ItemStack> bingoCardItemStacks = new HashMap<>();
 
-            for (Team team : teamManager.getTeams()) {
+            for (PlayerTeam team : teamManager.getActiveTeams()) {
                 // Put the item stack with appropriate border color in map
                 ItemStack bingoCard = bingoCardItemFactory.create(
                         team.getBingoCard(),
@@ -421,7 +427,7 @@ public class Game {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 // Set own bingo card in offhand if player has a team
                 Team team = teamManager.getTeamByPlayer(onlinePlayer);
-                if (team != null) {
+                if (team != null && !team.isSpectatorTeam()) {
                     onlinePlayer.getInventory().setItemInOffHand(
                             bingoCardItemStacks.get(team)
                     );
@@ -429,7 +435,7 @@ public class Game {
 
                 int inventoryIndex = 0;
 
-                for (Team otherTeam : bingoCardItemStacks.keySet()) {
+                for (PlayerTeam otherTeam : bingoCardItemStacks.keySet()) {
                     // Skip own team
                     if (otherTeam.equals(team)) {
                         continue;
@@ -458,7 +464,7 @@ public class Game {
         // Create random bingo card
         BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
-        for (Team team : teamManager.getTeams()) {
+        for (PlayerTeam team : teamManager.getActiveTeams()) {
             team.setBingoCard(bingoCard.copy());
 
             // Update the bingo card of all players in the team
@@ -492,11 +498,13 @@ public class Game {
      * @param material The material that is collected
      */
     public void onMaterialCollected(Player player, Material material) {
-        Team playerTeam = teamManager.getTeamByPlayer(player);
-        if (playerTeam == null) {
+        Team team = teamManager.getTeamByPlayer(player);
+        if (team == null || team.isSpectatorTeam()) {
             getLogger().warning("Material collected by player without team");
             return;
         }
+
+        PlayerTeam playerTeam = (PlayerTeam) team;
 
         BingoCard bingoCard = playerTeam.getBingoCard();
 
@@ -511,7 +519,7 @@ public class Game {
 
             Bukkit.broadcastMessage(
                     PREFIX +
-                    playerTeam.getColor() + playerTeam.getName()
+                            playerTeam.getColor() + playerTeam.getName()
                             + ChatColor.WHITE + " team has obtained "
                             + ChatColor.AQUA + StringUtil.formatMaterialName(material)
             );

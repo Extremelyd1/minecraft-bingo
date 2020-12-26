@@ -1,9 +1,9 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.InventoryUtil;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
@@ -116,11 +116,11 @@ public class InteractListener implements Listener {
         }
 
         Team team = game.getTeamManager().getTeamByPlayer(e.getPlayer());
-        if (team == null) {
+        if (team == null || team.isSpectatorTeam()) {
             return;
         }
 
-        team.getBingoCardInventory().show(e.getPlayer());
+        ((PlayerTeam) team).getBingoCardInventory().show(e.getPlayer());
     }
 
     @EventHandler
@@ -174,11 +174,11 @@ public class InteractListener implements Listener {
                     && itemStack.hasItemMeta()
                     && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
                 Team team = game.getTeamManager().getTeamByPlayer(player);
-                if (team == null) {
+                if (team == null || team.isSpectatorTeam()) {
                     return;
                 }
 
-                team.getBingoCardInventory().show((Player) e.getWhoClicked());
+                ((PlayerTeam) team).getBingoCardInventory().show((Player) e.getWhoClicked());
             }
         }
 

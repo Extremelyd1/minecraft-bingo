@@ -29,9 +29,9 @@ The first time you run the plugin a config file will be generated in `<server>/p
 ## Commands
 #### Team manage command
 - `/team [random|add|remove]`
-  - `/team random <number of teams>` Create a set number of teams dividing the players randomly over them
+  - `/team random <number of teams> [-e] [players...]` Create a set number of teams dividing the players randomly over them. If given a list of player names, it will only create teams with those players (or exclude those player if the flag `-e` is given).
   - `/team add <player name> <team name>` Add a player to a given team  
-  Possible team names are: Red, Blue, Green, Yellow, Pink, Aqua, White, Gray
+  Possible team names are: Red, Blue, Green, Yellow, Pink, Aqua, Orange, Gray
   - `/team remove <player name>` Remove a player from a given team
 
 #### Game start/end commands
@@ -42,7 +42,7 @@ The first time you run the plugin a config file will be generated in `<server>/p
 - `/pvp` Enable/disable PvP
 - `/maintenance` Enable maintenance mode (this will disallow all non-OP players from joining)
 - `/wincondition <full|number of lines to complete>` Change the wincondition to either a full card or a number of lines (rows, columns or diagonals) to complete in order to win
-- `/itemdistribution <S,A,B,C,D>` Change the item distribution scales, the number of S, A, B, C, D tier items that appear on the bingo card
+- `/itemdistribution <S,A,B,C,D>` Change the item distribution scales, the number of S, A, B, C, D tier items that appear on the bingo card. These numbers must add up to 25.
 - `/timer <enable|disable|length>` Enable/disable the timer or set the length of the timer (the length can be specified in hours/minutes/seconds, such as `/timer 10m` or `/timer 1h20m30s`)
 
 #### Miscellaneous commands
@@ -54,7 +54,7 @@ The first time you run the plugin a config file will be generated in `<server>/p
 
 ## World generation
 The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.
-This feature currently is only functional on [Paper](https://papermc.io/) (a different minecraft server).
+This feature currently is only functional on [Paper](https://papermc.io/) (a different minecraft server implementation).
 The following command can be used to manage this:
 - `/generate start <numWorlds>` Start pre-generating worlds and storing them in zip format
 - `/generate stop` Stop pre-generating worlds  

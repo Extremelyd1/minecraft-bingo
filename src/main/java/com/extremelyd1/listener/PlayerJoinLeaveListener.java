@@ -1,6 +1,7 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -48,7 +49,7 @@ public class PlayerJoinLeaveListener implements Listener {
         }
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
-            for (Team team : game.getTeamManager().getTeams()) {
+            for (PlayerTeam team : game.getTeamManager().getActiveTeams()) {
                 for (UUID uuid : team.getUUIDs()) {
                     if (uuid.equals(e.getUniqueId())) {
                         return;
@@ -83,17 +84,13 @@ public class PlayerJoinLeaveListener implements Listener {
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
-            e.setJoinMessage(
-                    ChatColor.GREEN + "+ "
-                            + player.getName()
-                            + ChatColor.WHITE + " joined"
-            );
+            game.getTeamManager().addPlayerToTeam(player, game.getTeamManager().getSpectatorTeam(), false);
 
-            return;
+            team = game.getTeamManager().getSpectatorTeam();
         }
 
         e.setJoinMessage(
-                ChatColor.GREEN + "+ "
+                ChatColor.GREEN + "+ " + ChatColor.RESET
                         + team.getColor() + player.getName()
                         + ChatColor.WHITE + " joined"
         );

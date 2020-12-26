@@ -1,7 +1,7 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;

@@ -1,13 +1,12 @@
 package com.extremelyd1.gameboard;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.winCondition.WinReason;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GameBoardManager {
@@ -36,12 +35,22 @@ public class GameBoardManager {
      * Creates the boards used while in the in-game phase
      * @param teams An iterable of teams for which to create the boards
      */
-    public void createIngameBoards(Iterable<Team> teams) {
-        ingameBoards = new HashMap<>();
+    public void createIngameBoards(Iterable<PlayerTeam> teams) {
+        if (ingameBoards == null) {
+            ingameBoards = new HashMap<>();
+        }
 
-        for (Team team : teams) {
+        for (PlayerTeam team : teams) {
             ingameBoards.put(team, new IngameBoard(game, team));
         }
+    }
+
+    public void createSpectatorBoard(Team spectatorTeam) {
+        if (ingameBoards == null) {
+            ingameBoards = new HashMap<>();
+        }
+
+        ingameBoards.put(spectatorTeam, new IngameBoard(game, spectatorTeam));
     }
 
     /**
@@ -60,25 +69,24 @@ public class GameBoardManager {
      * When an item is collected by a certain team
      * @param team The team that collects the item
      */
-    public void onItemCollected(Team team) {
+    public void onItemCollected(PlayerTeam team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
             ingameBoards.get(team).updateNumItems(team.getBingoCard().getNumberOfCollectedItems());
 
             if (game.getConfig().showCurrentlyWinningTeam()) {
                 // Obtain a preliminary win reason
                 WinReason winReason = game.getWinConditionChecker().decideWinner(
-                        game.getTeamManager().getTeams()
+                        game.getTeamManager().getActiveTeams()
                 );
 
                 // Based on this win reason update the in-game boards
-                if (winReason.getReason().equals(WinReason.Reason.RANDOM_TIE)) {
-                    for (Team activeTeam : game.getTeamManager().getTeams()) {
-                        ingameBoards.get(activeTeam).updateWinningTeam(null);
-                    }
-                } else {
-                    for (Team activeTeam : game.getTeamManager().getTeams()) {
-                        ingameBoards.get(activeTeam).updateWinningTeam(winReason.getTeam());
-                    }
+                PlayerTeam leadingTeam = null;
+                if (!winReason.getReason().equals(WinReason.Reason.RANDOM_TIE)) {
+                    leadingTeam = winReason.getTeam();
+                }
+
+                for (IngameBoard ingameBoard : ingameBoards.values()) {
+                    ingameBoard.updateWinningTeam(leadingTeam);
                 }
             }
         }

@@ -1,9 +1,10 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.ItemUtil;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -38,7 +39,11 @@ public class CardCommand implements CommandExecutor {
         }
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
-        if (team == null) {
+        if (team == null || team.isSpectatorTeam()) {
+            player.sendMessage(
+                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command as spectator"
+            );
+
             return true;
         }
 
@@ -49,7 +54,7 @@ public class CardCommand implements CommandExecutor {
         }
 
         player.getInventory().addItem(
-                game.getBingoCardItemFactory().create(team.getBingoCard())
+                game.getBingoCardItemFactory().create(((PlayerTeam) team).getBingoCard())
         );
         player.sendMessage(
                 Game.PREFIX + "You have been given a new bingo card"

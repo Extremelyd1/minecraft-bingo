@@ -2,9 +2,10 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.StringUtil;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -44,14 +45,20 @@ public class BingoCommand implements CommandExecutor {
         }
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
-        if (team == null) {
+        if (team == null || team.isSpectatorTeam()) {
+            player.sendMessage(
+                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command as spectator"
+            );
+
             return true;
         }
+
+        PlayerTeam playerTeam = (PlayerTeam) team;
 
         List<Material> itemsCollected = new ArrayList<>();
         List<Material> itemsLeft = new ArrayList<>();
 
-        for (BingoItem[] bingoItemRow : team.getBingoCard().getBingoItems()) {
+        for (BingoItem[] bingoItemRow : playerTeam.getBingoCard().getBingoItems()) {
             for (BingoItem bingoItem : bingoItemRow) {
                 if (bingoItem.isCollected()) {
                     itemsCollected.add(bingoItem.getMaterial());

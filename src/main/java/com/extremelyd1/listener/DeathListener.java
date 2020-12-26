@@ -1,6 +1,7 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.potion.PotionEffects;
 import com.extremelyd1.util.StringUtil;
@@ -11,8 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class DeathListener implements Listener {
 
@@ -48,18 +47,20 @@ public class DeathListener implements Listener {
         if (game.getState().equals(Game.State.IN_GAME)) {
             Player player = e.getPlayer();
             Team team = game.getTeamManager().getTeamByPlayer(player);
-            if (team == null) {
+            if (team == null || team.isSpectatorTeam()) {
                 return;
             }
+
+            PlayerTeam playerTeam = (PlayerTeam) team;
 
             player.addPotionEffect(PotionEffects.RESISTANCE);
 
             if (player.getBedSpawnLocation() == null) {
-                e.setRespawnLocation(team.getSpawnLocation());
+                e.setRespawnLocation(playerTeam.getSpawnLocation());
             }
 
             player.getInventory().addItem(
-                    game.getBingoCardItemFactory().create(team.getBingoCard())
+                    game.getBingoCardItemFactory().create(playerTeam.getBingoCard())
             );
             player.sendMessage(
                     Game.PREFIX + "You have been given a new bingo card"

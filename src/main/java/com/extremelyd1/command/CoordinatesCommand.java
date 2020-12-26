@@ -1,10 +1,9 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
-import com.extremelyd1.util.CommandUtil;
-import org.bukkit.Bukkit;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -40,10 +39,10 @@ public class CoordinatesCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
-        if (team == null) {
+        if (team == null || team.isSpectatorTeam()) {
             player.sendMessage(
                     ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "Cannot execute this command without a team"
+                            + ChatColor.WHITE + "Cannot execute this command as spectator"
             );
 
             return true;

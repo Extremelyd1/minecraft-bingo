@@ -2,7 +2,7 @@ package com.extremelyd1.util;
 
 import com.extremelyd1.game.Game;
 import org.bukkit.Bukkit;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 
 public class TimeUtil {
 

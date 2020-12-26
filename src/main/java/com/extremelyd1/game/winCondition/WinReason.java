@@ -1,6 +1,6 @@
 package com.extremelyd1.game.winCondition;
 
-import com.extremelyd1.game.team.Team;
+import com.extremelyd1.game.team.PlayerTeam;
 
 /**
  * The reason a certain team has won the game, or that the game has ended
@@ -10,7 +10,7 @@ public class WinReason {
     /**
      * The team that has won the game, or null if no team has won
      */
-    private final Team team;
+    private final PlayerTeam team;
 
     /**
      * The reason that the game has been won, or has ended
@@ -22,7 +22,7 @@ public class WinReason {
      * @param team The team that has won
      * @param reason The reason that the team has won
      */
-    public WinReason(Team team, Reason reason) {
+    public WinReason(PlayerTeam team, Reason reason) {
         this.team = team;
         this.reason = reason;
     }
@@ -35,7 +35,7 @@ public class WinReason {
         this.reason = Reason.NO_WINNER;
     }
 
-    public Team getTeam() {
+    public PlayerTeam getTeam() {
         return team;
     }
 

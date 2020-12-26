@@ -1,7 +1,6 @@
 package com.extremelyd1.game.team;
 
 import com.extremelyd1.game.Game;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -24,16 +23,22 @@ public class TeamManager {
     /**
      * The list of possible teams
      */
-    private final List<Team> teams;
+    private final List<PlayerTeam> teams;
     /**
      * The list of teams that have at least a single player on it
      */
-    private final List<Team> activeTeams;
+    private final List<PlayerTeam> activeTeams;
+    /**
+     * The team containing spectators
+     */
+    private final Team spectatorTeam;
 
     public TeamManager(Game game) {
         this.game = game;
         this.teams = new ArrayList<>();
         this.activeTeams = new ArrayList<>();
+
+        this.spectatorTeam = new Team();
 
         TeamFactory teamFactory = new TeamFactory();
         for (int i = 0; i < MAX_TEAMS; i++) {
@@ -67,7 +72,7 @@ public class TeamManager {
         int teamIndex = 0;
 
         for (int i = 0; i < numTeams; i++) {
-            Team team = teams.get(teamIndex++);
+            PlayerTeam team = teams.get(teamIndex++);
 
             for (int p = 0; p < playersPerTeam; p++) {
                 Player randomPlayer = playersLeft.get(
@@ -86,9 +91,9 @@ public class TeamManager {
 
         // Loop over the leftover players until they have
         // all randomly been assigned to a team
-        List<Team> teamsLeft = new ArrayList<>(activeTeams);
+        List<PlayerTeam> teamsLeft = new ArrayList<>(activeTeams);
         for (Player player : playersLeft) {
-            Team team = teamsLeft.get(
+            PlayerTeam team = teamsLeft.get(
                     new Random().nextInt(teamsLeft.size())
             );
 
@@ -114,10 +119,15 @@ public class TeamManager {
      * @param notify Whether to notify the player of their new team
      */
     public void addPlayerToTeam(Player player, Team team, boolean notify) {
+        removePlayerFromTeam(player);
         team.addPlayer(player, notify);
 
-        if (!activeTeams.contains(team)) {
-            activeTeams.add(team);
+        if (!team.isSpectatorTeam()) {
+            PlayerTeam playerTeam = (PlayerTeam) team;
+
+            if (!activeTeams.contains(playerTeam)) {
+                activeTeams.add(playerTeam);
+            }
         }
     }
 
@@ -126,7 +136,7 @@ public class TeamManager {
      * @param player The player to remove from the team
      * @return Whether the player was remove from a team
      */
-    public boolean removePlayerFromTeam(Player player) {
+    private boolean removePlayerFromTeam(Player player) {
         Team team = getTeamByPlayer(player);
 
         if (team != null) {
@@ -143,10 +153,10 @@ public class TeamManager {
      * @param player The player to remove from the team
      * @param team The team to remove the player from
      */
-    public void removePlayerFromTeam(Player player, Team team) {
+    private void removePlayerFromTeam(Player player, Team team) {
         team.removePlayer(player);
 
-        if (team.getNumPlayers() == 0) {
+        if (!team.isSpectatorTeam() && team.getNumPlayers() == 0) {
             activeTeams.remove(team);
         }
     }
@@ -156,8 +166,8 @@ public class TeamManager {
      * @param name The name to search for
      * @return The team that matches the name or null if none match
      */
-    public Team getTeamByName(String name) {
-        for (Team team : teams) {
+    public PlayerTeam getTeamByName(String name) {
+        for (PlayerTeam team : teams) {
             if (team.getName().equalsIgnoreCase(name)) {
                 return team;
             }
@@ -167,11 +177,19 @@ public class TeamManager {
     }
 
     /**
+     * Get the spectator team
+     * @return The spectator team
+     */
+    public Team getSpectatorTeam() {
+        return spectatorTeam;
+    }
+
+    /**
      * Removes all players from all active teams
      */
     public void clearTeams() {
         while (!activeTeams.isEmpty()) {
-            Team team = activeTeams.get(0);
+            PlayerTeam team = activeTeams.get(0);
 
             team.clear();
 
@@ -185,10 +203,14 @@ public class TeamManager {
      * @return The team the player is on or null if the player has no team
      */
     public Team getTeamByPlayer(Player player) {
-        for (Team team : activeTeams) {
+        for (PlayerTeam team : activeTeams) {
             if (team.contains(player)) {
                 return team;
             }
+        }
+
+        if (spectatorTeam.contains(player)) {
+            return spectatorTeam;
         }
 
         return null;
@@ -198,7 +220,7 @@ public class TeamManager {
      * Get the number of teams with players on them
      * @return The number of teams with players on them
      */
-    public int getNumTeams() {
+    public int getNumActiveTeams() {
         return activeTeams.size();
     }
 
@@ -206,7 +228,7 @@ public class TeamManager {
      * Get an iterable for the teams with players on them that can be looped over
      * @return An iterable for the teams with players on them that can be looped over
      */
-    public Iterable<Team> getTeams() {
+    public Iterable<PlayerTeam> getActiveTeams() {
         return activeTeams;
     }
 

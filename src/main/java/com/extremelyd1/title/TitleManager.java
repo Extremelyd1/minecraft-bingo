@@ -1,9 +1,9 @@
 package com.extremelyd1.title;
 
-import com.extremelyd1.game.team.Team;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.winCondition.WinReason;
 import org.bukkit.Bukkit;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -39,7 +39,7 @@ public class TitleManager {
 
         switch (winReason.getReason()) {
             case COMPLETE:
-                Team team = winReason.getTeam();
+                PlayerTeam team = winReason.getTeam();
 
                 title = ChatColor.BOLD.toString() + ChatColor.BLUE + "BINGO";
                 subtitle = team.getColor() + team.getName()
