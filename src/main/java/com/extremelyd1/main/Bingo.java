@@ -12,7 +12,7 @@ public class Bingo extends JavaPlugin {
         try {
             new Game(this);
         } catch (IllegalArgumentException e) {
-            getLogger().severe("Could not start plugin");
+            getLogger().severe(String.format("Could not start plugin: %s", e.getMessage()));
             Bukkit.getPluginManager().disablePlugin(this);
         }
     }
