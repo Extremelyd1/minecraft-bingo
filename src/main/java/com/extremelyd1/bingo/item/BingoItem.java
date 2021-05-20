@@ -1,6 +1,10 @@
 package com.extremelyd1.bingo.item;
 
+import com.extremelyd1.game.team.PlayerTeam;
 import org.bukkit.Material;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an single item on the bingo card for a single team
@@ -12,13 +16,13 @@ public class BingoItem {
      */
     private final Material material;
     /**
-     * Whether the item has been collected by the team
+     * A list of which teams have collected this item
      */
-    private boolean collected;
+    private final List<PlayerTeam> collectors;
 
     public BingoItem(Material material) {
         this.material = material;
-        this.collected = false;
+        this.collectors = new ArrayList<>();
     }
 
     /**
@@ -30,18 +34,23 @@ public class BingoItem {
     }
 
     /**
-     * Set this item as being collected
+     * Set this item as being collected for the given team
      */
-    public void setCollected() {
-        this.collected = true;
+    public void addCollector(PlayerTeam team) {
+        collectors.add(team);
     }
 
     /**
-     * Whether this item has been collected
-     * @return Whether this item has been collected
+     * Check whether a team has collected the item
+     * @param team The team
+     * @return Whether the team has collected the item
      */
-    public boolean isCollected() {
-        return collected;
+    public boolean hasCollected(PlayerTeam team) {
+        return collectors.contains(team);
+    }
+
+    public Iterable<PlayerTeam> getCollectors() {
+        return collectors;
     }
 
     /**

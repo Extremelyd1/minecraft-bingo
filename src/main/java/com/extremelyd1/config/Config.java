@@ -1,5 +1,6 @@
 package com.extremelyd1.config;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Config {
@@ -39,6 +40,11 @@ public class Config {
      * Whether to show the currently winning team on the scoreboard
      */
     private final boolean showCurrentlyWinningTeam;
+
+    /**
+     * Whether to notify teams if other teams complete a goal
+     */
+    private final boolean notifyOtherTeamCompletions;
 
     /**
      * Whether a world border is enabled
@@ -93,9 +99,11 @@ public class Config {
 
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
+        
+        FileConfiguration config = plugin.getConfig();
 
-        enableBlacklist = plugin.getConfig().getBoolean("enable-blacklist");
-        String defaultItemDistributionString = plugin.getConfig().getString("default-item-distribution");
+        enableBlacklist = config.getBoolean("enable-blacklist");
+        String defaultItemDistributionString = config.getString("default-item-distribution");
 
         if (defaultItemDistributionString == null
                 || !defaultItemDistributionString.contains(",")) {
@@ -113,33 +121,35 @@ public class Config {
         numCTierItems = parseItemDistribution(itemDistributions[3]);
         numDTierItems = parseItemDistribution(itemDistributions[4]);
 
-        defaultNumLinesComplete = plugin.getConfig().getInt("default-num-lines-complete-for-win");
+        defaultNumLinesComplete = config.getInt("default-num-lines-complete-for-win");
 
-        showCurrentlyWinningTeam = plugin.getConfig().getBoolean("show-currently-winning-team");
+        showCurrentlyWinningTeam = config.getBoolean("show-currently-winning-team");
 
-        preventWaterSpawns = plugin.getConfig().getBoolean("prevent-water-spawns");
+        notifyOtherTeamCompletions = config.getBoolean("notify-other-team-completions");
 
-        showAllMapsPostGame = plugin.getConfig().getBoolean("show-all-maps-after-game");
+        preventWaterSpawns = config.getBoolean("prevent-water-spawns");
 
-        giveAllRecipes = plugin.getConfig().getBoolean("give-all-recipes");
+        showAllMapsPostGame = config.getBoolean("show-all-maps-after-game");
 
-        borderEnabled = plugin.getConfig().getBoolean("border.enable");
-        overworldBorderSize = plugin.getConfig().getInt("border.overworld-size");
-        netherBorderSize = plugin.getConfig().getInt("border.nether-size");
+        giveAllRecipes = config.getBoolean("give-all-recipes");
+
+        borderEnabled = config.getBoolean("border.enable");
+        overworldBorderSize = config.getInt("border.overworld-size");
+        netherBorderSize = config.getInt("border.nether-size");
 
         if (overworldBorderSize < netherBorderSize) {
             throw new IllegalArgumentException("Nether border should be at most as large as the overworld border size");
         }
 
-        timerEnabled = plugin.getConfig().getBoolean("timer.enable");
-        timerLength = plugin.getConfig().getInt("timer.length");
+        timerEnabled = config.getBoolean("timer.enable");
+        timerLength = config.getInt("timer.length");
 
         // Only allow pregeneration of worlds if there is the border is enabled
-        pregenerateWorlds = borderEnabled && plugin.getConfig().getBoolean("pregeneration-mode.enable");
+        pregenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
 
-        pregenerationTicksPerCycle = plugin.getConfig().getInt("pregeneration-mode.ticks-per-cycle");
+        pregenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
 
-        pregenerationChunksPerCycle = plugin.getConfig().getInt("pregeneration-mode.chunks-per-cycle");
+        pregenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
     }
 
     /**
@@ -199,6 +209,10 @@ public class Config {
 
     public boolean showCurrentlyWinningTeam() {
         return showCurrentlyWinningTeam;
+    }
+
+    public boolean notifyOtherTeamCompletions() {
+        return notifyOtherTeamCompletions;
     }
 
     public boolean isPreventWaterSpawns() {

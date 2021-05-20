@@ -1,6 +1,7 @@
 package com.extremelyd1.bingo;
 
 import com.extremelyd1.bingo.item.BingoItem;
+import com.extremelyd1.game.team.PlayerTeam;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ public class BingoCard {
     private final BingoItem[][] bingoItems;
 
     /**
-     * The number of collected items on this bingo card
+     * The corresponding inventory that holds ItemStacks of this bingo card
      */
-    private int numCollected;
+    private final BingoCardInventory bingoCardInventory;
 
     /**
      * Creates a bingo card by randomly picking from the list of materials given
@@ -50,6 +51,8 @@ public class BingoCard {
                 materialsLeft.remove(material);
             }
         }
+
+        bingoCardInventory = new BingoCardInventory(bingoItems);
     }
 
     /**
@@ -58,6 +61,8 @@ public class BingoCard {
      */
     public BingoCard(BingoItem[][] bingoItems) {
         this.bingoItems = bingoItems;
+
+        bingoCardInventory = new BingoCardInventory(bingoItems);
     }
 
     /**
@@ -87,47 +92,50 @@ public class BingoCard {
     }
 
     /**
-     * Sets the item to be collected on the card
+     * Sets the item to be collected on the card for the given team
      * @param material The material of the item collected
+     * @param team The team to mark the item for
      */
-    public void addItemCollected(Material material) {
+    public void addItemCollected(Material material, PlayerTeam team) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
                 if (bingoItem.getMaterial().equals(material)
-                        && !bingoItem.isCollected()) {
-                    bingoItem.setCollected();
+                        && !bingoItem.hasCollected(team)) {
+                    bingoItem.addCollector(team);
 
-                    numCollected++;
+                    // Does literally nothing
+                    team.incrementCollected();
                 }
             }
         }
     }
 
     /**
-     * Gets the number of lines (rows, columns or diagonals) that is completed on this bingo card
+     * Gets the number of lines (rows, columns or diagonals) that is completed on this bingo card for the given Team
+     * @param team The team to check for
      * @return The number of lines completed
      */
-    public int getNumLinesComplete() {
+    public int getNumLinesComplete(PlayerTeam team) {
         int numLinesComplete = 0;
 
         for (int y = 0; y < BOARD_SIZE; y++) {
-            if (checkRow(y)) {
+            if (checkRow(team, y)) {
                 numLinesComplete++;
             }
         }
 
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (checkColumn(x)) {
+            if (checkColumn(team, x)) {
                 numLinesComplete++;
             }
         }
 
-        if (checkDiagonal(true)) {
+        if (checkDiagonal(team, true)) {
             numLinesComplete++;
         }
 
-        if (checkDiagonal(false)) {
+        if (checkDiagonal(team, false)) {
             numLinesComplete++;
         }
 
@@ -135,42 +143,15 @@ public class BingoCard {
     }
 
     /**
-     * Whether at least 1 line is completed on this bingo card
-     * @return Whether at least 1 lines is completed
-     */
-    public boolean hasLineComplete() {
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            if (checkRow(y)) {
-                return true;
-            }
-        }
-
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            if (checkColumn(x)) {
-                return true;
-            }
-        }
-
-        return checkDiagonal(true) || checkDiagonal(false);
-    }
-
-    /**
-     * Gets the number of collected items on this bingo card
-     * @return The number of collected items
-     */
-    public int getNumberOfCollectedItems() {
-        return numCollected;
-    }
-
-    /**
-     * Whether this bingo card is fully completed
+     * Whether this bingo card is fully completed for the given team
+     * @param team The team to check for
      * @return Whether this bingo is fully completed
      */
-    public boolean isCardComplete() {
+    public boolean isCardComplete(PlayerTeam team) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
-                if (!bingoItem.isCollected()) {
+                if (!bingoItem.hasCollected(team)) {
                     return false;
                 }
             }
@@ -180,13 +161,14 @@ public class BingoCard {
     }
 
     /**
-     * Check whether the row with index y is completed
+     * Check whether the row with index y is completed for the given team
+     * @param team The team to check for
      * @param y The index to check for
      * @return Whether the row is completed
      */
-    private boolean checkRow(int y) {
+    private boolean checkRow(PlayerTeam team, int y) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (!bingoItems[y][x].isCollected()) {
+            if (!bingoItems[y][x].hasCollected(team)) {
                 return false;
             }
         }
@@ -195,13 +177,14 @@ public class BingoCard {
     }
 
     /**
-     * Check whether the column with index x is completed
+     * Check whether the column with index x is completed for the given team
+     * @param team The team to check for
      * @param x The index to check for
      * @return Whether the column is completed
      */
-    private boolean checkColumn(int x) {
+    private boolean checkColumn(PlayerTeam team, int x) {
         for (int y = 0; y < BOARD_SIZE; y++) {
-            if (!bingoItems[y][x].isCollected()) {
+            if (!bingoItems[y][x].hasCollected(team)) {
                 return false;
             }
         }
@@ -210,21 +193,22 @@ public class BingoCard {
     }
 
     /**
-     * Check whether a diagonal is completed
+     * Check whether a diagonal is completed for the given team
+     * @param team The team to check for
      * @param startTopLeft Whether to check the diagonal starting in the top left
      *                     or the diagonal starting in the top right
      * @return Whether the diagonal is completed
      */
-    private boolean checkDiagonal(boolean startTopLeft) {
+    private boolean checkDiagonal(PlayerTeam team, boolean startTopLeft) {
         if (startTopLeft) {
             for (int i = 0; i < BOARD_SIZE; i++) {
-                if (!bingoItems[i][i].isCollected()) {
+                if (!bingoItems[i][i].hasCollected(team)) {
                     return false;
                 }
             }
         } else {
             for (int i = 0; i < BOARD_SIZE; i++) {
-                if (!bingoItems[i][BOARD_SIZE - 1 - i].isCollected()) {
+                if (!bingoItems[i][BOARD_SIZE - 1 - i].hasCollected(team)) {
                     return false;
                 }
             }
@@ -255,6 +239,10 @@ public class BingoCard {
      */
     public BingoItem[][] getBingoItems() {
         return bingoItems;
+    }
+
+    public BingoCardInventory getBingoCardInventory() {
+        return bingoCardInventory;
     }
 
 }

@@ -120,7 +120,7 @@ public class InteractListener implements Listener {
             return;
         }
 
-        ((PlayerTeam) team).getBingoCardInventory().show(e.getPlayer());
+        game.getBingoCard().getBingoCardInventory().show(e.getPlayer());
     }
 
     @EventHandler
@@ -178,7 +178,7 @@ public class InteractListener implements Listener {
                     return;
                 }
 
-                ((PlayerTeam) team).getBingoCardInventory().show((Player) e.getWhoClicked());
+                game.getBingoCard().getBingoCardInventory().show((Player) e.getWhoClicked());
             }
         }
 

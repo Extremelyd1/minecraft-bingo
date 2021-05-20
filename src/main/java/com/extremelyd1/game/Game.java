@@ -119,6 +119,11 @@ public class Game {
     private boolean pvpEnabled = false;
 
     /**
+     * The bingo card that is currently used
+     */
+    private BingoCard bingoCard;
+
+    /**
      * The current game timer
      */
     private GameTimer gameTimer;
@@ -275,11 +280,7 @@ public class Game {
                     this.state = State.IN_GAME;
 
                     // Create random bingo card
-                    BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
-
-                    for (PlayerTeam team : teamManager.getActiveTeams()) {
-                        team.setBingoCard(bingoCard.copy());
-                    }
+                    bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
                     int index = 0;
                     for (PlayerTeam team : teamManager.getActiveTeams()) {
@@ -302,9 +303,10 @@ public class Game {
                             teamPlayer.setSaturation(5);
 
                             // Give all players a bingo card
-                            teamPlayer.getInventory().addItem(
-                                    bingoCardItemFactory.create(team.getBingoCard())
-                            );
+                            teamPlayer.getInventory().addItem(bingoCardItemFactory.create(
+                                            bingoCard,
+                                            team
+                            ));
 
                             if (config.isGiveAllRecipes()) {
                                 recipeUtil.discoverAllRecipes(teamPlayer);
@@ -406,21 +408,22 @@ public class Game {
 
             for (PlayerTeam team : teamManager.getActiveTeams()) {
                 // Put the item stack with appropriate border color in map
-                ItemStack bingoCard = bingoCardItemFactory.create(
-                        team.getBingoCard(),
+                ItemStack bingoCardItemStack = bingoCardItemFactory.create(
+                        bingoCard,
+                        team,
                         ColorUtil.chatColorToInt(team.getColor())
                 );
 
                 // Change the item name to include team name and color
-                ItemMeta meta = bingoCard.getItemMeta();
+                ItemMeta meta = bingoCardItemStack.getItemMeta();
                 if (meta != null) {
                     meta.setDisplayName(team.getColor() + team.getName() + " Team");
                 }
-                bingoCard.setItemMeta(meta);
+                bingoCardItemStack.setItemMeta(meta);
 
                 bingoCardItemStacks.put(
                         team,
-                        bingoCard
+                        bingoCardItemStack
                 );
             }
 
@@ -462,13 +465,11 @@ public class Game {
      */
     public void rerollCard() {
         // Create random bingo card
-        BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
+        bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
         for (PlayerTeam team : teamManager.getActiveTeams()) {
-            team.setBingoCard(bingoCard.copy());
-
             // Update the bingo card of all players in the team
-            ItemUtil.updateBingoCard(team, bingoCardItemFactory);
+            ItemUtil.updateBingoCard(bingoCard, team, bingoCardItemFactory);
 
             gameBoardManager.onItemCollected(team);
         }
@@ -504,31 +505,37 @@ public class Game {
             return;
         }
 
-        PlayerTeam playerTeam = (PlayerTeam) team;
-
-        BingoCard bingoCard = playerTeam.getBingoCard();
+        PlayerTeam collectorTeam = (PlayerTeam) team;
 
         if (bingoCard.containsItem(material)
-                && !bingoCard.getItemByMaterial(material).isCollected()) {
-            bingoCard.addItemCollected(material);
+                && !bingoCard.getItemByMaterial(material).hasCollected(collectorTeam)) {
+            bingoCard.addItemCollected(material, collectorTeam);
 
-            gameBoardManager.onItemCollected(playerTeam);
+            gameBoardManager.onItemCollected(collectorTeam);
 
-            // Update the bingo card of all players in the team
-            ItemUtil.updateBingoCard(playerTeam, bingoCardItemFactory);
+            if (config.notifyOtherTeamCompletions()) {
+                // Broadcast a message of this collection
+                Bukkit.broadcastMessage(
+                        PREFIX +
+                                collectorTeam.getColor() + collectorTeam.getName()
+                                + ChatColor.WHITE + " team has obtained "
+                                + ChatColor.AQUA + StringUtil.formatMaterialName(material)
+                );
 
-            Bukkit.broadcastMessage(
-                    PREFIX +
-                            playerTeam.getColor() + playerTeam.getName()
-                            + ChatColor.WHITE + " team has obtained "
-                            + ChatColor.AQUA + StringUtil.formatMaterialName(material)
-            );
+                // Update the cards of all players in all teams
+                for (PlayerTeam playerTeam : teamManager.getActiveTeams()) {
+                    ItemUtil.updateBingoCard(bingoCard, playerTeam, bingoCardItemFactory);
+                }
+            } else {
+                // Update only the bingo card of the players in the team that collected the item
+                ItemUtil.updateBingoCard(bingoCard, collectorTeam, bingoCardItemFactory);
+            }
 
             // Check whether win condition has been met
-            if (winConditionChecker.hasBingo(bingoCard)) {
-                end(new WinReason(playerTeam, WinReason.Reason.COMPLETE));
+            if (winConditionChecker.hasBingo(bingoCard, collectorTeam)) {
+                end(new WinReason(collectorTeam, WinReason.Reason.COMPLETE));
             } else {
-                soundManager.broadcastItemCollected(playerTeam);
+                soundManager.broadcastItemCollected(collectorTeam);
             }
         }
     }
@@ -563,6 +570,10 @@ public class Game {
 
     public boolean isPvpEnabled() {
         return pvpEnabled;
+    }
+
+    public BingoCard getBingoCard() {
+        return bingoCard;
     }
 
     public void togglePvp() {

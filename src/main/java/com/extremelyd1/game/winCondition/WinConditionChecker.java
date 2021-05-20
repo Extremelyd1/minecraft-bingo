@@ -29,19 +29,16 @@ public class WinConditionChecker {
     }
 
     /**
-     * Checks whether a bingo card is completed according to the win conditions
+     * Checks whether a bingo card is completed according to the win conditions for the given team
      * @param card The bingo card to check
+     * @param team The team to check for
      * @return Whether this bingo card has won
      */
-    public boolean hasBingo(BingoCard card) {
+    public boolean hasBingo(BingoCard card, PlayerTeam team) {
         if (fullCard) {
-            return card.isCardComplete();
+            return card.isCardComplete(team);
         } else {
-            if (numLinesComplete == 1) {
-                return card.hasLineComplete();
-            } else {
-                return card.getNumLinesComplete() >= numLinesComplete;
-            }
+            return card.getNumLinesComplete(team) >= numLinesComplete;
         }
     }
 
@@ -59,7 +56,7 @@ public class WinConditionChecker {
         List<PlayerTeam> potentialWinners = new ArrayList<>();
         int maxScore = 0;
         for (PlayerTeam team : teams) {
-            int score = team.getBingoCard().getNumberOfCollectedItems();
+            int score = team.getNumCollected();
 
             if (score > maxScore) {
                 potentialWinners.clear();

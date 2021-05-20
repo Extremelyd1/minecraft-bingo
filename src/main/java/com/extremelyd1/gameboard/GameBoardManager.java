@@ -71,7 +71,7 @@ public class GameBoardManager {
      */
     public void onItemCollected(PlayerTeam team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
-            ingameBoards.get(team).updateNumItems(team.getBingoCard().getNumberOfCollectedItems());
+            ingameBoards.get(team).updateNumItems(team.getNumCollected());
 
             if (game.getConfig().showCurrentlyWinningTeam()) {
                 // Obtain a preliminary win reason

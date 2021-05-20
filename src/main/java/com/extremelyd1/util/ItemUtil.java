@@ -1,5 +1,6 @@
 package com.extremelyd1.util;
 
+import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.game.team.PlayerTeam;
 import org.bukkit.entity.Player;
@@ -12,7 +13,7 @@ public class ItemUtil {
      * @param team The team for which to update
      * @param factory The bingo card item factory from which to create the itemstack
      */
-    public static void updateBingoCard(PlayerTeam team, BingoCardItemFactory factory) {
+    public static void updateBingoCard(BingoCard bingoCard, PlayerTeam team, BingoCardItemFactory factory) {
         for (Player player : team.getPlayers()) {
             boolean itemFound = false;
 
@@ -25,7 +26,8 @@ public class ItemUtil {
                 if (itemStack.getItemMeta() != null
                         && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
                     player.getInventory().setItem(i, factory.create(
-                            team.getBingoCard()
+                            bingoCard,
+                            team
                     ));
 
                     itemFound = true;
@@ -36,7 +38,8 @@ public class ItemUtil {
 
             if (!itemFound) {
                 player.getInventory().addItem(factory.create(
-                        team.getBingoCard()
+                        bingoCard,
+                        team
                 ));
             }
         }

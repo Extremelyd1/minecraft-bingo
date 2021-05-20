@@ -3,6 +3,7 @@ package com.extremelyd1.bingo.map;
 import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.util.ColorUtil;
 import com.extremelyd1.util.FileUtil;
 import org.bukkit.Bukkit;
@@ -60,6 +61,14 @@ public class BingoCardItemFactory {
      * The number of pixels of padding between the images and the item border
      */
     private static final int IMAGE_PADDING = 3;
+    /**
+     * The size of the squares that show the collections for other teams, otherwise known as indicators
+     */
+    private static final int TEAM_INDICATOR_SIZE = 2;
+    /**
+     * The padding between the squares of the team indicators
+     */
+    private static final int TEAM_INDICATOR_PADDING = 1;
 
     /**
      * The game instance
@@ -79,20 +88,24 @@ public class BingoCardItemFactory {
 
     /**
      * Create an ItemStack from the given bingo card
-     * @param bingoCard The BingoCard to make the itemstack from
+     *
+     * @param bingoCard      The BingoCard to make the itemstack from
+     * @param team           The team that this card should be created for
      * @return The created ItemStack
      */
-    public ItemStack create(BingoCard bingoCard) {
-        return create(bingoCard, MAP_BACKGROUND_COLOR);
+    public ItemStack create(BingoCard bingoCard, PlayerTeam team) {
+        return create(bingoCard, team, MAP_BACKGROUND_COLOR);
     }
 
     /**
      * Create an ItemStack from the given bingo card
-     * @param bingoCard The BingoCard to make the itemstack from
-     * @param borderColor The color of the border of the bingo card
+     *
+     * @param bingoCard      The BingoCard to make the itemstack from
+     * @param team           The team that this card should be created for
+     * @param borderColor    The color of the border of the bingo card
      * @return The created ItemStack
      */
-    public ItemStack create(BingoCard bingoCard, int borderColor) {
+    public ItemStack create(BingoCard bingoCard, PlayerTeam team, int borderColor) {
         BufferedImage image = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_INT_RGB);
         // Base layer of map color
         for (int x = 0; x < CANVAS_SIZE; x++) {
@@ -126,18 +139,21 @@ public class BingoCardItemFactory {
                 BingoItem bingoItem = bingoItems[y][x];
 
                 int baseColor;
-                if (bingoItem.isCollected()) {
+                if (bingoItem.hasCollected(team)) {
                     baseColor = COLLECTED_COLOR;
                 } else {
                     baseColor = NOT_COLLECTED_COLOR;
                 }
 
+                int backgroundStartX = CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE);
+                int backgroundStartY = CARD_PADDING + y * (ITEM_PADDING + ITEM_SIZE);
+
                 // Write background
                 for (int imageX = 0; imageX < ITEM_SIZE; imageX++) {
                     for (int imageY = 0; imageY < ITEM_SIZE; imageY++) {
                         image.setRGB(
-                                CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE) + imageX,
-                                CARD_PADDING + y * (ITEM_PADDING + ITEM_SIZE) + imageY,
+                                backgroundStartX + imageX,
+                                backgroundStartY + imageY,
                                 baseColor
                         );
                     }
@@ -173,11 +189,44 @@ public class BingoCardItemFactory {
                         }
 
                         image.setRGB(
-                                CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE) + IMAGE_PADDING + imageX,
-                                CARD_PADDING + y * (ITEM_PADDING + ITEM_SIZE) + IMAGE_PADDING + imageY,
+                                backgroundStartX + IMAGE_PADDING + imageX,
+                                backgroundStartY + IMAGE_PADDING + imageY,
                                 colorToSet
                         );
                     }
+                }
+
+                // Check whether we need to draw the team indicators for other teams
+                if (!game.getConfig().notifyOtherTeamCompletions()) {
+                    continue;
+                }
+
+                // Calculate the start positions of the indicators
+                int indicatorStartX = backgroundStartX + TEAM_INDICATOR_PADDING;
+                int indicatorStartY = backgroundStartY + TEAM_INDICATOR_PADDING;
+
+                // Loop over the teams that have collected this item
+                for (PlayerTeam collector : bingoItem.getCollectors()) {
+                    // Skip the team that this card is created for
+                    if (team.equals(collector)) {
+                        continue;
+                    }
+
+                    // Retrieve the color of the pixels we need to set
+                    int colorToSet = ColorUtil.chatColorToInt(collector.getColor());
+
+                    for (int indicatorX = indicatorStartX; indicatorX < indicatorStartX + TEAM_INDICATOR_SIZE; indicatorX++) {
+                        for (int indicatorY = indicatorStartY; indicatorY < indicatorStartY + TEAM_INDICATOR_SIZE; indicatorY++) {
+                            image.setRGB(
+                                    indicatorX,
+                                    indicatorY,
+                                    colorToSet
+                            );
+                        }
+                    }
+
+                    // Advance the start X position of the indicator by the size and padding
+                    indicatorStartX += TEAM_INDICATOR_SIZE + TEAM_INDICATOR_PADDING;
                 }
             }
         }
