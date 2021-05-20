@@ -30,8 +30,8 @@ public class PlayerTeam extends Team {
         return numCollected;
     }
 
-    public void setNumCollected(int numCollected) {
-        this.numCollected = numCollected;
+    public void resetNumCollected() {
+        numCollected = 0;
     }
 
     public Location getSpawnLocation() {

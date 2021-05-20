@@ -468,6 +468,9 @@ public class Game {
         bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
 
         for (PlayerTeam team : teamManager.getActiveTeams()) {
+            // Reset the number of collected items for this team
+            team.resetNumCollected();
+
             // Update the bingo card of all players in the team
             ItemUtil.updateBingoCard(bingoCard, team, bingoCardItemFactory);
 

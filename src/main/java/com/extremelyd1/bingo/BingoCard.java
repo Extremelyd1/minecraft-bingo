@@ -104,7 +104,6 @@ public class BingoCard {
                         && !bingoItem.hasCollected(team)) {
                     bingoItem.addCollector(team);
 
-                    // Does literally nothing
                     team.incrementCollected();
                 }
             }
