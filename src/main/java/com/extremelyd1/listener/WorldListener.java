@@ -20,12 +20,14 @@ public class WorldListener implements Listener {
     public void onPlayerPortal(PlayerPortalEvent e) {
         // Check if there exists a location that we are portalling to
         if (e.getTo() == null) {
+            Game.getLogger().warning("Player portal event called, but target location is null");
             return;
         }
 
         // Check if the both portal ends have a world
         if (e.getTo().getWorld() == null
                 || e.getFrom().getWorld() == null) {
+            Game.getLogger().warning("Player portal event called, but either world is null");
             return;
         }
 
@@ -46,18 +48,23 @@ public class WorldListener implements Listener {
         // The ratio of overworld border size and nether border size
         double ratio = (float) game.getConfig().getOverworldBorderSize() / game.getConfig().getNetherBorderSize();
 
-        double x = e.getTo().getX();
-        double z = e.getTo().getZ();
+        double xFrom = e.getFrom().getX();
+        double zFrom = e.getFrom().getZ();
+
+        double x;
+        double z;
 
         // Offset result location by world border centers in both dimensions
         if (toEnvironment.equals(World.Environment.NETHER)) {
-            // Initial multiplication by 8 is because the to location is already divided by 8
-            x = (x * 8.0D - worldCenterOffset.getX()) / ratio + netherCenterOffset.getX();
-            z = (z * 8.0D - worldCenterOffset.getZ()) / ratio + netherCenterOffset.getZ();
+            // First translate by local border center, divide by ratio and then translate by target border center
+            x = (xFrom - worldCenterOffset.getX()) / ratio + netherCenterOffset.getX();
+            z = (zFrom - worldCenterOffset.getZ()) / ratio + netherCenterOffset.getZ();
         } else if (toEnvironment.equals(World.Environment.NORMAL)) {
-            // Initial division by 8 is because the to location is already multiplied by 8
-            x = (x / 8.0D - netherCenterOffset.getX()) * ratio + worldCenterOffset.getX();
-            z = (z / 8.0D - netherCenterOffset.getZ()) * ratio + worldCenterOffset.getZ();
+            // First translate by local border center, multiply by ratio and then translate by target border center
+            x = (xFrom - netherCenterOffset.getX()) * ratio + worldCenterOffset.getX();
+            z = (zFrom - netherCenterOffset.getZ()) * ratio + worldCenterOffset.getZ();
+        } else {
+            return;
         }
 
         e.getTo().setX(x);
