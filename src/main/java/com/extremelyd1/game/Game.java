@@ -36,6 +36,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 public class Game {
@@ -280,7 +281,7 @@ public class Game {
                     this.state = State.IN_GAME;
 
                     // Create random bingo card
-                    bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
+                    bingoCard = new BingoCard(bingoItemMaterials.pickMaterials(), winConditionChecker.getCompletionsToLock());
 
                     int index = 0;
                     for (PlayerTeam team : teamManager.getActiveTeams()) {
@@ -465,7 +466,7 @@ public class Game {
      */
     public void rerollCard() {
         // Create random bingo card
-        bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
+        bingoCard = new BingoCard(bingoItemMaterials.pickMaterials(), winConditionChecker.getCompletionsToLock());
 
         for (PlayerTeam team : teamManager.getActiveTeams()) {
             // Reset the number of collected items for this team
@@ -510,10 +511,7 @@ public class Game {
 
         PlayerTeam collectorTeam = (PlayerTeam) team;
 
-        if (bingoCard.containsItem(material)
-                && !bingoCard.getItemByMaterial(material).hasCollected(collectorTeam)) {
-            bingoCard.addItemCollected(material, collectorTeam);
-
+        if (bingoCard.checkMaterialCollection(material, collectorTeam)) {
             gameBoardManager.onItemCollected(collectorTeam);
 
             if (config.notifyOtherTeamCompletions()) {
@@ -532,13 +530,29 @@ public class Game {
             } else {
                 // Update only the bingo card of the players in the team that collected the item
                 ItemUtil.updateBingoCard(bingoCard, collectorTeam, bingoCardItemFactory);
+                // TODO: also might need to update other cards if lockout is enabled and this item is now locked
+                // for other teams
             }
 
-            // Check whether win condition has been met
-            if (winConditionChecker.hasBingo(bingoCard, collectorTeam)) {
-                end(new WinReason(collectorTeam, WinReason.Reason.COMPLETE));
-            } else {
+            // Get a list of current winners from the checker
+            List<PlayerTeam> winners = winConditionChecker.getCurrentWinners(
+                    bingoCard,
+                    collectorTeam,
+                    teamManager.getActiveTeams()
+            );
+
+            if (winners.isEmpty()) {
+                // If the list is empty, the game is not finished yet
                 soundManager.broadcastItemCollected(collectorTeam);
+            } else if (winners.size() == 1) {
+                // If there is a single winner, we can announce it
+                end(new WinReason(winners.get(0), WinReason.Reason.COMPLETE));
+            } else {
+                // Otherwise, end the game with a random tie
+                end(new WinReason(
+                        winners.get(new Random().nextInt(winners.size())),
+                        WinReason.Reason.RANDOM_TIE)
+                );
             }
         }
     }

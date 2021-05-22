@@ -49,16 +49,20 @@ public class BingoItem {
         return collectors.contains(team);
     }
 
+    /**
+     * Get an iterable of PlayerTeam instances that have collected this item
+     * @return An Iterable of PlayerTeam instances
+     */
     public Iterable<PlayerTeam> getCollectors() {
         return collectors;
     }
 
     /**
-     * Make a copy of this BingoItem instance
-     * @return A copy of this BingoItem instance
+     * Get the number of teams that have collected this item
+     * @return An integer representing the number of collections
      */
-    public BingoItem copy() {
-        return new BingoItem(this.material);
+    public int getNumCollectors() {
+        return collectors.size();
     }
 
 }

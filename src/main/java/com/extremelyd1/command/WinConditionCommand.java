@@ -37,29 +37,33 @@ public class WinConditionCommand implements CommandExecutor {
         if (args.length == 0) {
             sender.sendMessage(
                     ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "Please provide either 'full' or a number of lines"
+                            + ChatColor.WHITE + "Please provide a win condition type: 'full', 'lines' or 'lockout'"
             );
 
             return true;
         }
 
         if (args[0].equalsIgnoreCase("full")) {
-            boolean fullCard = !game.getWinConditionChecker().isFullCard();
-            game.getWinConditionChecker().setFullCard(fullCard);
+            game.getWinConditionChecker().setFullCard();
 
-            if (fullCard) {
-                Bukkit.broadcastMessage(
-                        Game.PREFIX + "Full bingo card is now " + ChatColor.GREEN + "enabled"
+            Bukkit.broadcastMessage(
+                    Game.PREFIX + "Full bingo card has been " + ChatColor.GREEN + "enabled"
+            );
+
+            return true;
+        } else if (args[0].equalsIgnoreCase("lines")) {
+            if (args.length < 2) {
+                sender.sendMessage(
+                        ChatColor.DARK_RED + "Error: "
+                                + ChatColor.WHITE + "Please provide a number to indicate how many lines need to be completed"
                 );
-            } else {
-                Bukkit.broadcastMessage(
-                        Game.PREFIX + "Full bingo card is now " + ChatColor.DARK_RED + "disabled"
-                );
+
+                return true;
             }
-        } else {
+
             int numLines;
             try {
-                numLines = Integer.parseInt(args[0]);
+                numLines = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
@@ -80,13 +84,63 @@ public class WinConditionCommand implements CommandExecutor {
                 return true;
             }
 
-            game.getWinConditionChecker().setNumLinesComplete(numLines);
+            game.getWinConditionChecker().setNumLinesToComplete(numLines);
 
             Bukkit.broadcastMessage(
                     Game.PREFIX + "Number of lines (rows, columns or diagonals) to achieve bingo has been set to "
                             + ChatColor.YELLOW + numLines
             );
+
+            return true;
+        } else if (args[0].equalsIgnoreCase("lockout")) {
+            int completionsToLock = 1;
+            if (args.length > 1) {
+                try {
+                    completionsToLock = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(
+                            ChatColor.DARK_RED + "Error: "
+                                    + ChatColor.WHITE + "Could not parse arguments, please provide an integer"
+                    );
+
+                    return true;
+                }
+            }
+
+            if (completionsToLock < 1) {
+                sender.sendMessage(
+                        ChatColor.DARK_RED + "Error: "
+                                + ChatColor.WHITE + "Lockout completions must be "
+                                + ChatColor.BOLD + "at least"
+                                + ChatColor.RESET + " 1"
+                );
+
+                return true;
+            }
+
+            game.getWinConditionChecker().setCompletionsToLock(completionsToLock);
+
+            String message = Game.PREFIX + "Lockout has been "
+                    + ChatColor.GREEN + "enabled"
+                    + ChatColor.WHITE + ", items will lock after "
+                    + ChatColor.YELLOW + completionsToLock
+                    + ChatColor.WHITE;
+
+            if (completionsToLock == 1) {
+                message += " team has collected them";
+            } else {
+                message += " teams have collected them";
+            }
+
+            Bukkit.broadcastMessage(message);
+
+            return true;
         }
+
+        sender.sendMessage(
+                ChatColor.DARK_RED + "Error: "
+                        + ChatColor.WHITE + "Please provide a valid win condition type: 'full', 'lines' or 'lockout'"
+        );
 
         return true;
     }

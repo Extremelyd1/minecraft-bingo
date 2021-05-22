@@ -24,18 +24,27 @@ public class BingoCard {
     private final BingoItem[][] bingoItems;
 
     /**
+     * The number of completions for an item to lock it for the remaining teams
+     */
+    private final int completionsToLock;
+
+    /**
      * The corresponding inventory that holds ItemStacks of this bingo card
      */
     private final BingoCardInventory bingoCardInventory;
 
     /**
-     * Creates a bingo card by randomly picking from the list of materials given
+     * Creates a bingo card by randomly picking from the list of materials given and locks each item after
+     * the given number of completions
      * @param materials The list of materials to pick from
+     * @param completionsToLock The number of completions for an item to lock it for the remaining teams
      */
-    public BingoCard(List<Material> materials) {
+    public BingoCard(List<Material> materials, int completionsToLock) {
         if (materials.size() < 25) {
             throw new IllegalArgumentException("The size of the given material list is less than 25");
         }
+
+        this.completionsToLock = completionsToLock;
 
         List<Material> materialsLeft = new ArrayList<>(materials);
         bingoItems = new BingoItem[BOARD_SIZE][BOARD_SIZE];
@@ -56,22 +65,46 @@ public class BingoCard {
     }
 
     /**
-     * Creates a bingo card exactly with the given 2D array of bingo items
-     * @param bingoItems The 2D array of bingo items
+     * Checks whether the given material can be collected by the given team and if so, registers the collection
+     * @param material The material to check for
+     * @param team The team to check for
+     * @return True if the material can be collected, false otherwise
      */
-    public BingoCard(BingoItem[][] bingoItems) {
-        this.bingoItems = bingoItems;
+    public boolean checkMaterialCollection(Material material, PlayerTeam team) {
+        BingoItem bingoItem = getItemByMaterial(material);
+        // If the given material is not on the card
+        if (bingoItem == null) {
+            return false;
+        }
 
-        bingoCardInventory = new BingoCardInventory(bingoItems);
+        // If the given team has already collected this item
+        if (bingoItem.hasCollected(team)) {
+            return false;
+        }
+
+        // If there is a limit on how many completions an item can have and this limit is exceeded
+        if (isItemLocked(bingoItem)) {
+            return false;
+        }
+
+        // Otherwise we register the item as collected for the given team
+        addItemCollected(material, team);
+
+        return true;
     }
 
     /**
-     * Whether this bingo card contains the given material
-     * @param material The material to check for
-     * @return Whether this bingo card contains the given material
+     * Checks whether the given bingo item is locked due to its number of completions
+     * @param bingoItem The BingoItem to check for
+     * @return False if the number of completions to lock is zero or the number of completions for the given item
+     * is less than the number of completions to lock
      */
-    public boolean containsItem(Material material) {
-        return getItemByMaterial(material) != null;
+    public boolean isItemLocked(BingoItem bingoItem) {
+        if (completionsToLock == 0) {
+            return false;
+        }
+
+        return bingoItem.getNumCollectors() >= completionsToLock;
     }
 
     /**
@@ -79,7 +112,7 @@ public class BingoCard {
      * @param material The material to search for
      * @return The bingo item with the given material or null if no such item exists
      */
-    public BingoItem getItemByMaterial(Material material) {
+    private BingoItem getItemByMaterial(Material material) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 if (bingoItems[y][x].getMaterial().equals(material)) {
@@ -96,7 +129,7 @@ public class BingoCard {
      * @param material The material of the item collected
      * @param team The team to mark the item for
      */
-    public void addItemCollected(Material material, PlayerTeam team) {
+    private void addItemCollected(Material material, PlayerTeam team) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
@@ -214,22 +247,6 @@ public class BingoCard {
         }
 
         return true;
-    }
-
-    /**
-     * Makes a copy of this bingo card by copying each individual bingo item
-     * @return A copy of this bingo card
-     */
-    public BingoCard copy() {
-        BingoItem[][] newItemArray = new BingoItem[BOARD_SIZE][BOARD_SIZE];
-
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                newItemArray[y][x] = this.bingoItems[y][x].copy();
-            }
-        }
-
-        return new BingoCard(newItemArray);
     }
 
     /**

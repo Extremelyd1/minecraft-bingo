@@ -138,11 +138,21 @@ public class IngameBoard extends GameBoard {
     }
 
     private String formatWinCondition(WinConditionChecker winConditionChecker) {
+        int completionsToLock = winConditionChecker.getCompletionsToLock();
+        if (completionsToLock > 0) {
+            // Special case for lockout with one completion to lock, which is a bit cleaner
+            if (completionsToLock == 1) {
+                return "Lockout";
+            }
+
+            return String.format("Lockout (%d)", winConditionChecker.getCompletionsToLock());
+        }
+
         if (winConditionChecker.isFullCard()) {
             return "Full Card";
         }
 
-        int numLines = winConditionChecker.getNumLinesComplete();
+        int numLines = winConditionChecker.getNumLinesToComplete();
         return numLines + " lines";
     }
 

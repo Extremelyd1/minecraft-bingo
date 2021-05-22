@@ -32,6 +32,10 @@ public class BingoCardItemFactory {
      * The background color of an item if it has been collected
      */
     private static final int COLLECTED_COLOR = ColorUtil.getFromRgb(0, 220, 0);
+    /**
+     * The background color of an item if it has been locked
+     */
+    private static final int LOCKED_COLOR = ColorUtil.getFromRgb(180, 0, 0);
 
     /**
      * The size of the drawable map canvas
@@ -142,7 +146,11 @@ public class BingoCardItemFactory {
                 if (bingoItem.hasCollected(team)) {
                     baseColor = COLLECTED_COLOR;
                 } else {
-                    baseColor = NOT_COLLECTED_COLOR;
+                    if (bingoCard.isItemLocked(bingoItem)) {
+                        baseColor = LOCKED_COLOR;
+                    } else {
+                        baseColor = NOT_COLLECTED_COLOR;
+                    }
                 }
 
                 int backgroundStartX = CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE);
@@ -196,8 +204,12 @@ public class BingoCardItemFactory {
                     }
                 }
 
-                // Check whether we need to draw the team indicators for other teams
-                if (!game.getConfig().notifyOtherTeamCompletions()) {
+                // Check whether we need to draw the team indicators for other teams.
+                // Either if the setting is set to false, or when it is lockout with 1 completion to lock
+                // and there are only 2 teams. Then it is trivial which team completed it when it locks.
+                if (!game.getConfig().notifyOtherTeamCompletions()
+                        || (game.getWinConditionChecker().getCompletionsToLock() == 1
+                        && game.getTeamManager().getNumActiveTeams() == 2)) {
                     continue;
                 }
 
