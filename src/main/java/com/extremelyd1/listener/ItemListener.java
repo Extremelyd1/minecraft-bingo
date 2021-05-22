@@ -11,6 +11,8 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
@@ -25,6 +27,17 @@ public class ItemListener implements Listener {
     public ItemListener(Game game) {
         this.game = game;
     }
+
+    static Map<EntityType, Material> fishes = new HashMap<EntityType, Material>() {{
+        put(EntityType.SALMON, Material.SALMON_BUCKET);
+        put(EntityType.COD, Material.COD_BUCKET);
+        put(EntityType.PUFFERFISH, Material.PUFFERFISH_BUCKET);
+        put(EntityType.TROPICAL_FISH, Material.TROPICAL_FISH_BUCKET);
+    }};
+
+    static Map<EntityType, Material> foodHarvesting = new HashMap<EntityType, Material>() {{
+        put(EntityType.MUSHROOM_COW, Material.MUSHROOM_STEW);
+    }};
 
     @EventHandler
     public void onPlayerPickupItem(EntityPickupItemEvent e) {
@@ -57,11 +70,6 @@ public class ItemListener implements Listener {
         }
     }
 
-    /**
-     * Caters for collecting milk, water or lava
-     *
-     * @param e - PlayerBucketFillEvent
-     */
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent e) {
         if (!game.getState().equals(Game.State.IN_GAME)) {
@@ -69,40 +77,33 @@ public class ItemListener implements Listener {
             return;
         }
 
-        game.onMaterialCollected(e.getPlayer(), e.getItemStack().getType());
+        if (e.getItemStack() != null) {
+            game.onMaterialCollected(e.getPlayer(), e.getItemStack().getType());
+        }
     }
 
-    /**
-     * This event caters for the collection of fishes into buckets, and the collection of mushroom stew from mooshrooms
-     *
-     * @param e - PlayerInteractAtEntityEvent
-     */
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
         if (e.isCancelled()) return;
+        PlayerInventory playerInventory = e.getPlayer().getInventory();
 
-        Map<EntityType, Material> fishes = new HashMap<EntityType, Material>() {{
-           put(EntityType.SALMON, Material.SALMON_BUCKET);
-           put(EntityType.COD, Material.COD_BUCKET);
-           put(EntityType.PUFFERFISH, Material.PUFFERFISH_BUCKET);
-           put(EntityType.TROPICAL_FISH, Material.TROPICAL_FISH_BUCKET);
-        }};
-
-        Map<EntityType, Material> foodHarvesting = new HashMap<EntityType, Material>() {{
-           put(EntityType.MUSHROOM_COW, Material.MUSHROOM_STEW);
-        }};
-
-        if (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.WATER_BUCKET ||
-                e.getPlayer().getInventory().getItemInOffHand().getType() == Material.WATER_BUCKET) {
+        if (playerInventory.getItemInMainHand().getType() == Material.WATER_BUCKET || playerInventory.getItemInOffHand().getType() == Material.WATER_BUCKET) {
             Material collectedMaterial = fishes.get(e.getRightClicked().getType());
-            if (collectedMaterial != null) game.onMaterialCollected(e.getPlayer(), collectedMaterial);
+
+            if (collectedMaterial != null) {
+                game.onMaterialCollected(e.getPlayer(), collectedMaterial);
+            }
+
             return;
         }
 
-        if (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.BOWL ||
-                e.getPlayer().getInventory().getItemInOffHand().getType() == Material.BOWL) {
+        if (playerInventory.getItemInMainHand().getType() == Material.BOWL || playerInventory.getItemInOffHand().getType() == Material.BOWL) {
             Material collectedMaterial = foodHarvesting.get(e.getRightClicked().getType());
-            if (collectedMaterial != null) game.onMaterialCollected(e.getPlayer(), collectedMaterial);
+
+            if (collectedMaterial != null) {
+                game.onMaterialCollected(e.getPlayer(), collectedMaterial);
+            }
+
             return;
         }
     }
