@@ -41,8 +41,10 @@ The first time you run the plugin a config file will be generated in `<server>/p
 #### Configuration commands  
 - `/pvp` Enable/disable PvP
 - `/maintenance` Enable maintenance mode (this will disallow all non-OP players from joining)
-- `/wincondition <full|number of lines to complete>` Change the wincondition to either a full card or a number of lines (rows, columns or diagonals) to complete in order to win
-- `/itemdistribution <S,A,B,C,D>` Change the item distribution scales, the number of S, A, B, C, D tier items that appear on the bingo card. These numbers must add up to 25.
+- `/wincondition <full|lines|lockout> [number]` Change the wincondition to either a full card, a number of lines (rows, columns or diagonals) to complete in order to win or lockout. 
+  In case of 'lines' or 'lockout' you can specify a number to indicate how many lines needed to be completed, or after how many collections an item locks.
+- `/itemdistribution <S> <A> <B> <C> <D>` Change the item distribution scales, the number of S, A, B, C, and D tier items that appear on the bingo card. 
+  These numbers must add up to 25.
 - `/timer <enable|disable|length>` Enable/disable the timer or set the length of the timer (the length can be specified in hours/minutes/seconds, such as `/timer 10m` or `/timer 1h20m30s`)
 
 #### Miscellaneous commands
