@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,10 +85,16 @@ public class BingoCardItemFactory {
      */
     private final Map<Material, BufferedImage> cachedImages;
 
+    /**
+     * A map containing for each created ItemStack the corresponding ImageRenderer
+     */
+    private final Map<ItemStack, ImageRenderer> renderers;
+
     public BingoCardItemFactory(Game game) {
         this.game = game;
 
         this.cachedImages = new HashMap<>();
+        this.renderers = new HashMap<>();
     }
 
     /**
@@ -110,6 +117,67 @@ public class BingoCardItemFactory {
      * @return The created ItemStack
      */
     public ItemStack create(BingoCard bingoCard, PlayerTeam team, int borderColor) {
+        BufferedImage image = drawBingoCardImage(bingoCard, team, borderColor);
+
+        ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
+
+        MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
+
+        // We get a copy of the list from mapView.getRenderers()
+        // So loop over it and individually delete all renderers
+        for (MapRenderer mapRenderer : mapView.getRenderers()) {
+            mapView.removeRenderer(mapRenderer);
+        }
+
+        // Create a new renderer, add it to the map view and store it in the map
+        ImageRenderer imageRenderer = new ImageRenderer(image);
+        mapView.addRenderer(imageRenderer);
+
+        MapMeta meta = (MapMeta) itemStack.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.AQUA + "Bingo Card");
+            meta.setMapView(mapView);
+
+            itemStack.setItemMeta(meta);
+        }
+
+        renderers.put(itemStack, imageRenderer);
+
+        return itemStack;
+    }
+
+    /**
+     * Update the image on the given bingo card item stack with the given BingoCard and for the given PlayerTeam
+     * @param itemStack The bingo card ItemStack
+     * @param bingoCard The BingoCard instance with the updated information
+     * @param team The team that this card corresponds to
+     */
+    public void updateBingoCardItemStack(ItemStack itemStack, BingoCard bingoCard, PlayerTeam team) {
+        if (!renderers.containsKey(itemStack)) {
+            return;
+        }
+
+        // Get the new image for the map
+        BufferedImage image = drawBingoCardImage(bingoCard, team);
+        // Get the image renderer corresponding to this item stack
+        ImageRenderer imageRenderer = renderers.get(itemStack);
+
+        imageRenderer.renderNewImage(image);
+    }
+
+    private BufferedImage drawBingoCardImage(BingoCard bingoCard, PlayerTeam team) {
+        return drawBingoCardImage(bingoCard, team, MAP_BACKGROUND_COLOR);
+    }
+
+    /**
+     * Draw the BufferedImage for the given bingo card, team and border color
+     * @param bingoCard The BingoCard to make the image for
+     * @param team The team that this card should be created for
+     * @param borderColor The color of the border of the bingo card
+     * @return A BufferedImage that represents the current state of the bingo card for the given team
+     * with the given border color
+     */
+    private BufferedImage drawBingoCardImage(BingoCard bingoCard, PlayerTeam team, int borderColor) {
         BufferedImage image = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_INT_RGB);
         // Base layer of map color
         for (int x = 0; x < CANVAS_SIZE; x++) {
@@ -243,26 +311,7 @@ public class BingoCardItemFactory {
             }
         }
 
-        ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
-
-        MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
-
-        // We get a copy of the list from mapView.getRenderers()
-        // So loop over it and individually delete all renderers
-        for (MapRenderer mapRenderer : mapView.getRenderers()) {
-            mapView.removeRenderer(mapRenderer);
-        }
-        mapView.addRenderer(new ImageRenderer(image));
-
-        MapMeta meta = (MapMeta) itemStack.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.AQUA + "Bingo Card");
-            meta.setMapView(mapView);
-
-            itemStack.setItemMeta(meta);
-        }
-
-        return itemStack;
+        return image;
     }
 
 }

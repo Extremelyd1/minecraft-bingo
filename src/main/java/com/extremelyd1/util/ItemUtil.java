@@ -17,6 +17,7 @@ public class ItemUtil {
         for (Player player : team.getPlayers()) {
             boolean itemFound = false;
 
+            // Loop over the contents of the player's inventory and try to find an existing bingo card item stack
             for (int i = 0; i < player.getInventory().getContents().length; i++) {
                 ItemStack itemStack = player.getInventory().getContents()[i];
                 if (itemStack == null) {
@@ -25,10 +26,7 @@ public class ItemUtil {
 
                 if (itemStack.getItemMeta() != null
                         && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
-                    player.getInventory().setItem(i, factory.create(
-                            bingoCard,
-                            team
-                    ));
+                    factory.updateBingoCardItemStack(itemStack, bingoCard, team);
 
                     itemFound = true;
 
@@ -36,6 +34,7 @@ public class ItemUtil {
                 }
             }
 
+            // There was no item stack found, so we create a new one
             if (!itemFound) {
                 player.getInventory().addItem(factory.create(
                         bingoCard,
