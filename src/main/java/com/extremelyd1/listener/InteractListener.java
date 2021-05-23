@@ -16,13 +16,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class InteractListener implements Listener {
@@ -187,8 +186,52 @@ public class InteractListener implements Listener {
             return;
         }
 
-        if (e.getCurrentItem() != null) {
-            game.onMaterialCollected(player, e.getCurrentItem().getType());
+        if (e.getClickedInventory() == null) {
+            return;
         }
+
+        ItemStack currentItem = e.getCurrentItem();
+
+        if (currentItem == null) {
+            return;
+        }
+
+        InventoryType invType = e.getClickedInventory().getType();
+
+        // In certain inventory types and while performing certain inventory actions,
+        // we need to check whether we can actually perform the action.
+        // Because if this can't be done, it will not consume the ingredients in the recipe.
+        if (invType.equals(InventoryType.WORKBENCH)
+                || invType.equals(InventoryType.CRAFTING)
+                || invType.equals(InventoryType.SMITHING)
+                || invType.equals(InventoryType.STONECUTTER)
+                || invType.equals(InventoryType.MERCHANT)) {
+            PlayerInventory playerInventory = e.getWhoClicked().getInventory();
+
+            if (e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+                // We are dealing with shift-click, now we need to check whether
+                // there is space in the player inventory to insert this item
+                if (!InventoryUtil.canShiftClickItem(
+                        playerInventory.getStorageContents(),
+                        currentItem
+                )) {
+                    return;
+                }
+            }
+
+            if (e.getAction().equals(InventoryAction.HOTBAR_MOVE_AND_READD)) {
+                // We are dealing with a move to specific hotbar position
+                if (playerInventory.getStorageContents()[e.getHotbarButton()] != null) {
+                    // The slot we are trying to move the result to is non-empty, so minecraft will not move the item
+                    return;
+                }
+            }
+
+            if (e.getAction().equals(InventoryAction.NOTHING)) {
+                return;
+            }
+        }
+
+        game.onMaterialCollected(player, currentItem.getType());
     }
 }

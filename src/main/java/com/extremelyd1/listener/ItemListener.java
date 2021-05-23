@@ -1,13 +1,19 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
+import net.minecraft.server.v1_16_R3.Entity;
+import net.minecraft.server.v1_16_R3.EntityAreaEffectCloud;
+import net.minecraft.server.v1_16_R3.EntityEnderDragon;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Beehive;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -124,38 +130,68 @@ public class ItemListener implements Listener {
             return;
         }
 
-        if (e.getClickedBlock() == null) {
-            return;
-        }
-
         Block clickedBlock = e.getClickedBlock();
-        Material clickedType = clickedBlock.getType();
-
-        // We are only interested in Beehives or Bee nests
-        if (!clickedType.equals(Material.BEE_NEST) && !clickedType.equals(Material.BEEHIVE)) {
-            return;
-        }
-
-        // Check whether the honey level is at the maximum value
-        Beehive beehive = (Beehive) clickedBlock.getBlockData();
-        if (beehive.getHoneyLevel() != beehive.getMaximumHoneyLevel()) {
-            return;
-        }
 
         ItemStack item = e.getItem();
-        if (item == null) {
+
+        // We are only interested in filling glass bottles
+        if (item == null || !item.getType().equals(Material.GLASS_BOTTLE)) {
             return;
         }
 
-        // The item should be a glass bottle
-        if (!item.getType().equals(Material.GLASS_BOTTLE)) {
+        // Filling glass bottles can only be done with a right click
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             return;
         }
 
-        game.onMaterialCollected(
-                e.getPlayer(),
-                Material.HONEY_BOTTLE
+        // Check whether we are right clicking Beehives or Bee nests
+        if (clickedBlock != null) {
+            Material clickedType = clickedBlock.getType();
+
+            if ((clickedType.equals(Material.BEE_NEST) || clickedType.equals(Material.BEEHIVE))) {
+                // Check whether the honey level is at the maximum value
+                Beehive beehive = (Beehive) clickedBlock.getBlockData();
+                if (beehive.getHoneyLevel() == beehive.getMaximumHoneyLevel()) {
+                    game.onMaterialCollected(
+                            e.getPlayer(),
+                            Material.HONEY_BOTTLE
+                    );
+
+                    return;
+                }
+            }
+        }
+
+        World world = e.getPlayer().getWorld();
+        // Get nearby entities with a similar predicate as Minecraft uses in the ItemGlassBottle class
+        Collection<org.bukkit.entity.Entity> nearbyEntities = world.getNearbyEntities(
+                e.getPlayer().getBoundingBox().clone().expand(2.0),
+                entity -> {
+                    // Get the NMS entity instance
+                    Entity nmsEntity = ((CraftEntity) entity).getHandle();
+
+                    if (nmsEntity == null) {
+                        return false;
+                    }
+
+                    // We only need EntityAreaEffectCloud entities
+                    if (!(nmsEntity instanceof EntityAreaEffectCloud)) {
+                        return false;
+                    }
+
+                    // Cast it and do the same checks as the ItemGlassBottle class
+                    EntityAreaEffectCloud effectCloud = (EntityAreaEffectCloud) nmsEntity;
+
+                    return effectCloud.isAlive() && effectCloud.getSource() instanceof EntityEnderDragon;
+                }
         );
+
+        if (!nearbyEntities.isEmpty()) {
+            game.onMaterialCollected(
+                    e.getPlayer(),
+                    Material.DRAGON_BREATH
+            );
+        }
     }
 
 }
