@@ -2,16 +2,15 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Beehive;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -28,14 +27,14 @@ public class ItemListener implements Listener {
         this.game = game;
     }
 
-    static Map<EntityType, Material> fishes = new HashMap<EntityType, Material>() {{
+    private static final Map<EntityType, Material> FISH_TYPE_TO_MATERIAL = new HashMap<EntityType, Material>() {{
         put(EntityType.SALMON, Material.SALMON_BUCKET);
         put(EntityType.COD, Material.COD_BUCKET);
         put(EntityType.PUFFERFISH, Material.PUFFERFISH_BUCKET);
         put(EntityType.TROPICAL_FISH, Material.TROPICAL_FISH_BUCKET);
     }};
 
-    static Map<EntityType, Material> foodHarvesting = new HashMap<EntityType, Material>() {{
+    private static final Map<EntityType, Material> FOOD_TYPE_TO_MATERIAL = new HashMap<EntityType, Material>() {{
         put(EntityType.MUSHROOM_COW, Material.MUSHROOM_STEW);
     }};
 
@@ -84,28 +83,79 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
-        if (e.isCancelled()) return;
+        // We are only interested in this event if we are in-game
+        if (!game.getState().equals(Game.State.IN_GAME)) {
+            return;
+        }
+
         PlayerInventory playerInventory = e.getPlayer().getInventory();
 
-        if (playerInventory.getItemInMainHand().getType() == Material.WATER_BUCKET || playerInventory.getItemInOffHand().getType() == Material.WATER_BUCKET) {
-            Material collectedMaterial = fishes.get(e.getRightClicked().getType());
+        if (playerInventory.getItemInMainHand().getType() == Material.WATER_BUCKET
+                || playerInventory.getItemInOffHand().getType() == Material.WATER_BUCKET) {
+            EntityType entityType = e.getRightClicked().getType();
 
-            if (collectedMaterial != null) {
-                game.onMaterialCollected(e.getPlayer(), collectedMaterial);
+            if (FISH_TYPE_TO_MATERIAL.containsKey(entityType)) {
+                game.onMaterialCollected(
+                        e.getPlayer(),
+                        FISH_TYPE_TO_MATERIAL.get(entityType)
+                );
             }
 
             return;
         }
 
         if (playerInventory.getItemInMainHand().getType() == Material.BOWL || playerInventory.getItemInOffHand().getType() == Material.BOWL) {
-            Material collectedMaterial = foodHarvesting.get(e.getRightClicked().getType());
+            EntityType entityType = e.getRightClicked().getType();
 
-            if (collectedMaterial != null) {
-                game.onMaterialCollected(e.getPlayer(), collectedMaterial);
+            if (FOOD_TYPE_TO_MATERIAL.containsKey(entityType)) {
+                game.onMaterialCollected(
+                        e.getPlayer(),
+                        FOOD_TYPE_TO_MATERIAL.get(entityType)
+                );
             }
 
             return;
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        if (!game.getState().equals(Game.State.IN_GAME)) {
+            return;
+        }
+
+        if (e.getClickedBlock() == null) {
+            return;
+        }
+
+        Block clickedBlock = e.getClickedBlock();
+        Material clickedType = clickedBlock.getType();
+
+        // We are only interested in Beehives or Bee nests
+        if (!clickedType.equals(Material.BEE_NEST) && !clickedType.equals(Material.BEEHIVE)) {
+            return;
+        }
+
+        // Check whether the honey level is at the maximum value
+        Beehive beehive = (Beehive) clickedBlock.getBlockData();
+        if (beehive.getHoneyLevel() != beehive.getMaximumHoneyLevel()) {
+            return;
+        }
+
+        ItemStack item = e.getItem();
+        if (item == null) {
+            return;
+        }
+
+        // The item should be a glass bottle
+        if (!item.getType().equals(Material.GLASS_BOTTLE)) {
+            return;
+        }
+
+        game.onMaterialCollected(
+                e.getPlayer(),
+                Material.HONEY_BOTTLE
+        );
     }
 
 }
