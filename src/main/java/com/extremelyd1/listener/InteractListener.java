@@ -1,7 +1,6 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.InventoryUtil;
 import org.bukkit.block.Block;

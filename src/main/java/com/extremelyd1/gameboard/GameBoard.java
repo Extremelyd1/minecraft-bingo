@@ -3,7 +3,6 @@ package com.extremelyd1.gameboard;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_16_R3.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;

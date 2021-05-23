@@ -3,8 +3,6 @@ package com.extremelyd1.command;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.util.CommandUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

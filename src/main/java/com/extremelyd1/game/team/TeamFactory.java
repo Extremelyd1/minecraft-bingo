@@ -2,8 +2,6 @@ package com.extremelyd1.game.team;
 
 import org.bukkit.ChatColor;
 
-import java.awt.Color;
-
 /**
  * Factory class that creates team instances
  */
