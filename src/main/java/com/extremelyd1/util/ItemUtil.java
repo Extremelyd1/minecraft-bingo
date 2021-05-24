@@ -1,5 +1,6 @@
 package com.extremelyd1.util;
 
+import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.game.team.PlayerTeam;
 import org.bukkit.entity.Player;
@@ -12,10 +13,11 @@ public class ItemUtil {
      * @param team The team for which to update
      * @param factory The bingo card item factory from which to create the itemstack
      */
-    public static void updateBingoCard(PlayerTeam team, BingoCardItemFactory factory) {
+    public static void updateBingoCard(BingoCard bingoCard, PlayerTeam team, BingoCardItemFactory factory) {
         for (Player player : team.getPlayers()) {
             boolean itemFound = false;
 
+            // Loop over the contents of the player's inventory and try to find an existing bingo card item stack
             for (int i = 0; i < player.getInventory().getContents().length; i++) {
                 ItemStack itemStack = player.getInventory().getContents()[i];
                 if (itemStack == null) {
@@ -24,9 +26,7 @@ public class ItemUtil {
 
                 if (itemStack.getItemMeta() != null
                         && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
-                    player.getInventory().setItem(i, factory.create(
-                            team.getBingoCard()
-                    ));
+                    factory.updateBingoCardItemStack(itemStack, bingoCard, team);
 
                     itemFound = true;
 
@@ -34,9 +34,11 @@ public class ItemUtil {
                 }
             }
 
+            // There was no item stack found, so we create a new one
             if (!itemFound) {
                 player.getInventory().addItem(factory.create(
-                        team.getBingoCard()
+                        bingoCard,
+                        team
                 ));
             }
         }

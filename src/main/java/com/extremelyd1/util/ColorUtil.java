@@ -18,7 +18,7 @@ public class ColorUtil {
         put(ChatColor.GRAY, getFromRgb(170, 170, 170));
         put(ChatColor.DARK_GRAY, getFromRgb(85, 85, 85));
         put(ChatColor.BLUE, getFromRgb(85, 85, 255));
-        put(ChatColor.GREEN, getFromRgb(85, 255, 85));
+        put(ChatColor.GREEN, getFromRgb(127, 178, 56)); // Same as GRASS on maps (https://minecraft.fandom.com/wiki/Map_item_format)
         put(ChatColor.AQUA, getFromRgb(43, 199, 172));
         put(ChatColor.RED, getFromRgb(255, 0, 0));
         put(ChatColor.LIGHT_PURPLE, getFromRgb(255, 85, 255));

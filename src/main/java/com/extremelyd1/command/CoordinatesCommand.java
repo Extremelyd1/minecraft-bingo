@@ -1,7 +1,6 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

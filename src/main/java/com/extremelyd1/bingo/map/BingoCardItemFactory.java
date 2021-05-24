@@ -3,6 +3,7 @@ package com.extremelyd1.bingo.map;
 import com.extremelyd1.bingo.BingoCard;
 import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.util.ColorUtil;
 import com.extremelyd1.util.FileUtil;
 import org.bukkit.Bukkit;
@@ -31,6 +32,10 @@ public class BingoCardItemFactory {
      * The background color of an item if it has been collected
      */
     private static final int COLLECTED_COLOR = ColorUtil.getFromRgb(0, 220, 0);
+    /**
+     * The background color of an item if it has been locked
+     */
+    private static final int LOCKED_COLOR = ColorUtil.getFromRgb(180, 0, 0);
 
     /**
      * The size of the drawable map canvas
@@ -60,6 +65,14 @@ public class BingoCardItemFactory {
      * The number of pixels of padding between the images and the item border
      */
     private static final int IMAGE_PADDING = 3;
+    /**
+     * The size of the squares that show the collections for other teams, otherwise known as indicators
+     */
+    private static final int TEAM_INDICATOR_SIZE = 2;
+    /**
+     * The padding between the squares of the team indicators
+     */
+    private static final int TEAM_INDICATOR_PADDING = 1;
 
     /**
      * The game instance
@@ -71,28 +84,99 @@ public class BingoCardItemFactory {
      */
     private final Map<Material, BufferedImage> cachedImages;
 
+    /**
+     * A map containing for each created ItemStack the corresponding ImageRenderer
+     */
+    private final Map<ItemStack, ImageRenderer> renderers;
+
     public BingoCardItemFactory(Game game) {
         this.game = game;
 
         this.cachedImages = new HashMap<>();
+        this.renderers = new HashMap<>();
     }
 
     /**
      * Create an ItemStack from the given bingo card
-     * @param bingoCard The BingoCard to make the itemstack from
+     *
+     * @param bingoCard      The BingoCard to make the itemstack from
+     * @param team           The team that this card should be created for
      * @return The created ItemStack
      */
-    public ItemStack create(BingoCard bingoCard) {
-        return create(bingoCard, MAP_BACKGROUND_COLOR);
+    public ItemStack create(BingoCard bingoCard, PlayerTeam team) {
+        return create(bingoCard, team, MAP_BACKGROUND_COLOR);
     }
 
     /**
      * Create an ItemStack from the given bingo card
-     * @param bingoCard The BingoCard to make the itemstack from
+     *
+     * @param bingoCard      The BingoCard to make the itemstack from
+     * @param team           The team that this card should be created for
+     * @param borderColor    The color of the border of the bingo card
+     * @return The created ItemStack
+     */
+    public ItemStack create(BingoCard bingoCard, PlayerTeam team, int borderColor) {
+        BufferedImage image = drawBingoCardImage(bingoCard, team, borderColor);
+
+        ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
+
+        MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
+
+        // We get a copy of the list from mapView.getRenderers()
+        // So loop over it and individually delete all renderers
+        for (MapRenderer mapRenderer : mapView.getRenderers()) {
+            mapView.removeRenderer(mapRenderer);
+        }
+
+        // Create a new renderer, add it to the map view and store it in the map
+        ImageRenderer imageRenderer = new ImageRenderer(image);
+        mapView.addRenderer(imageRenderer);
+
+        MapMeta meta = (MapMeta) itemStack.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.AQUA + "Bingo Card");
+            meta.setMapView(mapView);
+
+            itemStack.setItemMeta(meta);
+        }
+
+        renderers.put(itemStack, imageRenderer);
+
+        return itemStack;
+    }
+
+    /**
+     * Update the image on the given bingo card item stack with the given BingoCard and for the given PlayerTeam
+     * @param itemStack The bingo card ItemStack
+     * @param bingoCard The BingoCard instance with the updated information
+     * @param team The team that this card corresponds to
+     */
+    public void updateBingoCardItemStack(ItemStack itemStack, BingoCard bingoCard, PlayerTeam team) {
+        if (!renderers.containsKey(itemStack)) {
+            return;
+        }
+
+        // Get the new image for the map
+        BufferedImage image = drawBingoCardImage(bingoCard, team);
+        // Get the image renderer corresponding to this item stack
+        ImageRenderer imageRenderer = renderers.get(itemStack);
+
+        imageRenderer.renderNewImage(image);
+    }
+
+    private BufferedImage drawBingoCardImage(BingoCard bingoCard, PlayerTeam team) {
+        return drawBingoCardImage(bingoCard, team, MAP_BACKGROUND_COLOR);
+    }
+
+    /**
+     * Draw the BufferedImage for the given bingo card, team and border color
+     * @param bingoCard The BingoCard to make the image for
+     * @param team The team that this card should be created for
      * @param borderColor The color of the border of the bingo card
-     * @return The created ItemStack
+     * @return A BufferedImage that represents the current state of the bingo card for the given team
+     * with the given border color
      */
-    public ItemStack create(BingoCard bingoCard, int borderColor) {
+    private BufferedImage drawBingoCardImage(BingoCard bingoCard, PlayerTeam team, int borderColor) {
         BufferedImage image = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_INT_RGB);
         // Base layer of map color
         for (int x = 0; x < CANVAS_SIZE; x++) {
@@ -126,18 +210,25 @@ public class BingoCardItemFactory {
                 BingoItem bingoItem = bingoItems[y][x];
 
                 int baseColor;
-                if (bingoItem.isCollected()) {
+                if (bingoItem.hasCollected(team)) {
                     baseColor = COLLECTED_COLOR;
                 } else {
-                    baseColor = NOT_COLLECTED_COLOR;
+                    if (bingoCard.isItemLocked(bingoItem)) {
+                        baseColor = LOCKED_COLOR;
+                    } else {
+                        baseColor = NOT_COLLECTED_COLOR;
+                    }
                 }
+
+                int backgroundStartX = CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE);
+                int backgroundStartY = CARD_PADDING + y * (ITEM_PADDING + ITEM_SIZE);
 
                 // Write background
                 for (int imageX = 0; imageX < ITEM_SIZE; imageX++) {
                     for (int imageY = 0; imageY < ITEM_SIZE; imageY++) {
                         image.setRGB(
-                                CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE) + imageX,
-                                CARD_PADDING + y * (ITEM_PADDING + ITEM_SIZE) + imageY,
+                                backgroundStartX + imageX,
+                                backgroundStartY + imageY,
                                 baseColor
                         );
                     }
@@ -173,35 +264,53 @@ public class BingoCardItemFactory {
                         }
 
                         image.setRGB(
-                                CARD_PADDING + x * (ITEM_PADDING + ITEM_SIZE) + IMAGE_PADDING + imageX,
-                                CARD_PADDING + y * (ITEM_PADDING + ITEM_SIZE) + IMAGE_PADDING + imageY,
+                                backgroundStartX + IMAGE_PADDING + imageX,
+                                backgroundStartY + IMAGE_PADDING + imageY,
                                 colorToSet
                         );
                     }
                 }
+
+                // Check whether we need to draw the team indicators for other teams.
+                // Either if the setting is set to false, or when it is lockout with 1 completion to lock
+                // and there are only 2 teams. Then it is trivial which team completed it when it locks.
+                if (!game.getConfig().notifyOtherTeamCompletions()
+                        || (game.getWinConditionChecker().getCompletionsToLock() == 1
+                        && game.getTeamManager().getNumActiveTeams() == 2)) {
+                    continue;
+                }
+
+                // Calculate the start positions of the indicators
+                int indicatorStartX = backgroundStartX + TEAM_INDICATOR_PADDING;
+                int indicatorStartY = backgroundStartY + TEAM_INDICATOR_PADDING;
+
+                // Loop over the teams that have collected this item
+                for (PlayerTeam collector : bingoItem.getCollectors()) {
+                    // Skip the team that this card is created for
+                    if (team.equals(collector)) {
+                        continue;
+                    }
+
+                    // Retrieve the color of the pixels we need to set
+                    int colorToSet = ColorUtil.chatColorToInt(collector.getColor());
+
+                    for (int indicatorX = indicatorStartX; indicatorX < indicatorStartX + TEAM_INDICATOR_SIZE; indicatorX++) {
+                        for (int indicatorY = indicatorStartY; indicatorY < indicatorStartY + TEAM_INDICATOR_SIZE; indicatorY++) {
+                            image.setRGB(
+                                    indicatorX,
+                                    indicatorY,
+                                    colorToSet
+                            );
+                        }
+                    }
+
+                    // Advance the start X position of the indicator by the size and padding
+                    indicatorStartX += TEAM_INDICATOR_SIZE + TEAM_INDICATOR_PADDING;
+                }
             }
         }
 
-        ItemStack itemStack = new ItemStack(Material.FILLED_MAP, 1);
-
-        MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
-
-        // We get a copy of the list from mapView.getRenderers()
-        // So loop over it and individually delete all renderers
-        for (MapRenderer mapRenderer : mapView.getRenderers()) {
-            mapView.removeRenderer(mapRenderer);
-        }
-        mapView.addRenderer(new ImageRenderer(image));
-
-        MapMeta meta = (MapMeta) itemStack.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.AQUA + "Bingo Card");
-            meta.setMapView(mapView);
-
-            itemStack.setItemMeta(meta);
-        }
-
-        return itemStack;
+        return image;
     }
 
 }

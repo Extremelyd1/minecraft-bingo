@@ -1,6 +1,7 @@
 package com.extremelyd1.bingo;
 
 import com.extremelyd1.bingo.item.BingoItem;
+import com.extremelyd1.game.team.PlayerTeam;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -23,18 +24,27 @@ public class BingoCard {
     private final BingoItem[][] bingoItems;
 
     /**
-     * The number of collected items on this bingo card
+     * The number of completions for an item to lock it for the remaining teams
      */
-    private int numCollected;
+    private final int completionsToLock;
 
     /**
-     * Creates a bingo card by randomly picking from the list of materials given
-     * @param materials The list of materials to pick from
+     * The corresponding inventory that holds ItemStacks of this bingo card
      */
-    public BingoCard(List<Material> materials) {
+    private final BingoCardInventory bingoCardInventory;
+
+    /**
+     * Creates a bingo card by randomly picking from the list of materials given and locks each item after
+     * the given number of completions
+     * @param materials The list of materials to pick from
+     * @param completionsToLock The number of completions for an item to lock it for the remaining teams
+     */
+    public BingoCard(List<Material> materials, int completionsToLock) {
         if (materials.size() < 25) {
             throw new IllegalArgumentException("The size of the given material list is less than 25");
         }
+
+        this.completionsToLock = completionsToLock;
 
         List<Material> materialsLeft = new ArrayList<>(materials);
         bingoItems = new BingoItem[BOARD_SIZE][BOARD_SIZE];
@@ -50,23 +60,51 @@ public class BingoCard {
                 materialsLeft.remove(material);
             }
         }
+
+        bingoCardInventory = new BingoCardInventory(bingoItems);
     }
 
     /**
-     * Creates a bingo card exactly with the given 2D array of bingo items
-     * @param bingoItems The 2D array of bingo items
-     */
-    public BingoCard(BingoItem[][] bingoItems) {
-        this.bingoItems = bingoItems;
-    }
-
-    /**
-     * Whether this bingo card contains the given material
+     * Checks whether the given material can be collected by the given team and if so, registers the collection
      * @param material The material to check for
-     * @return Whether this bingo card contains the given material
+     * @param team The team to check for
+     * @return True if the material can be collected, false otherwise
      */
-    public boolean containsItem(Material material) {
-        return getItemByMaterial(material) != null;
+    public boolean checkMaterialCollection(Material material, PlayerTeam team) {
+        BingoItem bingoItem = getItemByMaterial(material);
+        // If the given material is not on the card
+        if (bingoItem == null) {
+            return false;
+        }
+
+        // If the given team has already collected this item
+        if (bingoItem.hasCollected(team)) {
+            return false;
+        }
+
+        // If there is a limit on how many completions an item can have and this limit is exceeded
+        if (isItemLocked(bingoItem)) {
+            return false;
+        }
+
+        // Otherwise we register the item as collected for the given team
+        addItemCollected(material, team);
+
+        return true;
+    }
+
+    /**
+     * Checks whether the given bingo item is locked due to its number of completions
+     * @param bingoItem The BingoItem to check for
+     * @return False if the number of completions to lock is zero or the number of completions for the given item
+     * is less than the number of completions to lock
+     */
+    public boolean isItemLocked(BingoItem bingoItem) {
+        if (completionsToLock == 0) {
+            return false;
+        }
+
+        return bingoItem.getNumCollectors() >= completionsToLock;
     }
 
     /**
@@ -74,7 +112,7 @@ public class BingoCard {
      * @param material The material to search for
      * @return The bingo item with the given material or null if no such item exists
      */
-    public BingoItem getItemByMaterial(Material material) {
+    private BingoItem getItemByMaterial(Material material) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 if (bingoItems[y][x].getMaterial().equals(material)) {
@@ -87,47 +125,49 @@ public class BingoCard {
     }
 
     /**
-     * Sets the item to be collected on the card
+     * Sets the item to be collected on the card for the given team
      * @param material The material of the item collected
+     * @param team The team to mark the item for
      */
-    public void addItemCollected(Material material) {
+    private void addItemCollected(Material material, PlayerTeam team) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
                 if (bingoItem.getMaterial().equals(material)
-                        && !bingoItem.isCollected()) {
-                    bingoItem.setCollected();
+                        && !bingoItem.hasCollected(team)) {
+                    bingoItem.addCollector(team);
 
-                    numCollected++;
+                    team.incrementCollected();
                 }
             }
         }
     }
 
     /**
-     * Gets the number of lines (rows, columns or diagonals) that is completed on this bingo card
+     * Gets the number of lines (rows, columns or diagonals) that is completed on this bingo card for the given Team
+     * @param team The team to check for
      * @return The number of lines completed
      */
-    public int getNumLinesComplete() {
+    public int getNumLinesComplete(PlayerTeam team) {
         int numLinesComplete = 0;
 
         for (int y = 0; y < BOARD_SIZE; y++) {
-            if (checkRow(y)) {
+            if (checkRow(team, y)) {
                 numLinesComplete++;
             }
         }
 
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (checkColumn(x)) {
+            if (checkColumn(team, x)) {
                 numLinesComplete++;
             }
         }
 
-        if (checkDiagonal(true)) {
+        if (checkDiagonal(team, true)) {
             numLinesComplete++;
         }
 
-        if (checkDiagonal(false)) {
+        if (checkDiagonal(team, false)) {
             numLinesComplete++;
         }
 
@@ -135,42 +175,15 @@ public class BingoCard {
     }
 
     /**
-     * Whether at least 1 line is completed on this bingo card
-     * @return Whether at least 1 lines is completed
-     */
-    public boolean hasLineComplete() {
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            if (checkRow(y)) {
-                return true;
-            }
-        }
-
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            if (checkColumn(x)) {
-                return true;
-            }
-        }
-
-        return checkDiagonal(true) || checkDiagonal(false);
-    }
-
-    /**
-     * Gets the number of collected items on this bingo card
-     * @return The number of collected items
-     */
-    public int getNumberOfCollectedItems() {
-        return numCollected;
-    }
-
-    /**
-     * Whether this bingo card is fully completed
+     * Whether this bingo card is fully completed for the given team
+     * @param team The team to check for
      * @return Whether this bingo is fully completed
      */
-    public boolean isCardComplete() {
+    public boolean isCardComplete(PlayerTeam team) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 BingoItem bingoItem = bingoItems[y][x];
-                if (!bingoItem.isCollected()) {
+                if (!bingoItem.hasCollected(team)) {
                     return false;
                 }
             }
@@ -180,13 +193,14 @@ public class BingoCard {
     }
 
     /**
-     * Check whether the row with index y is completed
+     * Check whether the row with index y is completed for the given team
+     * @param team The team to check for
      * @param y The index to check for
      * @return Whether the row is completed
      */
-    private boolean checkRow(int y) {
+    private boolean checkRow(PlayerTeam team, int y) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (!bingoItems[y][x].isCollected()) {
+            if (!bingoItems[y][x].hasCollected(team)) {
                 return false;
             }
         }
@@ -195,13 +209,14 @@ public class BingoCard {
     }
 
     /**
-     * Check whether the column with index x is completed
+     * Check whether the column with index x is completed for the given team
+     * @param team The team to check for
      * @param x The index to check for
      * @return Whether the column is completed
      */
-    private boolean checkColumn(int x) {
+    private boolean checkColumn(PlayerTeam team, int x) {
         for (int y = 0; y < BOARD_SIZE; y++) {
-            if (!bingoItems[y][x].isCollected()) {
+            if (!bingoItems[y][x].hasCollected(team)) {
                 return false;
             }
         }
@@ -210,43 +225,28 @@ public class BingoCard {
     }
 
     /**
-     * Check whether a diagonal is completed
+     * Check whether a diagonal is completed for the given team
+     * @param team The team to check for
      * @param startTopLeft Whether to check the diagonal starting in the top left
      *                     or the diagonal starting in the top right
      * @return Whether the diagonal is completed
      */
-    private boolean checkDiagonal(boolean startTopLeft) {
+    private boolean checkDiagonal(PlayerTeam team, boolean startTopLeft) {
         if (startTopLeft) {
             for (int i = 0; i < BOARD_SIZE; i++) {
-                if (!bingoItems[i][i].isCollected()) {
+                if (!bingoItems[i][i].hasCollected(team)) {
                     return false;
                 }
             }
         } else {
             for (int i = 0; i < BOARD_SIZE; i++) {
-                if (!bingoItems[i][BOARD_SIZE - 1 - i].isCollected()) {
+                if (!bingoItems[i][BOARD_SIZE - 1 - i].hasCollected(team)) {
                     return false;
                 }
             }
         }
 
         return true;
-    }
-
-    /**
-     * Makes a copy of this bingo card by copying each individual bingo item
-     * @return A copy of this bingo card
-     */
-    public BingoCard copy() {
-        BingoItem[][] newItemArray = new BingoItem[BOARD_SIZE][BOARD_SIZE];
-
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                newItemArray[y][x] = this.bingoItems[y][x].copy();
-            }
-        }
-
-        return new BingoCard(newItemArray);
     }
 
     /**
@@ -255,6 +255,10 @@ public class BingoCard {
      */
     public BingoItem[][] getBingoItems() {
         return bingoItems;
+    }
+
+    public BingoCardInventory getBingoCardInventory() {
+        return bingoCardInventory;
     }
 
 }

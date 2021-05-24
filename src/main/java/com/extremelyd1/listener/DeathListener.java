@@ -60,7 +60,7 @@ public class DeathListener implements Listener {
             }
 
             player.getInventory().addItem(
-                    game.getBingoCardItemFactory().create(playerTeam.getBingoCard())
+                    game.getBingoCardItemFactory().create(game.getBingoCard(), playerTeam)
             );
             player.sendMessage(
                     Game.PREFIX + "You have been given a new bingo card"

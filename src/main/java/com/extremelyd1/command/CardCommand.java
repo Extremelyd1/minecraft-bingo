@@ -54,7 +54,7 @@ public class CardCommand implements CommandExecutor {
         }
 
         player.getInventory().addItem(
-                game.getBingoCardItemFactory().create(((PlayerTeam) team).getBingoCard())
+                game.getBingoCardItemFactory().create(game.getBingoCard(), (PlayerTeam) team)
         );
         player.sendMessage(
                 Game.PREFIX + "You have been given a new bingo card"

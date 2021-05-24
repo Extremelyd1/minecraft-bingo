@@ -58,9 +58,9 @@ public class BingoCommand implements CommandExecutor {
         List<Material> itemsCollected = new ArrayList<>();
         List<Material> itemsLeft = new ArrayList<>();
 
-        for (BingoItem[] bingoItemRow : playerTeam.getBingoCard().getBingoItems()) {
+        for (BingoItem[] bingoItemRow : game.getBingoCard().getBingoItems()) {
             for (BingoItem bingoItem : bingoItemRow) {
-                if (bingoItem.isCollected()) {
+                if (bingoItem.hasCollected(playerTeam)) {
                     itemsCollected.add(bingoItem.getMaterial());
                 } else {
                     itemsLeft.add(bingoItem.getMaterial());

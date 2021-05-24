@@ -1,6 +1,5 @@
 package com.extremelyd1.world.generation;
 
-import com.extremelyd1.game.Game;
 import org.bukkit.World;
 
 public class PendingChunk {

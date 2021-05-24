@@ -18,13 +18,9 @@ import com.extremelyd1.potion.PotionEffects;
 import com.extremelyd1.sound.SoundManager;
 import com.extremelyd1.title.TitleManager;
 import com.extremelyd1.util.*;
-import com.extremelyd1.world.spawn.SpawnLoader;
 import com.extremelyd1.world.WorldManager;
-import org.bukkit.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import com.extremelyd1.world.spawn.SpawnLoader;
+import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -36,6 +32,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 public class Game {
@@ -117,6 +114,11 @@ public class Game {
      * Whether PvP is enabled
      */
     private boolean pvpEnabled = false;
+
+    /**
+     * The bingo card that is currently used
+     */
+    private BingoCard bingoCard;
 
     /**
      * The current game timer
@@ -275,11 +277,7 @@ public class Game {
                     this.state = State.IN_GAME;
 
                     // Create random bingo card
-                    BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
-
-                    for (PlayerTeam team : teamManager.getActiveTeams()) {
-                        team.setBingoCard(bingoCard.copy());
-                    }
+                    bingoCard = new BingoCard(bingoItemMaterials.pickMaterials(), winConditionChecker.getCompletionsToLock());
 
                     int index = 0;
                     for (PlayerTeam team : teamManager.getActiveTeams()) {
@@ -302,9 +300,10 @@ public class Game {
                             teamPlayer.setSaturation(5);
 
                             // Give all players a bingo card
-                            teamPlayer.getInventory().addItem(
-                                    bingoCardItemFactory.create(team.getBingoCard())
-                            );
+                            teamPlayer.getInventory().addItem(bingoCardItemFactory.create(
+                                            bingoCard,
+                                            team
+                            ));
 
                             if (config.isGiveAllRecipes()) {
                                 recipeUtil.discoverAllRecipes(teamPlayer);
@@ -406,21 +405,22 @@ public class Game {
 
             for (PlayerTeam team : teamManager.getActiveTeams()) {
                 // Put the item stack with appropriate border color in map
-                ItemStack bingoCard = bingoCardItemFactory.create(
-                        team.getBingoCard(),
+                ItemStack bingoCardItemStack = bingoCardItemFactory.create(
+                        bingoCard,
+                        team,
                         ColorUtil.chatColorToInt(team.getColor())
                 );
 
                 // Change the item name to include team name and color
-                ItemMeta meta = bingoCard.getItemMeta();
+                ItemMeta meta = bingoCardItemStack.getItemMeta();
                 if (meta != null) {
                     meta.setDisplayName(team.getColor() + team.getName() + " Team");
                 }
-                bingoCard.setItemMeta(meta);
+                bingoCardItemStack.setItemMeta(meta);
 
                 bingoCardItemStacks.put(
                         team,
-                        bingoCard
+                        bingoCardItemStack
                 );
             }
 
@@ -462,13 +462,14 @@ public class Game {
      */
     public void rerollCard() {
         // Create random bingo card
-        BingoCard bingoCard = new BingoCard(bingoItemMaterials.pickMaterials());
+        bingoCard = new BingoCard(bingoItemMaterials.pickMaterials(), winConditionChecker.getCompletionsToLock());
 
         for (PlayerTeam team : teamManager.getActiveTeams()) {
-            team.setBingoCard(bingoCard.copy());
+            // Reset the number of collected items for this team
+            team.resetNumCollected();
 
             // Update the bingo card of all players in the team
-            ItemUtil.updateBingoCard(team, bingoCardItemFactory);
+            ItemUtil.updateBingoCard(bingoCard, team, bingoCardItemFactory);
 
             gameBoardManager.onItemCollected(team);
         }
@@ -504,31 +505,50 @@ public class Game {
             return;
         }
 
-        PlayerTeam playerTeam = (PlayerTeam) team;
+        PlayerTeam collectorTeam = (PlayerTeam) team;
 
-        BingoCard bingoCard = playerTeam.getBingoCard();
+        if (bingoCard.checkMaterialCollection(material, collectorTeam)) {
+            gameBoardManager.onItemCollected(collectorTeam);
 
-        if (bingoCard.containsItem(material)
-                && !bingoCard.getItemByMaterial(material).isCollected()) {
-            bingoCard.addItemCollected(material);
+            if (config.notifyOtherTeamCompletions()) {
+                // Broadcast a message of this collection
+                Bukkit.broadcastMessage(
+                        PREFIX +
+                                collectorTeam.getColor() + collectorTeam.getName()
+                                + ChatColor.WHITE + " team has obtained "
+                                + ChatColor.AQUA + StringUtil.formatMaterialName(material)
+                );
 
-            gameBoardManager.onItemCollected(playerTeam);
+                // Update the cards of all players in all teams
+                for (PlayerTeam playerTeam : teamManager.getActiveTeams()) {
+                    ItemUtil.updateBingoCard(bingoCard, playerTeam, bingoCardItemFactory);
+                }
+            } else {
+                // Update only the bingo card of the players in the team that collected the item
+                ItemUtil.updateBingoCard(bingoCard, collectorTeam, bingoCardItemFactory);
+                // TODO: also might need to update other cards if lockout is enabled and this item is now locked
+                // for other teams
+            }
 
-            // Update the bingo card of all players in the team
-            ItemUtil.updateBingoCard(playerTeam, bingoCardItemFactory);
-
-            Bukkit.broadcastMessage(
-                    PREFIX +
-                            playerTeam.getColor() + playerTeam.getName()
-                            + ChatColor.WHITE + " team has obtained "
-                            + ChatColor.AQUA + StringUtil.formatMaterialName(material)
+            // Get a list of current winners from the checker
+            List<PlayerTeam> winners = winConditionChecker.getCurrentWinners(
+                    bingoCard,
+                    collectorTeam,
+                    teamManager.getActiveTeams()
             );
 
-            // Check whether win condition has been met
-            if (winConditionChecker.hasBingo(bingoCard)) {
-                end(new WinReason(playerTeam, WinReason.Reason.COMPLETE));
+            if (winners.isEmpty()) {
+                // If the list is empty, the game is not finished yet
+                soundManager.broadcastItemCollected(collectorTeam);
+            } else if (winners.size() == 1) {
+                // If there is a single winner, we can announce it
+                end(new WinReason(winners.get(0), WinReason.Reason.COMPLETE));
             } else {
-                soundManager.broadcastItemCollected(playerTeam);
+                // Otherwise, end the game with a random tie
+                end(new WinReason(
+                        winners.get(new Random().nextInt(winners.size())),
+                        WinReason.Reason.RANDOM_TIE)
+                );
             }
         }
     }
@@ -563,6 +583,10 @@ public class Game {
 
     public boolean isPvpEnabled() {
         return pvpEnabled;
+    }
+
+    public BingoCard getBingoCard() {
+        return bingoCard;
     }
 
     public void togglePvp() {

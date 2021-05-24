@@ -15,13 +15,22 @@ public class ImageRenderer extends MapRenderer {
     /**
      * The image to render
      */
-    private final BufferedImage image;
+    private BufferedImage image;
     /**
      * Whether this image has been rendered already
      */
     private boolean isRendered;
 
     public ImageRenderer(BufferedImage image) {
+        this.image = image;
+        this.isRendered = false;
+    }
+
+    /**
+     * Renders the given image onto the map
+     * @param image The image to render
+     */
+    public void renderNewImage(BufferedImage image) {
         this.image = image;
         this.isRendered = false;
     }

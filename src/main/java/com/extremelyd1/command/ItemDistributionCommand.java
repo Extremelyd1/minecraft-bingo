@@ -2,7 +2,6 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.CommandUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,28 +24,16 @@ public class ItemDistributionCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length == 0) {
+        if (args.length != 5) {
             sendItemDistributionError(sender);
             return true;
         }
 
-        if (!args[0].contains(",")) {
-            sendItemDistributionError(sender);
-            return true;
-        }
-
-        String[] itemDistribution = args[0].split(",");
-
-        if (itemDistribution.length != 5) {
-            sendItemDistributionError(sender);
-            return true;
-        }
-
-        int numSTierItems = parseItemDistribution(itemDistribution[0], sender);
-        int numATierItems = parseItemDistribution(itemDistribution[1], sender);
-        int numBTierItems = parseItemDistribution(itemDistribution[2], sender);
-        int numCTierItems = parseItemDistribution(itemDistribution[3], sender);
-        int numDTierItems = parseItemDistribution(itemDistribution[4], sender);
+        int numSTierItems = parseItemDistribution(args[0], sender);
+        int numATierItems = parseItemDistribution(args[1], sender);
+        int numBTierItems = parseItemDistribution(args[2], sender);
+        int numCTierItems = parseItemDistribution(args[3], sender);
+        int numDTierItems = parseItemDistribution(args[4], sender);
 
         if (numSTierItems == -1
                 || numATierItems == -1
@@ -118,7 +105,7 @@ public class ItemDistributionCommand implements CommandExecutor {
         );
         sender.sendMessage(
                 ChatColor.BLUE + "Example: "
-                        + ChatColor.WHITE + "2,6,9,6,2"
+                        + ChatColor.WHITE + "2 6 9 6 2"
         );
     }
 }

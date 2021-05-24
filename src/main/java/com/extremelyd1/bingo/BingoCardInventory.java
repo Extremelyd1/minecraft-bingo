@@ -1,7 +1,8 @@
 package com.extremelyd1.bingo;
 
-import org.bukkit.ChatColor;
+import com.extremelyd1.bingo.item.BingoItem;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -19,9 +20,9 @@ public class BingoCardInventory {
 
     /**
      * Create a bingo card inventory with the given bingo card
-     * @param bingoCard The bingo card to make the inventory from
+     * @param bingoItems The bingo card items to make the inventory from
      */
-    public BingoCardInventory(BingoCard bingoCard) {
+    public BingoCardInventory(BingoItem[][] bingoItems) {
         // Create the inventory and set the items in it
         inventory = Bukkit.createInventory(
                 null,
@@ -31,7 +32,7 @@ public class BingoCardInventory {
 
         for (int y = 0; y < BingoCard.BOARD_SIZE; y++) {
             for (int x = 0; x < BingoCard.BOARD_SIZE; x++) {
-                Material material = bingoCard.getBingoItems()[y][x].getMaterial();
+                Material material = bingoItems[y][x].getMaterial();
                 ItemStack itemStack = new ItemStack(material, 1);
 
                 inventory.setItem(y * 9 + x + 2, itemStack);

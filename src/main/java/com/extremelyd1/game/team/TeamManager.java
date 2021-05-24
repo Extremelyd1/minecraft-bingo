@@ -3,7 +3,10 @@ package com.extremelyd1.game.team;
 import com.extremelyd1.game.Game;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Manager class that handles team related activities
