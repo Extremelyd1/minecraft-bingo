@@ -61,7 +61,19 @@ public class GameBoard {
     public void update() {
         // Clear all existing scores
         for (String entry : this.scoreboard.getEntries()) {
-            this.scoreboard.resetScores(entry);
+            Boolean entryStillExists = false;
+
+            for (int i = 0; i < boardEntries.size(); i++) {
+                BoardEntry newEntry = boardEntries.get(i);
+
+                if (newEntry.getString().equals(entry)) {
+                    entryStillExists = true;
+                }
+            }
+
+            if (!entryStillExists) {
+                this.scoreboard.resetScores(entry);
+            }
         }
 
         // Add the new scores
