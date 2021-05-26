@@ -24,6 +24,8 @@ public class PregameBoard extends GameBoard {
 
     private final DynamicBoardEntry<String> winCondition;
 
+    private final DynamicBoardEntry<String> lockoutStatus;
+
     public PregameBoard(Game game) {
         super(game);
 
@@ -76,6 +78,11 @@ public class PregameBoard extends GameBoard {
                 "-"
         );
         this.boardEntries.add(winCondition);
+        lockoutStatus = new DynamicBoardEntry<>(
+                "Lockout: %s",
+                "-"
+        );
+        this.boardEntries.add(lockoutStatus);
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
     }
 
@@ -109,6 +116,14 @@ public class PregameBoard extends GameBoard {
         }
     }
 
+    private String getLockoutStatus(Game game) {
+        if (game.getWinConditionChecker().getCompletionsToLock() == 0) {
+            return ChatColor.RED + "Disabled";
+        } else {
+            return ChatColor.GREEN + String.valueOf(game.getWinConditionChecker().getCompletionsToLock());
+        }
+    }
+
     /**
      * Updates this board with the new number of players
      * @param numPlayers The new number of players
@@ -118,6 +133,7 @@ public class PregameBoard extends GameBoard {
         currentItemDistribution.setValue(getItemDistributionString(game));
         timerStatus.setValue(getTimerStatus(game));
         winCondition.setValue(getWinConditionStatus(game));
+        lockoutStatus.setValue(getLockoutStatus(game));
 
         super.update();
     }

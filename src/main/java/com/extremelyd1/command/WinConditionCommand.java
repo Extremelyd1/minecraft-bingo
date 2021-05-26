@@ -138,6 +138,8 @@ public class WinConditionCommand implements CommandExecutor {
 
             Bukkit.broadcastMessage(message);
 
+            game.onPregameUpdate();
+
             return true;
         }
 
