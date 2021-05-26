@@ -59,7 +59,7 @@ public class GameBoardManager {
      */
     public void onPregameUpdate(int numOnlinePlayers) {
         if (game.getState().equals(Game.State.PRE_GAME)) {
-            pregameBoard.update(numOnlinePlayers);
+            pregameBoard.update(game, numOnlinePlayers);
         }
 
         broadcast();
@@ -109,7 +109,7 @@ public class GameBoardManager {
      */
     public void broadcast() {
         if (game.getState().equals(Game.State.PRE_GAME)) {
-            pregameBoard.update(Bukkit.getOnlinePlayers().size());
+            pregameBoard.update(game, Bukkit.getOnlinePlayers().size());
             pregameBoard.broadcast();
         } else if (game.getState().equals(Game.State.IN_GAME)) {
             for (IngameBoard ingameBoard : ingameBoards.values()) {
