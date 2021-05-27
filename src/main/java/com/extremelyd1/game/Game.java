@@ -507,6 +507,8 @@ public class Game {
 
         PlayerTeam collectorTeam = (PlayerTeam) team;
 
+        int linesPreCheck = bingoCard.getNumLinesComplete(collectorTeam);
+
         if (bingoCard.checkMaterialCollection(material, collectorTeam)) {
             gameBoardManager.onItemCollected(collectorTeam);
 
@@ -528,6 +530,32 @@ public class Game {
                 ItemUtil.updateBingoCard(bingoCard, collectorTeam, bingoCardItemFactory);
                 // TODO: also might need to update other cards if lockout is enabled and this item is now locked
                 // for other teams
+            }
+
+            if (winConditionChecker.isFullCard()) {
+                if (config.getProgressController().shouldNotifyCountAmount(collectorTeam.getNumCollected())) {
+                    Bukkit.broadcastMessage(
+                            PREFIX +
+                                    collectorTeam.getColor() + collectorTeam.getName()
+                                    + ChatColor.WHITE + " team has collected "
+                                    + ChatColor.AQUA + collectorTeam.getNumCollected() + ChatColor.WHITE + " items"
+                    );
+                }
+            } else if (winConditionChecker.getNumLinesToComplete() > 0) {
+                int linesCompleteNow = bingoCard.getNumLinesComplete(collectorTeam);
+
+                if (linesCompleteNow > linesPreCheck) {
+                    if (config.getProgressController().shouldNotifyProgressLines(linesCompleteNow)) {
+                        Bukkit.broadcastMessage(
+                                PREFIX +
+                                        collectorTeam.getColor() + collectorTeam.getName()
+                                        + ChatColor.WHITE + " team has completed "
+                                        + ChatColor.AQUA + linesCompleteNow + ChatColor.WHITE + " lines"
+                        );
+                    }
+                }
+            } else {
+                //LOCKOUT GAME notifications?
             }
 
             // Get a list of current winners from the checker

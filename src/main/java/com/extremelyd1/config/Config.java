@@ -1,5 +1,6 @@
 package com.extremelyd1.config;
 
+import com.extremelyd1.game.progress.ProgressController;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -76,6 +77,11 @@ public class Config {
     private final boolean giveAllRecipes;
 
     /**
+     * Store progression notify config data
+     */
+    private final ProgressController progressController;
+
+    /**
      * Whether a timer is enabled
      */
     private boolean timerEnabled;
@@ -133,6 +139,8 @@ public class Config {
 
         giveAllRecipes = config.getBoolean("give-all-recipes");
 
+        progressController = new ProgressController(config);
+
         borderEnabled = config.getBoolean("border.enable");
         overworldBorderSize = config.getInt("border.overworld-size");
         netherBorderSize = config.getInt("border.nether-size");
@@ -163,6 +171,10 @@ public class Config {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Default item distribution config value has a non-integer value");
         }
+    }
+
+    public ProgressController getProgressController() {
+        return progressController;
     }
 
     public boolean isBlacklistEnabled() {

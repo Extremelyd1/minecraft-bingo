@@ -6,6 +6,13 @@ notify-other-team-completions: True
 prevent-water-spawns: True
 show-all-maps-after-game: True
 give-all-recipes: True
+notify-progress:
+  lines:
+    - each
+  full-count:
+    - 10
+    - 20
+    - 24
 border:
   enable: True
   overworld-size: 3000
