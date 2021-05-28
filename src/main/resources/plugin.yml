@@ -65,6 +65,11 @@ commands:
     description: Command to test a new feature
     usage: /<command>
 
+  channel:
+    aliases: [c]
+    description: Change between default chat channels
+    usage: /<command> <team|global>
+
   generate:
     aliases: [worlds, gen]
     description: Pre-generate worlds
