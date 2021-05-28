@@ -75,6 +75,10 @@ commands:
     description: Change between default chat channels
     usage: /<command> <team|global>
 
+  join:
+    description: Join a color team
+    usage: /<command> <team color>
+
   generate:
     aliases: [worlds, gen]
     description: Pre-generate worlds

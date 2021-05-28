@@ -203,7 +203,8 @@ public class Game {
             put("coordinates", new CoordinatesCommand(game));
             put("all", new AllCommand(game));
             put("channel", new ChannelCommand(game));
-            put("teamchat", new TeamChatCommand((game)));
+            put("teamchat", new TeamChatCommand(game));
+            put("join", new JoinCommand(game));
 
             if (config.isPregenerateWorlds()) {
                 put("generate", new GenerateCommand(game));

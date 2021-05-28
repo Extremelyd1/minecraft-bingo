@@ -209,13 +209,8 @@ public class TeamCommand implements CommandExecutor {
                 // Add player to spectators
                 teamManager.addPlayerToTeam(argumentPlayer, teamManager.getSpectatorTeam());
         } else {
-            PlayerTeam checkTeam = game.getTeamManager().getTeamByName(args[0]);
-            if (checkTeam != null && sender instanceof Player) {
-                game.getTeamManager().addPlayerToTeam((Player) sender, checkTeam);
-            } else {
-                sendUsage(sender, command);
-                return true;
-            }
+            sendUsage(sender, command);
+            return true;
         }
 
         game.onPregameUpdate();
