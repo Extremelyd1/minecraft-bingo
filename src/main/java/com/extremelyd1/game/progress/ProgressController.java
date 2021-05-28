@@ -1,10 +1,7 @@
 package com.extremelyd1.game.progress;
 
-import com.extremelyd1.game.Game;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProgressController {
@@ -19,9 +16,15 @@ public class ProgressController {
      */
     private List<String> fullCardCountRules;
 
+    /**
+     * Rules for lockout gamemode
+     */
+    private List<String> lockoutRules;
+
     public ProgressController(FileConfiguration config) {
         linesRules = config.getStringList("notify-progress.lines");
-        fullCardCountRules = config.getStringList("notify-progress.full-count");
+        fullCardCountRules = config.getStringList("notify-progress.full-card");
+        lockoutRules = config.getStringList("notify-progress.lockout");
     }
 
     private Boolean notifyEachLine() {
@@ -34,5 +37,9 @@ public class ProgressController {
 
     public Boolean shouldNotifyCountAmount(int itemsCollected) {
         return fullCardCountRules.contains(String.valueOf(itemsCollected));
+    }
+
+    public Boolean shouldNotifyLockoutAmount(int itemsCollected) {
+        return lockoutRules.contains(String.valueOf(itemsCollected));
     }
 }

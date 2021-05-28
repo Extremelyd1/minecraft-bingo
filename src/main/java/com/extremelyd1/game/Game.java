@@ -554,8 +554,15 @@ public class Game {
                         );
                     }
                 }
-            } else {
-                //LOCKOUT GAME notifications?
+            } else if (winConditionChecker.getCompletionsToLock() > 0) {
+                if (config.getProgressController().shouldNotifyCountAmount(collectorTeam.getNumCollected())) {
+                    Bukkit.broadcastMessage(
+                            PREFIX +
+                                    collectorTeam.getColor() + collectorTeam.getName()
+                                    + ChatColor.WHITE + " team has collected "
+                                    + ChatColor.AQUA + collectorTeam.getNumCollected() + ChatColor.WHITE + " items"
+                    );
+                }
             }
 
             // Get a list of current winners from the checker

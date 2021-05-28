@@ -9,10 +9,13 @@ give-all-recipes: True
 notify-progress:
   lines:
     - each
-  full-count:
+  full-card:
     - 10
     - 20
-    - 24
+    - 23
+  lockout:
+    - 5
+    - 10
 border:
   enable: True
   overworld-size: 3000
