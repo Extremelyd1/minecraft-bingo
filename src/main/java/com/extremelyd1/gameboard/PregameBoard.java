@@ -5,7 +5,6 @@ import com.extremelyd1.gameboard.boardEntry.BlankBoardEntry;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
 import com.extremelyd1.util.TimeUtil;
-import com.mojang.serialization.Dynamic;
 import org.bukkit.ChatColor;
 
 /**
@@ -22,9 +21,7 @@ public class PregameBoard extends GameBoard {
 
     private final DynamicBoardEntry<String> timerStatus;
 
-    private final DynamicBoardEntry<String> winCondition;
-
-    private final DynamicBoardEntry<String> lockoutStatus;
+    private final DynamicBoardEntry<String> gameTypeEntry;
 
     public PregameBoard(Game game) {
         super(game);
@@ -48,9 +45,10 @@ public class PregameBoard extends GameBoard {
         );
         this.boardEntries.add(numPlayersEntry);
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+        this.boardEntries.add(new BoardEntry("Item Distribution:"));
 
         currentItemDistribution = new DynamicBoardEntry<>(
-                "Items: %s",
+                "%s",
                 String.format(ChatColor.DARK_RED + "%d "
                         + ChatColor.RED + "%d "
                         + ChatColor.GOLD + "%d "
@@ -73,16 +71,11 @@ public class PregameBoard extends GameBoard {
         this.boardEntries.add(timerStatus);
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
 
-        winCondition = new DynamicBoardEntry<>(
-                "Win Condition: %s",
+        gameTypeEntry = new DynamicBoardEntry<>(
+                "Game Type: %s",
                 "-"
         );
-        this.boardEntries.add(winCondition);
-        lockoutStatus = new DynamicBoardEntry<>(
-                "Lockout: %s",
-                "-"
-        );
-        this.boardEntries.add(lockoutStatus);
+        this.boardEntries.add(gameTypeEntry);
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
     }
 
@@ -111,16 +104,10 @@ public class PregameBoard extends GameBoard {
     private String getWinConditionStatus(Game game) {
         if (game.getWinConditionChecker().isFullCard()) {
             return ChatColor.GOLD + "Full Card";
-        } else {
+        } else if (game.getWinConditionChecker().getNumLinesToComplete() > 0) {
             return ChatColor.GOLD + String.valueOf(game.getWinConditionChecker().getNumLinesToComplete()) + " Lines";
-        }
-    }
-
-    private String getLockoutStatus(Game game) {
-        if (game.getWinConditionChecker().getCompletionsToLock() == 0) {
-            return ChatColor.RED + "Disabled";
         } else {
-            return ChatColor.GREEN + String.valueOf(game.getWinConditionChecker().getCompletionsToLock());
+            return ChatColor.RED + "Lockout " + ChatColor.WHITE + "- " + ChatColor.GOLD + game.getWinConditionChecker().getCompletionsToLock() + " to lock";
         }
     }
 
@@ -132,8 +119,7 @@ public class PregameBoard extends GameBoard {
         numPlayersEntry.setValue(numPlayers);
         currentItemDistribution.setValue(getItemDistributionString(game));
         timerStatus.setValue(getTimerStatus(game));
-        winCondition.setValue(getWinConditionStatus(game));
-        lockoutStatus.setValue(getLockoutStatus(game));
+        gameTypeEntry.setValue(getWinConditionStatus(game));
 
         super.update();
     }
