@@ -61,15 +61,10 @@ commands:
     description: Command to send a message to all players
     usage: /<command> <message>
 
-  tchat:
+  teamchat:
     aliases: [tc]
     description: Send a message to your team only
     usage: /<command> <message>
-
-  tloc:
-    aliases: [tl]
-    description: Sends your coordinates to your team
-    usage: /<command>
 
   test:
     description: Command to test a new feature
