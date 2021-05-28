@@ -125,8 +125,7 @@ public class TeamCommand implements CommandExecutor {
                     ChatColor.GREEN + "Successfully"
                     + ChatColor.WHITE + " created random teams"
             );
-        }
-        else if (args[0].equalsIgnoreCase("add")) {
+        } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 3) {
                 sender.sendMessage(
                         ChatColor.DARK_RED
@@ -167,8 +166,7 @@ public class TeamCommand implements CommandExecutor {
             }
 
             teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);
-        }
-        else if (args[0].equalsIgnoreCase("remove")) {
+        } else if (args[0].equalsIgnoreCase("remove")) {
                 if (args.length < 2) {
                     sender.sendMessage(
                             ChatColor.DARK_RED
@@ -210,8 +208,7 @@ public class TeamCommand implements CommandExecutor {
 
                 // Add player to spectators
                 teamManager.addPlayerToTeam(argumentPlayer, teamManager.getSpectatorTeam());
-        }
-        else {
+        } else {
             PlayerTeam checkTeam = game.getTeamManager().getTeamByName(args[0]);
             if (checkTeam != null && sender instanceof Player) {
                 game.getTeamManager().addPlayerToTeam((Player) sender, checkTeam);
