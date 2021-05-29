@@ -50,6 +50,8 @@ public class WinConditionCommand implements CommandExecutor {
                     Game.PREFIX + "Full bingo card has been " + ChatColor.GREEN + "enabled"
             );
 
+            game.onPregameUpdate();
+
             return true;
         } else if (args[0].equalsIgnoreCase("lines")) {
             if (args.length < 2) {
@@ -90,6 +92,8 @@ public class WinConditionCommand implements CommandExecutor {
                     Game.PREFIX + "Number of lines (rows, columns or diagonals) to achieve bingo has been set to "
                             + ChatColor.YELLOW + numLines
             );
+
+            game.onPregameUpdate();
 
             return true;
         } else if (args[0].equalsIgnoreCase("lockout")) {
@@ -133,6 +137,8 @@ public class WinConditionCommand implements CommandExecutor {
             }
 
             Bukkit.broadcastMessage(message);
+
+            game.onPregameUpdate();
 
             return true;
         }

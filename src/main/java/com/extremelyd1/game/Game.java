@@ -5,6 +5,7 @@ import com.extremelyd1.bingo.item.BingoItemMaterials;
 import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.command.*;
 import com.extremelyd1.config.Config;
+import com.extremelyd1.game.chat.ChatChannelController;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
@@ -125,6 +126,11 @@ public class Game {
      */
     private GameTimer gameTimer;
 
+    /**
+     * Chat Channel controller
+     */
+    private final ChatChannelController chatChannelController;
+
     public Game(Bingo bingo) throws IllegalArgumentException {
         Game.logger = bingo.getLogger();
 
@@ -143,6 +149,8 @@ public class Game {
         bingoItemMaterials.loadMaterials(getDataFolder());
 
         winConditionChecker = new WinConditionChecker(config);
+
+        chatChannelController = new ChatChannelController();
 
         soundManager = new SoundManager();
         titleManager = new TitleManager();
@@ -194,6 +202,9 @@ public class Game {
             put("timer", new TimerCommand(game));
             put("coordinates", new CoordinatesCommand(game));
             put("all", new AllCommand(game));
+            put("channel", new ChannelCommand(game));
+            put("teamchat", new TeamChatCommand(game));
+            put("join", new JoinCommand(game));
 
             if (config.isPregenerateWorlds()) {
                 put("generate", new GenerateCommand(game));
@@ -507,6 +518,8 @@ public class Game {
 
         PlayerTeam collectorTeam = (PlayerTeam) team;
 
+        int linesCompletedBefore = bingoCard.getNumLinesComplete(collectorTeam);
+
         if (bingoCard.checkMaterialCollection(material, collectorTeam)) {
             gameBoardManager.onItemCollected(collectorTeam);
 
@@ -529,6 +542,8 @@ public class Game {
                 // TODO: also might need to update other cards if lockout is enabled and this item is now locked
                 // for other teams
             }
+
+            config.getProgressController().onCollection(this, collectorTeam, linesCompletedBefore);
 
             // Get a list of current winners from the checker
             List<PlayerTeam> winners = winConditionChecker.getCurrentWinners(
@@ -571,6 +586,10 @@ public class Game {
 
     public WinConditionChecker getWinConditionChecker() {
         return winConditionChecker;
+    }
+
+    public ChatChannelController getChatChannelController() {
+        return chatChannelController;
     }
 
     public boolean isMaintenance() {

@@ -1,6 +1,7 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.chat.ChatChannelController;
 import com.extremelyd1.game.team.Team;
 import net.minecraft.server.v1_16_R3.Advancement;
 import net.minecraft.server.v1_16_R3.ChatComponentText;
@@ -32,9 +33,14 @@ public class ChatListener implements Listener {
         Player player = e.getPlayer();
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
+        ChatChannelController.ChatChannel chatChannel = game.getChatChannelController().getPlayerChatChannel(player);
         if (team == null) {
             Bukkit.broadcastMessage(
                     player.getName() + ": " + e.getMessage()
+            );
+        } else if (chatChannel == ChatChannelController.ChatChannel.GLOBAL) {
+            Bukkit.broadcastMessage(
+                team.getColor() + player.getName() + ChatColor.RESET + ": " + e.getMessage()
             );
         } else {
             for (Player teamPlayer : team.getPlayers()) {

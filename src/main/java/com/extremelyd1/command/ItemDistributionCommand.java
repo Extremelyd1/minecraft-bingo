@@ -72,6 +72,8 @@ public class ItemDistributionCommand implements CommandExecutor {
                         + ChatColor.WHITE + "(S, A, B, C, D)"
         );
 
+        game.onPregameUpdate();
+
         return true;
     }
 

@@ -210,7 +210,6 @@ public class TeamCommand implements CommandExecutor {
                 teamManager.addPlayerToTeam(argumentPlayer, teamManager.getSpectatorTeam());
         } else {
             sendUsage(sender, command);
-
             return true;
         }
 

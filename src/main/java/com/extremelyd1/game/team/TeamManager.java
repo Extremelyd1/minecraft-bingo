@@ -235,4 +235,12 @@ public class TeamManager {
         return activeTeams;
     }
 
+    /**
+     * Get an iterable for all the available teams that can be looped over
+     * @return An iterable for the available teams
+     */
+    public Iterable<PlayerTeam> getAvailableTeams() {
+        return teams;
+    }
+
 }

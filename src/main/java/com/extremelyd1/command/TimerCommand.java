@@ -53,6 +53,8 @@ public class TimerCommand implements CommandExecutor {
                     Game.PREFIX + "Game timer is now " + ChatColor.GREEN + "enabled"
             );
 
+            game.onPregameUpdate();
+
             return true;
         } else if (args[0].equalsIgnoreCase("disable")) {
             game.getConfig().setTimerEnabled(false);
@@ -60,6 +62,8 @@ public class TimerCommand implements CommandExecutor {
             Bukkit.broadcastMessage(
                     Game.PREFIX + "Game timer is now " + ChatColor.DARK_RED + "disabled"
             );
+
+            game.onPregameUpdate();
 
             return true;
         }
@@ -87,6 +91,8 @@ public class TimerCommand implements CommandExecutor {
         }
 
         trySetTimer(sender, parsedTime);
+
+        game.onPregameUpdate();
 
         return true;
     }

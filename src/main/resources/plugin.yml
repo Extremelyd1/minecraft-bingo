@@ -61,9 +61,23 @@ commands:
     description: Command to send a message to all players
     usage: /<command> <message>
 
+  teamchat:
+    aliases: [tc]
+    description: Send a message to your team only
+    usage: /<command> <message>
+
   test:
     description: Command to test a new feature
     usage: /<command>
+
+  channel:
+    aliases: [c]
+    description: Change between default chat channels
+    usage: /<command> <team|global>
+
+  join:
+    description: Join a color team
+    usage: /<command> <team color>
 
   generate:
     aliases: [worlds, gen]
