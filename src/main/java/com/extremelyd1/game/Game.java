@@ -129,7 +129,7 @@ public class Game {
     /**
      * Chat Channel controller
      */
-    private ChatChannelController chatChannelController;
+    private final ChatChannelController chatChannelController;
 
     public Game(Bingo bingo) throws IllegalArgumentException {
         Game.logger = bingo.getLogger();
@@ -518,7 +518,7 @@ public class Game {
 
         PlayerTeam collectorTeam = (PlayerTeam) team;
 
-        int linesPreCheck = bingoCard.getNumLinesComplete(collectorTeam);
+        int linesCompletedBefore = bingoCard.getNumLinesComplete(collectorTeam);
 
         if (bingoCard.checkMaterialCollection(material, collectorTeam)) {
             gameBoardManager.onItemCollected(collectorTeam);
@@ -543,38 +543,7 @@ public class Game {
                 // for other teams
             }
 
-            if (winConditionChecker.isFullCard()) {
-                if (config.getProgressController().shouldNotifyCountAmount(collectorTeam.getNumCollected())) {
-                    Bukkit.broadcastMessage(
-                            PREFIX +
-                                    collectorTeam.getColor() + collectorTeam.getName()
-                                    + ChatColor.WHITE + " team has collected "
-                                    + ChatColor.AQUA + collectorTeam.getNumCollected() + ChatColor.WHITE + " items"
-                    );
-                }
-            } else if (winConditionChecker.getNumLinesToComplete() > 0) {
-                int linesCompleteNow = bingoCard.getNumLinesComplete(collectorTeam);
-
-                if (linesCompleteNow > linesPreCheck) {
-                    if (config.getProgressController().shouldNotifyProgressLines(linesCompleteNow)) {
-                        Bukkit.broadcastMessage(
-                                PREFIX +
-                                        collectorTeam.getColor() + collectorTeam.getName()
-                                        + ChatColor.WHITE + " team has completed "
-                                        + ChatColor.AQUA + linesCompleteNow + ChatColor.WHITE + " lines"
-                        );
-                    }
-                }
-            } else if (winConditionChecker.getCompletionsToLock() > 0) {
-                if (config.getProgressController().shouldNotifyCountAmount(collectorTeam.getNumCollected())) {
-                    Bukkit.broadcastMessage(
-                            PREFIX +
-                                    collectorTeam.getColor() + collectorTeam.getName()
-                                    + ChatColor.WHITE + " team has collected "
-                                    + ChatColor.AQUA + collectorTeam.getNumCollected() + ChatColor.WHITE + " items"
-                    );
-                }
-            }
+            config.getProgressController().onCollection(this, collectorTeam, linesCompletedBefore);
 
             // Get a list of current winners from the checker
             List<PlayerTeam> winners = winConditionChecker.getCurrentWinners(

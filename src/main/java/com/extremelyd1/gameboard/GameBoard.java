@@ -57,17 +57,19 @@ public class GameBoard {
 
     /**
      * Updates this board by updating all board entries and resetting the prefixes of players
+     * The following steps are taken to update the board efficiently.
+     * - Remove scores that no longer exist in the board
+     * - Update the board to the most recent scores which will add new values/update existing ones
      */
     public void update() {
-        // Clear all existing scores
+        //Remove entries that no longer exist
         for (String entry : this.scoreboard.getEntries()) {
-            Boolean entryStillExists = false;
+            boolean entryStillExists = false;
 
-            for (int i = 0; i < boardEntries.size(); i++) {
-                BoardEntry newEntry = boardEntries.get(i);
-
+            for (BoardEntry newEntry: boardEntries) {
                 if (newEntry.getString().equals(entry)) {
                     entryStillExists = true;
+                    break;
                 }
             }
 
@@ -76,7 +78,7 @@ public class GameBoard {
             }
         }
 
-        // Add the new scores
+        // Add the new scores/update existing ones
         for (int i = 0; i < boardEntries.size(); i++) {
             this.objective.getScore(boardEntries.get(i).getString()).setScore(boardEntries.size() - i);
         }

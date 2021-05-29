@@ -10,7 +10,6 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class JoinCommand implements TabExecutor {
@@ -26,9 +25,11 @@ public class JoinCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true)) {
             return true;
         }
+
+        Player player = (Player) sender;
 
         if (args.length <= 0) {
             sendUsage(sender, command);
@@ -36,8 +37,8 @@ public class JoinCommand implements TabExecutor {
         }
 
         PlayerTeam checkTeam = game.getTeamManager().getTeamByName(args[0]);
-        if (checkTeam != null && sender instanceof Player) {
-            game.getTeamManager().addPlayerToTeam((Player) sender, checkTeam);
+        if (checkTeam != null) {
+            game.getTeamManager().addPlayerToTeam(player, checkTeam);
             game.onPregameUpdate();
         } else {
             sender.sendMessage(
@@ -72,9 +73,9 @@ public class JoinCommand implements TabExecutor {
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
         List<String> teams = new ArrayList<>();
 
-        if (args.length > 1) return teams;
+        if (args.length != 1) return teams;
 
-        for (PlayerTeam team: game.getTeamManager().getAvailableTeams()) {
+        for (PlayerTeam team : game.getTeamManager().getAvailableTeams()) {
             if (team.getName().toLowerCase().contains(args[0].toLowerCase())) {
                 teams.add(team.getName());
             }

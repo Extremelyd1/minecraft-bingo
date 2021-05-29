@@ -2,13 +2,13 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.chat.ChatChannelController;
+import com.extremelyd1.util.CommandUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,8 +27,7 @@ public class ChannelCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Cannot execute this command as console");
+        if (!CommandUtil.checkCommandSender(sender, false)) {
             return true;
         }
 
@@ -39,12 +38,11 @@ public class ChannelCommand implements TabExecutor {
             return true;
         }
 
-        ChatChannelController.ChatChannel channel = ChatChannelController.ChatChannel.valueOf(args[0].toUpperCase());
-
-        if (channel != null) {
+        try {
+            ChatChannelController.ChatChannel channel = ChatChannelController.ChatChannel.valueOf(args[0].toUpperCase());
             game.getChatChannelController().setPlayerChatChannel(player, channel);
             player.sendMessage("Successfully updated chat channel to " + ChatColor.GREEN + channel.name());
-        } else {
+        } catch (IllegalArgumentException ex) {
             sendUsage(sender, command);
         }
 
@@ -54,7 +52,7 @@ public class ChannelCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         if (!(sender instanceof Player)) {
-            if (!sender.isOp()) return emptyList();
+            return emptyList();
         }
 
         return Arrays.asList("team", "global");

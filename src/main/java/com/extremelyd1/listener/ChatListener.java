@@ -38,8 +38,7 @@ public class ChatListener implements Listener {
             Bukkit.broadcastMessage(
                     player.getName() + ": " + e.getMessage()
             );
-        }
-        else if (chatChannel == ChatChannelController.ChatChannel.GLOBAL) {
+        } else if (chatChannel == ChatChannelController.ChatChannel.GLOBAL) {
             Bukkit.broadcastMessage(
                 team.getColor() + player.getName() + ChatColor.RESET + ": " + e.getMessage()
             );

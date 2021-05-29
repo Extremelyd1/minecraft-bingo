@@ -4,27 +4,32 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ChatChannelController {
 
-    public enum ChatChannel {
-        TEAM(), GLOBAL()
-    }
-
     private static final ChatChannel DEFAULT_CHANNEL = ChatChannel.TEAM;
 
-    public Map<String, ChatChannel> playerChatChannels = new HashMap<>();
+    public Map<UUID, ChatChannel> playerChatChannels = new HashMap<>();
 
     public void setPlayerChatChannel(Player player, ChatChannel channel) {
-        playerChatChannels.put(player.getUniqueId().toString(), channel);
+        playerChatChannels.put(player.getUniqueId(), channel);
     }
 
     public ChatChannel getPlayerChatChannel(Player player) {
-        ChatChannel channel = playerChatChannels.get(player.getUniqueId().toString());
-        if (channel == null) {
-            return DEFAULT_CHANNEL;
-        } else {
-            return channel;
+        if (playerChatChannels.containsKey(player.getUniqueId())) {
+            ChatChannel channel = playerChatChannels.get(player.getUniqueId());
+
+            if (channel != null) {
+                return channel;
+            }
         }
+
+        return DEFAULT_CHANNEL;
+    }
+
+    public enum ChatChannel {
+        TEAM,
+        GLOBAL
     }
 }
