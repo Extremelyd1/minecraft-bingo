@@ -3,7 +3,6 @@ package com.extremelyd1.gameboard;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
-import com.extremelyd1.game.winCondition.WinConditionChecker;
 import com.extremelyd1.gameboard.boardEntry.BlankBoardEntry;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
@@ -135,25 +134,6 @@ public class IngameBoard extends GameBoard {
         for (Player player : team.getPlayers()) {
             player.setScoreboard(scoreboard);
         }
-    }
-
-    private String formatWinCondition(WinConditionChecker winConditionChecker) {
-        int completionsToLock = winConditionChecker.getCompletionsToLock();
-        if (completionsToLock > 0) {
-            // Special case for lockout with one completion to lock, which is a bit cleaner
-            if (completionsToLock == 1) {
-                return "Lockout";
-            }
-
-            return String.format("Lockout (%d)", winConditionChecker.getCompletionsToLock());
-        }
-
-        if (winConditionChecker.isFullCard()) {
-            return "Full Card";
-        }
-
-        int numLines = winConditionChecker.getNumLinesToComplete();
-        return numLines + " lines";
     }
 
 }

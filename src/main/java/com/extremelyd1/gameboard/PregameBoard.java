@@ -101,16 +101,6 @@ public class PregameBoard extends GameBoard {
         }
     }
 
-    private String getWinConditionStatus(Game game) {
-        if (game.getWinConditionChecker().isFullCard()) {
-            return ChatColor.GOLD + "Full Card";
-        } else if (game.getWinConditionChecker().getNumLinesToComplete() > 0) {
-            return ChatColor.GOLD + String.valueOf(game.getWinConditionChecker().getNumLinesToComplete()) + " Lines";
-        } else {
-            return ChatColor.RED + "Lockout " + ChatColor.WHITE + "- " + ChatColor.GOLD + game.getWinConditionChecker().getCompletionsToLock() + " to lock";
-        }
-    }
-
     /**
      * Updates this board with the new number of players
      * @param numPlayers The new number of players
@@ -119,7 +109,9 @@ public class PregameBoard extends GameBoard {
         numPlayersEntry.setValue(numPlayers);
         currentItemDistribution.setValue(getItemDistributionString(game));
         timerStatus.setValue(getTimerStatus(game));
-        gameTypeEntry.setValue(getWinConditionStatus(game));
+        gameTypeEntry.setValue(
+                ChatColor.GOLD + formatWinCondition(game.getWinConditionChecker())
+        );
 
         super.update();
     }

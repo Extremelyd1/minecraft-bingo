@@ -1,6 +1,7 @@
 package com.extremelyd1.gameboard;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.winCondition.WinConditionChecker;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -121,6 +122,31 @@ public class GameBoard {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(scoreboard);
         }
+    }
+
+    /**
+     * Format the win condition of the given WinConditionChecker to a human readable form
+     * @param winConditionChecker The class containing the win condition
+     * @return A human readable string representing the win condition
+     */
+    protected String formatWinCondition(WinConditionChecker winConditionChecker) {
+        int completionsToLock = winConditionChecker.getCompletionsToLock();
+        if (completionsToLock > 0) {
+            // Special case for lockout with one completion to lock, which is a bit cleaner
+            if (completionsToLock == 1) {
+                return "Lockout";
+            }
+
+            return String.format("Lockout (%d)", winConditionChecker.getCompletionsToLock());
+        }
+
+        if (winConditionChecker.isFullCard()) {
+            return "Full Card";
+        }
+
+        // Handle plurality of 'lines'
+        int numLines = winConditionChecker.getNumLinesToComplete();
+        return numLines + " Line" + (numLines == 1 ? "" : "s");
     }
 
 }

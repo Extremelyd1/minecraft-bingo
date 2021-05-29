@@ -33,7 +33,7 @@ public class TeamChatCommand implements CommandExecutor {
         String message = String.join(" ", strings);
 
         if (team == null) {
-            player.sendMessage(ChatColor.RED + "ERROR: " + ChatColor.WHITE + "You aren't on a team");
+            player.sendMessage(ChatColor.RED + "ERROR: " + ChatColor.WHITE + "You are not on a team");
         } else {
             for (Player p : team.getPlayers()) {
                 p.sendMessage(team.getColor() + "TEAM " + player.getName() + ChatColor.WHITE + ": " + message);

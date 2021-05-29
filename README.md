@@ -43,16 +43,20 @@ The first time you run the plugin a config file will be generated in `<server>/p
 - `/maintenance` Enable maintenance mode (this will disallow all non-OP players from joining)
 - `/wincondition <full|lines|lockout> [number]` Change the wincondition to either a full card, a number of lines (rows, columns or diagonals) to complete in order to win or lockout. 
   In case of 'lines' or 'lockout' you can specify a number to indicate how many lines needed to be completed, or after how many collections an item locks.
+  (alias: `/wincon`)
 - `/itemdistribution <S> <A> <B> <C> <D>` Change the item distribution scales, the number of S, A, B, C, and D tier items that appear on the bingo card. 
-  These numbers must add up to 25.
+  These numbers must add up to 25. (aliases: `/itemdist`, `/distribution`, `/dist`)
 - `/timer <enable|disable|length>` Enable/disable the timer or set the length of the timer (the length can be specified in hours/minutes/seconds, such as `/timer 10m` or `/timer 1h20m30s`)
 
 #### Miscellaneous commands
 - `/bingo` Check the items on the card
 - `/card` Receive a new bingo card (if somehow lost)
-- `/reroll` Reroll the items on the bingo card
-- `/coords [message]` Sends your current coordinates to your team (optionally with a message)
-- `/all [message]` Allows players to talk to all players in the game, bypassing the team chat
+- `/reroll` Re-roll the items on the bingo card
+- `/coordinates [message]` Sends your current coordinates to your team, optionally with a message (aliases: `/coord`, `/coords`)
+- `/all [message]` Allows players to talk to all players in the game (aliases: `/a`, `/g`, `/global`)
+- `/teamchat [message]` Allows players to talk to their team members (alias: `/tc`)
+- `/channel <team|global>` Allows players to switch the default chat channel that chat messages will be sent to (alias `/c`)
+- `/join [team name]` Allows players to join a team by the given name
 
 ## World generation
 The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.

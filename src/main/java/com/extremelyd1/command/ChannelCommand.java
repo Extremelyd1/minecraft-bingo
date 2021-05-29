@@ -27,7 +27,7 @@ public class ChannelCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true)) {
             return true;
         }
 
@@ -41,7 +41,11 @@ public class ChannelCommand implements TabExecutor {
         try {
             ChatChannelController.ChatChannel channel = ChatChannelController.ChatChannel.valueOf(args[0].toUpperCase());
             game.getChatChannelController().setPlayerChatChannel(player, channel);
-            player.sendMessage("Successfully updated chat channel to " + ChatColor.GREEN + channel.name());
+            player.sendMessage(
+                    ChatColor.GREEN + "Successfully"
+                            + ChatColor.WHITE + " updated chat channel to "
+                            + ChatColor.YELLOW + channel.name()
+            );
         } catch (IllegalArgumentException ex) {
             sendUsage(sender, command);
         }

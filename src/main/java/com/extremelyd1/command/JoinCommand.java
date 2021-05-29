@@ -29,6 +29,18 @@ public class JoinCommand implements TabExecutor {
             return true;
         }
 
+        // Prevent the command from being used anything apart from pre-game
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            sender.sendMessage(
+                    ChatColor.DARK_RED
+                            + "Error: "
+                            + ChatColor.WHITE
+                            + "Cannot execute this command now"
+            );
+
+            return true;
+        }
+
         Player player = (Player) sender;
 
         if (args.length <= 0) {
@@ -45,8 +57,7 @@ public class JoinCommand implements TabExecutor {
                     ChatColor.DARK_RED
                             + "Error: "
                             + ChatColor.WHITE
-                            + "Cannot find team for color "
-                            + args[0]
+                            + "Could not find team with that name"
             );
         }
 
@@ -65,7 +76,7 @@ public class JoinCommand implements TabExecutor {
                         + ChatColor.WHITE
                         + "/"
                         + command.getName()
-                        + " <team color>"
+                        + " <team name>"
         );
     }
 

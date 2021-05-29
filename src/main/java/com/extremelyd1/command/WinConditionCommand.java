@@ -80,7 +80,9 @@ public class WinConditionCommand implements CommandExecutor {
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Number of lines to complete must be "
                                 + ChatColor.BOLD + "between"
-                                + ChatColor.RESET + " 0 and 11"
+                                + ChatColor.RESET + ChatColor.YELLOW + " 0"
+                                + ChatColor.WHITE + " and "
+                                + ChatColor.YELLOW + "11"
                 );
 
                 return true;
@@ -111,12 +113,15 @@ public class WinConditionCommand implements CommandExecutor {
                 }
             }
 
-            if (completionsToLock < 1) {
+            // Check whether the given value is within bounds
+            if (completionsToLock < 1 || completionsToLock > 8) {
                 sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Lockout completions must be "
-                                + ChatColor.BOLD + "at least"
-                                + ChatColor.RESET + " 1"
+                                + ChatColor.BOLD + "between"
+                                + ChatColor.RESET + ChatColor.YELLOW + " 0"
+                                + ChatColor.WHITE + " and "
+                                + ChatColor.YELLOW + "9"
                 );
 
                 return true;

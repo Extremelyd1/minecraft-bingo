@@ -36,7 +36,7 @@ commands:
   wincondition:
     aliases: [wincon]
     description: Command to change win conditions, such as enabling full card mode
-    usage: /<command> <fullCard|numLines>
+    usage: /<command> <full|lines|lockout> [argument]
 
   reroll:
     description: Command to reroll the bingo card
@@ -45,7 +45,7 @@ commands:
   itemdistribution:
     aliases: [itemdist, distribution, dist]
     description: Command to change the item distribution
-    usage: /<command> <S,A,B,C,D>
+    usage: /<command> <S> <A> <B> <C> <D>
 
   timer:
     description: Command to set the max timer length
@@ -76,8 +76,8 @@ commands:
     usage: /<command> <team|global>
 
   join:
-    description: Join a color team
-    usage: /<command> <team color>
+    description: Join a team
+    usage: /<command> <team name>
 
   generate:
     aliases: [worlds, gen]

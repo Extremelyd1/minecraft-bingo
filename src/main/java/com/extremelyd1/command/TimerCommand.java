@@ -72,6 +72,9 @@ public class TimerCommand implements CommandExecutor {
         try {
             timerLength = Integer.parseInt(args[0]);
             trySetTimer(sender, timerLength);
+
+            game.onPregameUpdate();
+
             return true;
         } catch (NumberFormatException ignored) {
             // Timer is not specified in a single integer
