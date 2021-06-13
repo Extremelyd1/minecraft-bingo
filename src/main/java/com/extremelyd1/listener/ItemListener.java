@@ -1,14 +1,14 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
-import net.minecraft.server.v1_16_R3.Entity;
-import net.minecraft.server.v1_16_R3.EntityAreaEffectCloud;
-import net.minecraft.server.v1_16_R3.EntityEnderDragon;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityAreaEffectCloud;
+import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Beehive;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

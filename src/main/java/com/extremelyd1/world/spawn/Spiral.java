@@ -1,6 +1,5 @@
 package com.extremelyd1.world.spawn;
 
-import net.minecraft.server.v1_16_R3.EnumDirection;
 import org.bukkit.Location;
 
 public class Spiral {
@@ -22,7 +21,7 @@ public class Spiral {
     /**
      * The current direction to take steps in
      */
-    private EnumDirection direction;
+    private Direction direction;
     /**
      * The current width of the spiral
      */
@@ -46,7 +45,7 @@ public class Spiral {
 
         this.currentChunk = center.copy();
         this.stepSize = 1;
-        this.direction = EnumDirection.NORTH;
+        this.direction = Direction.NORTH;
         this.currentWidth = 1;
 
         this.stepCounter = 0;
@@ -81,8 +80,8 @@ public class Spiral {
             this.direction = nextDirection(this.direction);
             // Change the step size after switching to south or north
             // And increase the spiral width
-            if (this.direction.equals(EnumDirection.SOUTH)
-                    || this.direction.equals(EnumDirection.NORTH)) {
+            if (this.direction.equals(Direction.SOUTH)
+                    || this.direction.equals(Direction.NORTH)) {
                 this.stepSize++;
                 this.currentWidth++;
             }
@@ -112,20 +111,27 @@ public class Spiral {
      * @param direction The current direction
      * @return The next direction
      */
-    private static EnumDirection nextDirection(EnumDirection direction) {
+    private static Direction nextDirection(Direction direction) {
         switch (direction) {
             case NORTH:
-                return EnumDirection.EAST;
+                return Direction.EAST;
             case EAST:
-                return EnumDirection.SOUTH;
+                return Direction.SOUTH;
             case SOUTH:
-                return EnumDirection.WEST;
+                return Direction.WEST;
             case WEST:
-                return EnumDirection.NORTH;
+                return Direction.NORTH;
         }
 
         // Fallback values just in case
-        return EnumDirection.NORTH;
+        return Direction.NORTH;
+    }
+
+    private enum Direction {
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
     }
 
 }
