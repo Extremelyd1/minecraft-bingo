@@ -6,6 +6,8 @@ import com.extremelyd1.game.team.Team;
 import com.extremelyd1.potion.PotionEffects;
 import com.extremelyd1.util.StringUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,6 +28,10 @@ public class DeathListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
+        final Player p = e.getEntity();
+        Location loc = p.getLocation();
+        game.getBackloc().put(p, loc);
+
         for (int i = 0; i < e.getDrops().size(); i++) {
             ItemStack itemStack = e.getDrops().get(i);
             if (itemStack.getItemMeta() != null
@@ -64,6 +70,10 @@ public class DeathListener implements Listener {
             );
             player.sendMessage(
                     Game.PREFIX + "You have been given a new bingo card"
+            );
+
+            player.sendMessage(
+                    ChatColor.RED+"Use the " + ChatColor.GOLD + "/back " + ChatColor.RED +" command to return to your death point."
             );
         }
     }
