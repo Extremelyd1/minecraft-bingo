@@ -131,6 +131,11 @@ public class Game {
      */
     private final ChatChannelController chatChannelController;
 
+    /**
+     * Death locations of the players
+     */
+    private HashMap<Player, Location> backloc = new HashMap<>();
+
     public Game(Bingo bingo) throws IllegalArgumentException {
         Game.logger = bingo.getLogger();
 
@@ -205,6 +210,7 @@ public class Game {
             put("channel", new ChannelCommand(game));
             put("teamchat", new TeamChatCommand(game));
             put("join", new JoinCommand(game));
+            put("back", new BackCommand(game));
 
             if (config.isPregenerateWorlds()) {
                 put("generate", new GenerateCommand(game));
@@ -626,6 +632,10 @@ public class Game {
 
     public static Logger getLogger() {
         return logger;
+    }
+
+    public HashMap<Player, Location> getBackloc() {
+        return backloc;
     }
 
     public enum State {
