@@ -182,7 +182,7 @@ public class WorldManager {
 
         for (StructureGenerator<?> structureGenerator : structureStartMap.keySet()) {
             // Check name of structure generator
-            if (structureGenerator.i().equals(structureName)) {
+            if (structureGenerator.g().equals(structureName)) {
                 structureStart = structureStartMap.get(structureGenerator);
                 break;
             }
