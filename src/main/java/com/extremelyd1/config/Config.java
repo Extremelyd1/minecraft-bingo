@@ -103,6 +103,11 @@ public class Config {
      */
     private final int pregenerationChunksPerCycle;
 
+    /**
+     * The percentage of players needed to sleep to make it day or skip the storm
+     */
+    private final int sleepPercentage;
+
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
         
@@ -158,6 +163,8 @@ public class Config {
         pregenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
 
         pregenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
+
+        sleepPercentage = config.getInt("sleep-percentage");
     }
 
     /**
@@ -277,5 +284,9 @@ public class Config {
 
     public int getPregenerationChunksPerCycle() {
         return pregenerationChunksPerCycle;
+    }
+
+    public int getSleepPercentage() {
+        return sleepPercentage;
     }
 }

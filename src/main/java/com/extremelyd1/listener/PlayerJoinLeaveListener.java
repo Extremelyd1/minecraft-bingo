@@ -71,6 +71,7 @@ public class PlayerJoinLeaveListener implements Listener {
         Player player = e.getPlayer();
 
         if (game.getState().equals(Game.State.PRE_GAME)) {
+            player.getWorld().setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, game.getConfig().getSleepPercentage());
             player.getInventory().clear();
             player.setGameMode(GameMode.SURVIVAL);
             player.setHealth(20D);
