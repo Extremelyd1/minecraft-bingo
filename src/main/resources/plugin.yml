@@ -1,8 +1,8 @@
 name: MinecraftBingo
-version: 1.5.0
+version: 1.6.0
 main: com.extremelyd1.main.Bingo
 author: Extremelyd1
-api-version: 1.16
+api-version: 1.17
 
 commands:
   team:

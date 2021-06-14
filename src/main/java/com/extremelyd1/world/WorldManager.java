@@ -2,12 +2,12 @@ package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
-import net.minecraft.server.v1_16_R3.Chunk;
-import net.minecraft.server.v1_16_R3.StructureBoundingBox;
-import net.minecraft.server.v1_16_R3.StructureGenerator;
-import net.minecraft.server.v1_16_R3.StructureStart;
+import net.minecraft.world.level.chunk.Chunk;
+import net.minecraft.world.level.levelgen.feature.StructureGenerator;
+import net.minecraft.world.level.levelgen.structure.StructureBoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_17_R1.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;
@@ -171,7 +171,7 @@ public class WorldManager {
 
         // Get the structure start map from the NMS Chunk
         // Suppress warnings are again needed due to generic cast and type erasure
-        Map<StructureGenerator<?>, StructureStart<?>> structureStartMap = chunk.h();
+        Map<StructureGenerator<?>, StructureStart<?>> structureStartMap = chunk.g();
 
         if (structureStartMap == null) {
             Game.getLogger().warning("Structure start map is null");
@@ -182,7 +182,7 @@ public class WorldManager {
 
         for (StructureGenerator<?> structureGenerator : structureStartMap.keySet()) {
             // Check name of structure generator
-            if (structureGenerator.i().equals(structureName)) {
+            if (structureGenerator.g().equals(structureName)) {
                 structureStart = structureStartMap.get(structureGenerator);
                 break;
             }
@@ -199,12 +199,12 @@ public class WorldManager {
 
         // Increase size of border if structure does not fit
         // c() is size in X direction
-        if (boundingBox.d() > size) {
-            size = boundingBox.d();
+        if (boundingBox.c() > size) {
+            size = boundingBox.c();
         }
         // e() is size in Z direction
-        if (boundingBox.f() > size) {
-            size = boundingBox.f();
+        if (boundingBox.e() > size) {
+            size = boundingBox.e();
         }
 
         // Make sure size is divisible by 2
@@ -213,11 +213,15 @@ public class WorldManager {
         }
 
         // Calculate mins and maxes based on bounding box and border size
-        int centerMinX = boundingBox.d - size / 2;
-        int centerMinZ = boundingBox.f - size / 2;
+        // j() is the getter for the maximum X
+        int centerMinX = boundingBox.j() - size / 2;
+        // l() is the getter for the maximum Z
+        int centerMinZ = boundingBox.l() - size / 2;
 
-        int centerMaxX = boundingBox.a + size / 2;
-        int centerMaxZ = boundingBox.c + size / 2;
+        // g() is the getter for the minimum X
+        int centerMaxX = boundingBox.g() + size / 2;
+        // i() is the getter for the minimum Z
+        int centerMaxZ = boundingBox.i() + size / 2;
 
         // Uncomment below to center world border on structure
 //        int centerX = centerMinX + (centerMaxX - centerMinX) / 2;
