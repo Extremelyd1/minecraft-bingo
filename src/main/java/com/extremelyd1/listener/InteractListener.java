@@ -2,6 +2,7 @@ package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.gui.IGui;
 import com.extremelyd1.util.InventoryUtil;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -160,6 +161,13 @@ public class InteractListener implements Listener {
         }
 
         Player player = (Player) e.getWhoClicked();
+
+        if (e.getInventory().getHolder() instanceof IGui) {
+            e.setCancelled(true);
+            IGui gui = (IGui) e.getInventory().getHolder();
+            gui.onGUIClick(player, e.getRawSlot(), e.getCurrentItem());
+            return;
+        }
 
         if (game.getState().equals(Game.State.POST_GAME)) {
             e.setCancelled(true);

@@ -83,3 +83,11 @@ commands:
     aliases: [worlds, gen]
     description: Pre-generate worlds
     usage: /<command> stop | <start> <numWorlds>
+
+  tpt:
+    description: Teleport to a member of your team
+    usage: /<command>
+
+  back:
+    description: Teleport to your last death location
+    usage: /<command>

@@ -205,6 +205,7 @@ public class Game {
             put("channel", new ChannelCommand(game));
             put("teamchat", new TeamChatCommand(game));
             put("join", new JoinCommand(game));
+            put("tpt", new TeamTeleportCommand(game));
 
             if (config.isPregenerateWorlds()) {
                 put("generate", new GenerateCommand(game));
