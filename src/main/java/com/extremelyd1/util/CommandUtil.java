@@ -12,24 +12,29 @@ public class CommandUtil {
      * @return True if the sender is a player and has OP rights; False otherwise
      */
     public static boolean checkCommandSender(CommandSender sender) {
-        return checkCommandSender(sender, true);
+        return checkCommandSender(sender, false, true);
     }
 
     /**
      * Checks whether the command sender has permission to execute a command
      * @param sender The sender to check
-     * @param noConsole Whether to allow console to execute
-     * @return True if the sender has OP rights, or is the console and console is allowed; False otherwise
+     * @param allowConsole Whether to allow console to execute
+     * @param needsOp Whether the player needs to be OP to execute
+     * @return True if the sender is allowed to execute the given command
      */
-    public static boolean checkCommandSender(CommandSender sender, boolean noConsole) {
+    public static boolean checkCommandSender(CommandSender sender, boolean allowConsole, boolean needsOp) {
         if (!(sender instanceof Player)) {
-            if (noConsole) {
+            if (!allowConsole) {
                 sender.sendMessage("This command can only be executed as a player");
 
                 return false;
             } else {
                 return true;
             }
+        }
+
+        if (!needsOp) {
+            return true;
         }
 
         Player player = (Player) sender;

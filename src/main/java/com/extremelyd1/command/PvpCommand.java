@@ -21,7 +21,7 @@ public class PvpCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
 

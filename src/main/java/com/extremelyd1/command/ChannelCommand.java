@@ -27,7 +27,7 @@ public class ChannelCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, true)) {
+        if (!CommandUtil.checkCommandSender(sender, false, false)) {
             return true;
         }
 

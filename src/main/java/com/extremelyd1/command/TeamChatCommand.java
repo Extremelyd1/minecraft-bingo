@@ -22,7 +22,7 @@ public class TeamChatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!CommandUtil.checkCommandSender(sender, true)) {
+        if (!CommandUtil.checkCommandSender(sender, false, false)) {
             return true;
         }
 

@@ -2,6 +2,7 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.util.CommandUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -22,8 +23,7 @@ public class CoordinatesCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Cannot execute this command as console");
+        if (!CommandUtil.checkCommandSender(sender, false, false)) {
             return true;
         }
 

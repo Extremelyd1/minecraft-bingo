@@ -4,6 +4,7 @@ import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.StringUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,8 +30,7 @@ public class BingoCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Cannot execute this command as console");
+        if (!CommandUtil.checkCommandSender(sender, false, false)) {
             return true;
         }
 
