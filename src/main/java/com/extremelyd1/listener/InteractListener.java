@@ -161,7 +161,7 @@ public class InteractListener implements Listener {
 
         Player player = (Player) e.getWhoClicked();
 
-        if (game.getState().equals(Game.State.POST_GAME)) {
+        if (!game.getState().equals(Game.State.IN_GAME)) {
             e.setCancelled(true);
             return;
         }
