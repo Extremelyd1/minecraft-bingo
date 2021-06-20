@@ -40,7 +40,7 @@ public class PlayerJoinLeaveListener implements Listener {
             return;
         }
 
-        if (game.getConfig().isPregenerateWorlds()) {
+        if (game.getConfig().isPreGenerateWorlds()) {
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
                     "Game is currently pre-generating worlds"

@@ -74,7 +74,7 @@ public class WorldManager {
 
         // If the server is in pregeneration mode, create manager
         // and stop further initialization
-        if (this.game.getConfig().isPregenerateWorlds()) {
+        if (this.game.getConfig().isPreGenerateWorlds()) {
             this.pregenerationManager = new PregenerationManager(this.game);
             return;
         }

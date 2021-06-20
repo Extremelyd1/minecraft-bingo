@@ -57,8 +57,8 @@ public class PregenerationManager {
 
         this.chunkGenerationThread = new ChunkGenerationThread(
                 this,
-                game.getConfig().getPregenerationTicksPerCycle(),
-                game.getConfig().getPregenerationChunksPerCycle()
+                game.getConfig().getPreGenerationTicksPerCycle(),
+                game.getConfig().getPreGenerationChunksPerCycle()
         );
 
         this.worldZippingThread = new WorldZippingThread();

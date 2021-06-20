@@ -1,5 +1,6 @@
 package com.extremelyd1.world.generation;
 
+import io.papermc.lib.PaperLib;
 import org.bukkit.World;
 
 public class PendingChunk {
@@ -36,11 +37,18 @@ public class PendingChunk {
      * Generates this chunk
      */
     public void generate() {
-        if (!world.isChunkGenerated(x, z)) {
-            world.getChunkAt(x, z);
+        if (world.isChunkGenerated(x, z)) {
+            isGenerated = true;
+            return;
         }
 
-        isGenerated = true;
+        // Get the chunk asynchronously via PaperLib to ensure that it also works with Spigot
+        // And after it is generated, unload the chunk and mark it as generated
+        PaperLib.getChunkAtAsync(world, x, z, true, true).thenAccept(chunk -> {
+            chunk.unload(true);
+
+            isGenerated = true;
+        });
     }
 
     public boolean isGenerated() {

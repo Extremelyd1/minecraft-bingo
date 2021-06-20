@@ -206,7 +206,7 @@ public class Game {
             put("teamchat", new TeamChatCommand(game));
             put("join", new JoinCommand(game));
 
-            if (config.isPregenerateWorlds()) {
+            if (config.isPreGenerateWorlds()) {
                 put("generate", new GenerateCommand(game));
             } else {
                 put("generate", new DisabledCommand());

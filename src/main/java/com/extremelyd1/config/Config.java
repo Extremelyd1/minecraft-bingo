@@ -91,17 +91,17 @@ public class Config {
     private long timerLength;
 
     /**
-     * Whether to pregenerate the worlds within the border in advance
+     * Whether to pre-generate the worlds within the border in advance
      */
-    private final boolean pregenerateWorlds;
+    private final boolean preGenerateWorlds;
     /**
      * The number of ticks in between generation cycles
      */
-    private final int pregenerationTicksPerCycle;
+    private final int preGenerationTicksPerCycle;
     /**
      * The number of chunks to generate per cycle
      */
-    private final int pregenerationChunksPerCycle;
+    private final int preGenerationChunksPerCycle;
 
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
@@ -153,11 +153,11 @@ public class Config {
         timerLength = config.getInt("timer.length");
 
         // Only allow pregeneration of worlds if there is the border is enabled
-        pregenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
+        preGenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
 
-        pregenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
+        preGenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
 
-        pregenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
+        preGenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
     }
 
     /**
@@ -267,15 +267,15 @@ public class Config {
         this.timerLength = timerLength;
     }
 
-    public boolean isPregenerateWorlds() {
-        return pregenerateWorlds;
+    public boolean isPreGenerateWorlds() {
+        return preGenerateWorlds;
     }
 
-    public int getPregenerationTicksPerCycle() {
-        return pregenerationTicksPerCycle;
+    public int getPreGenerationTicksPerCycle() {
+        return preGenerationTicksPerCycle;
     }
 
-    public int getPregenerationChunksPerCycle() {
-        return pregenerationChunksPerCycle;
+    public int getPreGenerationChunksPerCycle() {
+        return preGenerationChunksPerCycle;
     }
 }
