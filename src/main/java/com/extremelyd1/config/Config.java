@@ -103,6 +103,11 @@ public class Config {
      */
     private final int preGenerationChunksPerCycle;
 
+    /**
+     * The radius of the pregame border
+     */
+    private final int preGameBorderRadius;
+
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
         
@@ -158,6 +163,8 @@ public class Config {
         preGenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
 
         preGenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
+
+        preGameBorderRadius = config.getInt("pregame.border-radius");
     }
 
     /**
@@ -277,5 +284,9 @@ public class Config {
 
     public int getPreGenerationChunksPerCycle() {
         return preGenerationChunksPerCycle;
+    }
+
+    public int getPreGameBorderRadius() {
+        return preGameBorderRadius;
     }
 }
