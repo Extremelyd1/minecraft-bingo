@@ -8,6 +8,7 @@ public class Bingo extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        System.setProperty("java.awt.headless", "true");
         getLogger().info("Creating Game instance");
         try {
             new Game(this);
