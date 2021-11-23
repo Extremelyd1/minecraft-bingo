@@ -16,44 +16,44 @@ public class TeamFactory {
      * The names of the teams
      */
     private final String[] names = {
-            "Red",
-            "Blue",
-            "Green",
-            "Yellow",
-            "Pink",
             "Aqua",
-            "Orange",
-            "Gray"
+            "Black",
+            "Blue",
+            "Dark_aqua",
+            "Dark_blue",
+            "Dark_gray",
+            "Dark_green",
+            "Dark_purple",
+            "Dark_red",
+            "Gold",
+            "Gray",
+            "Green",
+            "Light_purple",
+            "Red",
+            "White",
+            "Yellow",
     };
 
     /**
      * The colors of the teams
      */
     private final ChatColor[] colors = {
-            // Red
-            ChatColor.RED,
-//            ChatColor.of(new Color(255, 0, 0)),
-            // Blue
-            ChatColor.BLUE,
-//            ChatColor.of(new Color(0, 0, 255)),
-            // Green
-            ChatColor.GREEN,
-//            ChatColor.of(new Color(0, 255, 0)),
-            // Yellow
-            ChatColor.YELLOW,
-//            ChatColor.of(new Color(255, 255, 0)),
-            // Pink/Magenta
-            ChatColor.LIGHT_PURPLE,
-//            ChatColor.of(new Color(240, 40, 240)),
-            // Aqua
             ChatColor.AQUA,
-//            ChatColor.of(new Color(0, 255, 255)),
-            // Orange
+            ChatColor.BLACK,
+            ChatColor.BLUE,
+            ChatColor.DARK_AQUA,
+            ChatColor.DARK_BLUE,
+            ChatColor.DARK_GRAY,
+            ChatColor.DARK_GREEN,
+            ChatColor.DARK_PURPLE,
+            ChatColor.DARK_RED,
             ChatColor.GOLD,
-//            ChatColor.of(new Color(255, 128, 0)),
-            // Gray
-            ChatColor.GRAY
-//            ChatColor.of(new Color(128, 128, 128)),
+            ChatColor.GRAY,
+            ChatColor.GREEN,
+            ChatColor.LIGHT_PURPLE,
+            ChatColor.RED,
+            ChatColor.WHITE,
+            ChatColor.YELLOW,
     };
 
     public TeamFactory() {

@@ -72,7 +72,7 @@ public class TeamCommand implements CommandExecutor {
             if (numTeams >= TeamManager.MAX_TEAMS) {
                 sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
-                                + ChatColor.WHITE + "Cannot create more than 8 teams"
+                                + ChatColor.WHITE + "Cannot create more than 16 teams"
                 );
 
                 return true;

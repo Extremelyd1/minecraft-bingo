@@ -16,7 +16,7 @@ public class TeamManager {
     /**
      * The maximum number of teams
      */
-    public static final int MAX_TEAMS = 8;
+    public static final int MAX_TEAMS = 16;
 
     /**
      * The game instance
