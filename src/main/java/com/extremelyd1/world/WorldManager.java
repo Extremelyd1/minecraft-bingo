@@ -2,12 +2,12 @@ package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
-import net.minecraft.world.level.chunk.Chunk;
-import net.minecraft.world.level.levelgen.feature.StructureGenerator;
-import net.minecraft.world.level.levelgen.structure.StructureBoundingBox;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_18_R1.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;
@@ -162,7 +162,7 @@ public class WorldManager {
         CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
 
         // Get the chunk from the reference
-        Chunk chunk = craftChunk.getHandle();
+        LevelChunk chunk = craftChunk.getHandle();
 
         if (chunk == null) {
             Game.getLogger().warning("Chunk in weak reference is null");
@@ -171,7 +171,7 @@ public class WorldManager {
 
         // Get the structure start map from the NMS Chunk
         // Suppress warnings are again needed due to generic cast and type erasure
-        Map<StructureGenerator<?>, StructureStart<?>> structureStartMap = chunk.g();
+        Map<StructureFeature<?>, StructureStart<?>> structureStartMap = chunk.getAllStarts();
 
         if (structureStartMap == null) {
             Game.getLogger().warning("Structure start map is null");
@@ -180,10 +180,10 @@ public class WorldManager {
 
         StructureStart<?> structureStart = null;
 
-        for (StructureGenerator<?> structureGenerator : structureStartMap.keySet()) {
-            // Check name of structure generator
-            if (structureGenerator.g().equals(structureName)) {
-                structureStart = structureStartMap.get(structureGenerator);
+        for (StructureFeature<?> structureFeature : structureStartMap.keySet()) {
+            // Check name of structure feature
+            if (structureFeature.getFeatureName().equals(structureName)) {
+                structureStart = structureStartMap.get(structureFeature);
                 break;
             }
         }
@@ -194,17 +194,15 @@ public class WorldManager {
             return;
         }
 
-        // Finally get the bounding box of the structure
-        StructureBoundingBox boundingBox = structureStart.c();
+        // Finally, get the bounding box of the structure
+        BoundingBox boundingBox = structureStart.getBoundingBox();
 
         // Increase size of border if structure does not fit
-        // c() is size in X direction
-        if (boundingBox.c() > size) {
-            size = boundingBox.c();
+        if (boundingBox.getXSpan() > size) {
+            size = boundingBox.getXSpan();
         }
-        // e() is size in Z direction
-        if (boundingBox.e() > size) {
-            size = boundingBox.e();
+        if (boundingBox.getZSpan() > size) {
+            size = boundingBox.getZSpan();
         }
 
         // Make sure size is divisible by 2
@@ -213,15 +211,11 @@ public class WorldManager {
         }
 
         // Calculate mins and maxes based on bounding box and border size
-        // j() is the getter for the maximum X
-        int centerMinX = boundingBox.j() - size / 2;
-        // l() is the getter for the maximum Z
-        int centerMinZ = boundingBox.l() - size / 2;
+        int centerMinX = boundingBox.maxX() - size / 2;
+        int centerMinZ = boundingBox.maxZ() - size / 2;
 
-        // g() is the getter for the minimum X
-        int centerMaxX = boundingBox.g() + size / 2;
-        // i() is the getter for the minimum Z
-        int centerMaxZ = boundingBox.i() + size / 2;
+        int centerMaxX = boundingBox.minX() + size / 2;
+        int centerMaxZ = boundingBox.minZ() + size / 2;
 
         // Uncomment below to center world border on structure
 //        int centerX = centerMinX + (centerMaxX - centerMinX) / 2;

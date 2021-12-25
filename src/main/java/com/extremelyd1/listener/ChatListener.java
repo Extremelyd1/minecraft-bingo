@@ -3,14 +3,14 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.chat.ChatChannelController;
 import com.extremelyd1.game.team.Team;
-import net.minecraft.EnumChatFormat;
+import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.network.chat.ChatComponentText;
-import net.minecraft.network.chat.ChatMessage;
+import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.network.chat.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_17_R1.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -61,25 +61,27 @@ public class ChatListener implements Listener {
         // Get the NMS advancement
         Advancement advancement = ((CraftAdvancement) e.getAdvancement()).getHandle();
 
-        // c() = the AdvancementDisplay corresponding to this advancement
-        // c().i() = A boolean in AdvancementDisplay (probably something to do with whether to display it
-        if (advancement.c() != null && advancement.c().i()) {
-            // Get the type of advancement from the AdvancementDisplay
-            Player player = e.getPlayer();
-            // Get the team for the color
-            Team team = game.getTeamManager().getTeamByPlayer(player);
-            // Create NMS chat message with translation key
-            ChatMessage message = new ChatMessage(
-                    "chat.type.advancement." + advancement.c().e().a(),
-                    // Color the player name with the color of their team
-                    new ChatComponentText(player.getName()).a(EnumChatFormat.valueOf(team.getColor().name())),
-                    // Get the display component of the Advancement
-                    advancement.j()
-            );
-            // Send the message to all players
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                ((CraftPlayer) onlinePlayer).getHandle().sendMessage(null, new ChatMessage[] { message });
-            }
+        DisplayInfo displayInfo = advancement.getDisplay();
+        // Skip if there is no display info or this advancement shouldn't be announced to chat
+        if (displayInfo == null || !displayInfo.shouldAnnounceChat()) {
+            return;
+        }
+
+        Player player = e.getPlayer();
+        // Get the team for the color
+        Team team = game.getTeamManager().getTeamByPlayer(player);
+        // Create NMS chat component with translation key
+        TranslatableComponent translatableComponent = new TranslatableComponent(
+                "chat.type.advancement." + advancement.getId().getPath(),
+                // Color the player name with the color of their team
+                new TextComponent(player.getName()).setStyle(
+                        Style.EMPTY.withColor(ChatFormatting.valueOf(team.getColor().name()))
+                ),
+                displayInfo.getTitle()
+        );
+        // Send the message to all players
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            ((CraftPlayer) onlinePlayer).getHandle().sendMessage(null, new Component[] {translatableComponent});
         }
     }
 

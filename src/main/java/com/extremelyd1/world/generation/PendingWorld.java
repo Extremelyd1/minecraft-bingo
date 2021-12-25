@@ -1,7 +1,7 @@
 package com.extremelyd1.world.generation;
 
 import com.extremelyd1.game.Game;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

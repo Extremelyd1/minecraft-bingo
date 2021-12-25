@@ -1,14 +1,14 @@
 package com.extremelyd1.listener;
 
 import com.extremelyd1.game.Game;
+import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityAreaEffectCloud;
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Beehive;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -179,15 +179,15 @@ public class ItemListener implements Listener {
                         return false;
                     }
 
-                    // We only need EntityAreaEffectCloud entities
-                    if (!(nmsEntity instanceof EntityAreaEffectCloud)) {
+                    // We only need AreaEffectCloud entities
+                    if (!(nmsEntity instanceof AreaEffectCloud)) {
                         return false;
                     }
 
                     // Cast it and do the same checks as the ItemGlassBottle class
-                    EntityAreaEffectCloud effectCloud = (EntityAreaEffectCloud) nmsEntity;
+                    AreaEffectCloud effectCloud = (AreaEffectCloud) nmsEntity;
 
-                    return effectCloud.isAlive() && effectCloud.getSource() instanceof EntityEnderDragon;
+                    return effectCloud.isAlive() && effectCloud.getOwner() instanceof EnderDragon;
                 }
         );
 
