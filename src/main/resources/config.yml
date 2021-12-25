@@ -27,3 +27,5 @@ pregeneration-mode:
   enable: False
   ticks-per-cycle: 100
   chunks-per-cycle: 200
+pregame:
+  border-radius: 20
