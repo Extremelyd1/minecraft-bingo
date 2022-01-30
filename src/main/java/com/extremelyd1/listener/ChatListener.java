@@ -58,6 +58,7 @@ public class ChatListener implements Listener {
 
     @EventHandler
     public void onAdvancementDone(PlayerAdvancementDoneEvent e) {
+        // This code is based on AdvancementDataPlayer in CraftBukkit net/minecraft/server/AdvancementDataPlayer.java
         // Get the NMS advancement
         Advancement advancement = ((CraftAdvancement) e.getAdvancement()).getHandle();
 
@@ -72,12 +73,12 @@ public class ChatListener implements Listener {
         Team team = game.getTeamManager().getTeamByPlayer(player);
         // Create NMS chat component with translation key
         TranslatableComponent translatableComponent = new TranslatableComponent(
-                "chat.type.advancement." + advancement.getId().getPath(),
+                "chat.type.advancement." + displayInfo.getFrame().getName(),
                 // Color the player name with the color of their team
                 new TextComponent(player.getName()).setStyle(
                         Style.EMPTY.withColor(ChatFormatting.valueOf(team.getColor().name()))
                 ),
-                displayInfo.getTitle()
+                advancement.getChatComponent()
         );
         // Send the message to all players
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
