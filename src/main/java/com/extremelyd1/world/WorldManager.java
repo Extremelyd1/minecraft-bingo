@@ -3,11 +3,11 @@ package com.extremelyd1.world;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_18_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;
@@ -80,7 +80,7 @@ public class WorldManager {
         }
 
         if (game.getConfig().isBorderEnabled()) {
-            Game.getLogger().info("Settings overworld world border...");
+            Game.getLogger().info("Setting overworld world border...");
             setWorldBorder(world);
             Game.getLogger().info("Overworld border set");
 
@@ -92,7 +92,7 @@ public class WorldManager {
             world.setSpawnLocation(spawnLocation);
 
             if (nether != null) {
-                Game.getLogger().info("Settings nether world border...");
+                Game.getLogger().info("Setting nether world border...");
                 setWorldBorder(nether);
                 Game.getLogger().info("Nether border set");
             }
@@ -110,7 +110,7 @@ public class WorldManager {
             setWorldBorder(
                     world,
                     StructureType.STRONGHOLD,
-                    "stronghold",
+                    net.minecraft.world.level.levelgen.structure.StructureType.STRONGHOLD,
                     3000,
                     this.game.getConfig().getOverworldBorderSize()
             );
@@ -118,7 +118,7 @@ public class WorldManager {
             setWorldBorder(
                     world,
                     StructureType.NETHER_FORTRESS,
-                    "fortress",
+                    net.minecraft.world.level.levelgen.structure.StructureType.FORTRESS,
                     3000,
                     this.game.getConfig().getNetherBorderSize()
             );
@@ -129,29 +129,29 @@ public class WorldManager {
      * Sets the world border with given size in the given world ensuring that the closest structure given by
      * structureType and structureName are within this border
      * @param world The world in which to set the border
-     * @param structureType The type of structure that needs to be encompassed in this border
-     * @param structureName The internal name of the structure
+     * @param bukkitStructureType The bukkit type of structure that needs to be encompassed in this border
+     * @param nmsStructureType The internal NMS type of the structure
      * @param searchRadius The radius for which to search for the structure
      * @param size The size of the border
      */
-    private void setWorldBorder(
+    private <S extends Structure> void setWorldBorder(
             World world,
-            StructureType structureType,
-            String structureName,
+            StructureType bukkitStructureType,
+            net.minecraft.world.level.levelgen.structure.StructureType<S> nmsStructureType,
             int searchRadius,
             int size
     ) {
-        Game.getLogger().info("Locating structure " + structureName + " to determine border center");
+        Game.getLogger().info("Locating structure " + bukkitStructureType + " to determine border center");
         // Find the closest structure
         Location structureLocation = world.locateNearestStructure(
                 new Location(world, 0, 0, 0),
-                structureType,
+                bukkitStructureType,
                 searchRadius,
                 false
         );
 
         if (structureLocation == null) {
-            Game.getLogger().warning("Could not find structure " + structureName
+            Game.getLogger().warning("Could not find structure " + bukkitStructureType
                     + " within " + searchRadius
                     + " blocks in world type " + world.getEnvironment()
             );
@@ -171,26 +171,26 @@ public class WorldManager {
 
         // Get the structure start map from the NMS Chunk
         // Suppress warnings are again needed due to generic cast and type erasure
-        Map<StructureFeature<?>, StructureStart<?>> structureStartMap = chunk.getAllStarts();
+        Map<Structure, StructureStart> structureStartMap = chunk.getAllStarts();
 
         if (structureStartMap == null) {
             Game.getLogger().warning("Structure start map is null");
             return;
         }
 
-        StructureStart<?> structureStart = null;
+        StructureStart structureStart = null;
 
-        for (StructureFeature<?> structureFeature : structureStartMap.keySet()) {
-            // Check name of structure feature
-            if (structureFeature.getFeatureName().equals(structureName)) {
-                structureStart = structureStartMap.get(structureFeature);
+        for (Structure structure : structureStartMap.keySet()) {
+            // Check type of structure feature
+            if (structure.type().equals(nmsStructureType)) {
+                structureStart = structureStartMap.get(structure);
                 break;
             }
         }
 
         // Check if the structure was actually found
         if (structureStart == null) {
-            Game.getLogger().warning("Structure start map does not contain structure with name: " + structureName);
+            Game.getLogger().warning("Structure start map does not contain structure with type: " + bukkitStructureType);
             return;
         }
 

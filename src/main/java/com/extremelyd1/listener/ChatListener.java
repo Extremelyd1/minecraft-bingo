@@ -7,10 +7,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_18_R1.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -72,17 +74,16 @@ public class ChatListener implements Listener {
         // Get the team for the color
         Team team = game.getTeamManager().getTeamByPlayer(player);
         // Create NMS chat component with translation key
-        TranslatableComponent translatableComponent = new TranslatableComponent(
+        MutableComponent mutableComponent = Component.translatable(
                 "chat.type.advancement." + displayInfo.getFrame().getName(),
-                // Color the player name with the color of their team
-                new TextComponent(player.getName()).setStyle(
+                Component.literal(player.getDisplayName()).setStyle(
                         Style.EMPTY.withColor(ChatFormatting.valueOf(team.getColor().name()))
                 ),
                 advancement.getChatComponent()
         );
         // Send the message to all players
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            ((CraftPlayer) onlinePlayer).getHandle().sendMessage(null, new Component[] {translatableComponent});
+            ((CraftPlayer) onlinePlayer).getHandle().sendSystemMessage(mutableComponent);
         }
     }
 
