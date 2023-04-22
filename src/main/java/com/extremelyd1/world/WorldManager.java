@@ -7,7 +7,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
+import org.bukkit.generator.structure.StructureType;
+import org.bukkit.craftbukkit.v1_19_R2.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;
@@ -117,7 +118,7 @@ public class WorldManager {
         } else if (world.getEnvironment().equals(World.Environment.NETHER)) {
             setWorldBorder(
                     world,
-                    StructureType.NETHER_FORTRESS,
+                    StructureType.FORTRESS,
                     net.minecraft.world.level.levelgen.structure.StructureType.FORTRESS,
                     3000,
                     this.game.getConfig().getNetherBorderSize()
@@ -148,7 +149,7 @@ public class WorldManager {
                 bukkitStructureType,
                 searchRadius,
                 false
-        );
+        ).getLocation();
 
         if (structureLocation == null) {
             Game.getLogger().warning("Could not find structure " + bukkitStructureType
