@@ -2,12 +2,13 @@ package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;
@@ -161,8 +162,9 @@ public class WorldManager {
         // Get the chunk at the structure location and cast to CraftChunk
         CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
 
-        // Get the chunk from the reference
-        LevelChunk chunk = craftChunk.getHandle();
+        // Get the handle for the chunk by passing the chunk status for "structure starts", which seems to be the
+        // access we need for our purposes
+        ChunkAccess chunk = craftChunk.getHandle(ChunkStatus.STRUCTURE_STARTS);
 
         if (chunk == null) {
             Game.getLogger().warning("Chunk in weak reference is null");
