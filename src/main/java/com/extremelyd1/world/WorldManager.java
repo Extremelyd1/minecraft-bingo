@@ -120,7 +120,7 @@ public class WorldManager {
         } else if (world.getEnvironment().equals(World.Environment.NETHER)) {
             setWorldBorder(
                     world,
-                    StructureType.NETHER_FORTRESS,
+                    StructureType.FORTRESS,
                     net.minecraft.world.level.levelgen.structure.StructureType.FORTRESS,
                     3000,
                     this.game.getConfig().getNetherBorderSize()
@@ -169,7 +169,7 @@ public class WorldManager {
         ChunkAccess chunk = craftChunk.getHandle(ChunkStatus.STRUCTURE_STARTS);
 
         if (chunk == null) {
-            Game.getLogger().warning("Chunk in weak reference is null");
+            Game.getLogger().warning("Chunk access from craft chunk is null");
             return;
         }
 
