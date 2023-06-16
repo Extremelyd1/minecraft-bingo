@@ -9,6 +9,8 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.util.StructureSearchResult;
+import org.bukkit.generator.structure.StructureType;
 
 import java.util.Map;
 import java.util.Random;
@@ -144,14 +146,14 @@ public class WorldManager {
     ) {
         Game.getLogger().info("Locating structure " + bukkitStructureType + " to determine border center");
         // Find the closest structure
-        Location structureLocation = world.locateNearestStructure(
+        StructureSearchResult structureSearchResult = world.locateNearestStructure(
                 new Location(world, 0, 0, 0),
                 bukkitStructureType,
                 searchRadius,
                 false
         );
 
-        if (structureLocation == null) {
+        if (structureSearchResult == null) {
             Game.getLogger().warning("Could not find structure " + bukkitStructureType
                     + " within " + searchRadius
                     + " blocks in world type " + world.getEnvironment()
@@ -160,7 +162,7 @@ public class WorldManager {
         }
 
         // Get the chunk at the structure location and cast to CraftChunk
-        CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
+        CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureSearchResult.getLocation());
 
         // Get the handle for the chunk by passing the chunk status for "structure starts", which seems to be the
         // access we need for our purposes
