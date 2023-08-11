@@ -2,6 +2,9 @@ package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
+
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -163,7 +166,7 @@ public class WorldManager {
         CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
 
         // Get the chunk from the reference
-        LevelChunk chunk = craftChunk.getHandle();
+        ChunkAccess chunk = craftChunk.getHandle(ChunkStatus.STRUCTURE_STARTS);
 
         if (chunk == null) {
             Game.getLogger().warning("Chunk in weak reference is null");
