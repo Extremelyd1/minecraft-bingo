@@ -8,7 +8,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
 import org.bukkit.generator.structure.StructureType;
-import org.bukkit.craftbukkit.v1_19_R2.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
 
 import java.util.Map;
 import java.util.Random;
