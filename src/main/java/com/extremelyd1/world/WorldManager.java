@@ -2,12 +2,17 @@ package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PregenerationManager;
+
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
+import org.bukkit.generator.structure.StructureType;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.util.StructureSearchResult;
 
 import java.util.Map;
 import java.util.Random;
@@ -117,7 +122,7 @@ public class WorldManager {
         } else if (world.getEnvironment().equals(World.Environment.NETHER)) {
             setWorldBorder(
                     world,
-                    StructureType.NETHER_FORTRESS,
+                    StructureType.FORTRESS,
                     net.minecraft.world.level.levelgen.structure.StructureType.FORTRESS,
                     3000,
                     this.game.getConfig().getNetherBorderSize()
@@ -143,14 +148,14 @@ public class WorldManager {
     ) {
         Game.getLogger().info("Locating structure " + bukkitStructureType + " to determine border center");
         // Find the closest structure
-        Location structureLocation = world.locateNearestStructure(
+        StructureSearchResult structureSearchResult = world.locateNearestStructure(
                 new Location(world, 0, 0, 0),
                 bukkitStructureType,
                 searchRadius,
                 false
         );
 
-        if (structureLocation == null) {
+        if (structureSearchResult == null) {
             Game.getLogger().warning("Could not find structure " + bukkitStructureType
                     + " within " + searchRadius
                     + " blocks in world type " + world.getEnvironment()
@@ -159,13 +164,13 @@ public class WorldManager {
         }
 
         // Get the chunk at the structure location and cast to CraftChunk
-        CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
+        CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureSearchResult.getLocation());
 
         // Get the chunk from the reference
-        LevelChunk chunk = craftChunk.getHandle();
+        ChunkAccess chunk = craftChunk.getHandle(ChunkStatus.STRUCTURE_STARTS);
 
         if (chunk == null) {
-            Game.getLogger().warning("Chunk in weak reference is null");
+            Game.getLogger().warning("Chunk access from craft chunk is null");
             return;
         }
 
