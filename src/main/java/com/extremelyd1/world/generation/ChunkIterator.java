@@ -5,12 +5,49 @@ import org.bukkit.WorldBorder;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Class that iterates over ChunkCoordinates belonging to all the chunks within a world border.
+ */
 public class ChunkIterator {
-    private final int x1, x2, z1, z2;
+    /**
+     * The minimum x coordinate of the corner chunks.
+     */
+    private final int x1;
+    /**
+     * The maximum x coordinate of the corner chunk.
+     */
+    private final int x2;
+    /**
+     * The minimum z coordinate of the corner chunk.
+     */
+    private final int z1;
+    /**
+     * The maximum z coordinate of the corner chunk.
+     */
+    private final int z2;
+
+    /**
+     * The total number of chunks that this iterator will iterate over.
+     */
     private final long total;
-    private int x, z;
+    /**
+     * The current x coordinate in the iterator.
+     */
+    private int x;
+    /**
+     * The current z coordinate in the iterator.
+     */
+    private int z;
+    /**
+     * Whether the iterator has a next item.
+     */
     private boolean hasNext = true;
 
+    /**
+     * Constructs the iterator that will iterator over all the chunks within the given world border.
+     *
+     * @param worldBorder The world border with the chunks.
+     */
     public ChunkIterator(final WorldBorder worldBorder) {
         double size = worldBorder.getSize();
 
@@ -31,10 +68,21 @@ public class ChunkIterator {
         this.z = z1;
     }
 
+    /**
+     * Whether the iterator has a next value.
+     *
+     * @return True if there is a next value, false otherwise.
+     */
     public boolean hasNext() {
         return hasNext;
     }
 
+    /**
+     * Get the next ChunkCoordinate from the iterator. Throws a NoSuchElementException if the iterator does not have
+     * a next value.
+     *
+     * @return The next ChunkCoordinate in the iterator.
+     */
     public ChunkCoordinate next() {
         if (!hasNext) {
             throw new NoSuchElementException();
@@ -49,6 +97,11 @@ public class ChunkIterator {
         return chunkCoord;
     }
 
+    /**
+     * The total number of chunks that this iterator will iterate over.
+     *
+     * @return The number of chunks.
+     */
     public long total() {
         return total;
     }

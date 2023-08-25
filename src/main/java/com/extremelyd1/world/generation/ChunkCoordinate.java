@@ -2,6 +2,12 @@ package com.extremelyd1.world.generation;
 
 import java.util.Objects;
 
+/**
+ * Record class containing the x and z coordinate of a chunk.
+ *
+ * @param x The x coordinate of the chunk.
+ * @param z The z coordinate of the chunk.
+ */
 public record ChunkCoordinate(int x, int z) implements Comparable<ChunkCoordinate> {
     @Override
     public int compareTo(final ChunkCoordinate o) {

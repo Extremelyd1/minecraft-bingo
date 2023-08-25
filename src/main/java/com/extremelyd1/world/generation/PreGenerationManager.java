@@ -14,22 +14,45 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 
+/**
+ * Manager class for pre-generation of worlds.
+ */
 public class PreGenerationManager {
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
+    /**
+     * The task scheduler instance to schedule generation tasks.
+     */
     private final TaskScheduler taskScheduler;
 
+    /**
+     * Queue containing record instances for pending generations.
+     */
     private final Queue<PendingGeneration> pendingGenerations;
 
+    /**
+     * Semaphore for thread safety in generation.
+     */
     private final Semaphore generationSemaphore;
 
+    /**
+     * Random instance for assigning world seeds.
+     */
     private final Random random;
 
+    /**
+     * Whether the task for chunk generation is currently running.
+     */
     private boolean isRunning;
 
+    /**
+     * Construct the pre-generation manager with the game instance.
+     *
+     * @param game The game instance.
+     */
     public PreGenerationManager(Game game) {
         this.game = game;
         this.taskScheduler = new TaskScheduler();
@@ -40,10 +63,10 @@ public class PreGenerationManager {
     }
 
     /**
-     * Pre-generates and zips a number of worlds determined by start and number
+     * Pre-generates and zips a number of worlds determined by start index and number of worlds to generate.
      *
-     * @param start  The number to start at
-     * @param number The total number of worlds te create
+     * @param start  The number/index to start generating at.
+     * @param number The total number of worlds to generate.
      */
     public void createWorlds(int start, int number) {
         for (int i = start; i < number + start; i++) {
@@ -76,9 +99,7 @@ public class PreGenerationManager {
     }
 
     /**
-     * Stops all current world generation and zipping
-     * Shuts down world generation immediately and finishes the
-     * last zipping task before shutting down
+     * Stops all current world generation and other tasks.
      */
     public void stop() {
         Game.getLogger().info("Stopping pre-generation...");
@@ -115,6 +136,9 @@ public class PreGenerationManager {
         Game.getLogger().info("Pre-generation stopped successfully!");
     }
 
+    /**
+     * Runs the asynchronous task of getting pending generations and eventually generating them.
+     */
     private void run() {
         isRunning = true;
 
@@ -223,6 +247,12 @@ public class PreGenerationManager {
         }
     }
 
+    /**
+     * Processes a given pending generation and its corresponding world for zipping, unloading and deletion.
+     *
+     * @param pendingGeneration The pending generation to process.
+     * @param world             The world instance for the pending generation.
+     */
     private void processGeneratedWorld(PendingGeneration pendingGeneration, World world) {
         Game.getLogger().info(String.format(
                 "World (%s) finished pre-generating, unloading world",
@@ -286,6 +316,11 @@ public class PreGenerationManager {
         generationSemaphore.release();
     }
 
+    /**
+     * Gets the folder that pre-generated worlds should be stored in.
+     *
+     * @return A file instance for the worlds folder.
+     */
     private File getWorldsFolder() {
         File dataFolder = game.getDataFolder();
         File worldsFolder = new File(dataFolder.getPath() + "/worlds/");

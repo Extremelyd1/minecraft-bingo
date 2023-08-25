@@ -12,19 +12,64 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Class that represents the chunk generation of a specific world.
+ */
 public class GenerationTask implements Runnable {
+    /**
+     * The maximum number of permits for the semaphore that controls chunk generation.
+     */
     private static final int MAX_PERMITS = 50;
 
+    /**
+     * The start time of the generation.
+     */
     private final AtomicLong startTime = new AtomicLong();
+    /**
+     * The time to keep track of updates to log progress.
+     */
     private final AtomicLong updateTime = new AtomicLong();
-    private final AtomicLong finishedChunks = new AtomicLong();
-    private final Deque<Pair<Long, AtomicLong>> updateSamples = new ConcurrentLinkedDeque<>();
-    private final World world;
-    private final Runnable completedAction;
-    private final ChunkIterator chunkIterator;
-    private final Progress progress;
-    private boolean stopped, completed;
 
+    /**
+     * The number of chunks that have finished chunks.
+     */
+    private final AtomicLong finishedChunks = new AtomicLong();
+    /**
+     * Deque that stores samples of updates to calculate the chunk generation rate.
+     */
+    private final Deque<Pair<Long, AtomicLong>> updateSamples = new ConcurrentLinkedDeque<>();
+
+    /**
+     * The world to generate chunks for.
+     */
+    private final World world;
+    /**
+     * The runnable to run when the world is fully generated.
+     */
+    private final Runnable completedAction;
+    /**
+     * The chunk iterator for all the chunks to generate.
+     */
+    private final ChunkIterator chunkIterator;
+    /**
+     * The progress instance that keeps track of the progress of chunk generation.
+     */
+    private final Progress progress;
+    /**
+     * Whether this generation task has stopped.
+     */
+    private boolean stopped;
+    /**
+     * Whether this generation task has completed.
+     */
+    private boolean completed;
+
+    /**
+     * Constructs the generation task with the given world and the runnable.
+     *
+     * @param world           The world to generate chunks in.
+     * @param completedAction The runnable to run when this task completes.
+     */
     public GenerationTask(World world, Runnable completedAction) {
         this.world = world;
         this.completedAction = completedAction;
@@ -32,6 +77,12 @@ public class GenerationTask implements Runnable {
         this.progress = new Progress(world.getName(), chunkIterator.total());
     }
 
+    /**
+     * Update the progress of the task given the coordinates of a generated chunk.
+     *
+     * @param chunkX The x coordinate of the completed chunk.
+     * @param chunkZ The z coordinate of the completed chunk
+     */
     private synchronized void update(final int chunkX, final int chunkZ) {
         if (stopped) {
             return;
@@ -73,8 +124,7 @@ public class GenerationTask implements Runnable {
         progress.hours = time / 3600;
         progress.minutes = (time - progress.hours * 3600) / 60;
         progress.seconds = time - progress.hours * 3600 - progress.minutes * 60;
-        progress.chunkX = chunkX;
-        progress.chunkZ = chunkZ;
+
         if (progress.complete) {
             progress.sendUpdate();
             return;
@@ -138,46 +188,65 @@ public class GenerationTask implements Runnable {
         }
     }
 
-    public void stop(final boolean cancelled) {
+    /**
+     * Stops this generation task.
+     *
+     * @param completed Whether the task was completed.
+     */
+    public void stop(final boolean completed) {
         this.stopped = true;
-        this.completed = cancelled;
+        this.completed = completed;
     }
 
-    public long getCount() {
-        return finishedChunks.get();
-    }
-
-    public ChunkIterator getChunkIterator() {
-        return chunkIterator;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public boolean isStoppedOrCompleted() {
-        return stopped || completed;
-    }
-
-    public long getTotalTime() {
-        return startTime.get() > 0 ? System.currentTimeMillis() - startTime.get() : 0;
-    }
-
-    public Progress getProgress() {
-        return progress;
-    }
-
-    @SuppressWarnings("unused")
+    /**
+     * Class that tracks progress of generation.
+     */
     public static final class Progress {
+        /**
+         * The name of the world for the progress message.
+         */
         private final String world;
+        /**
+         * The total number of chunks that need to be generated.
+         */
         private final long totalChunks;
+        /**
+         * The current number of chunks that have been generated.
+         */
         private long chunkCount;
+        /**
+         * Whether the generation is complete.
+         */
         private boolean complete;
+        /**
+         * The percentage of completion for the generation.
+         */
         private float percentComplete;
-        private long hours, minutes, seconds;
-        private double rate;
-        private int chunkX, chunkZ;
 
+        /**
+         * The number of hours that the generation has been in progress.
+         */
+        private long hours;
+        /**
+         * The number of minutes (modulo hours) that the generation has been in progress.
+         */
+        private long minutes;
+        /**
+         * The number of seconds (modulo minutes) that the generation has been in progress.
+         */
+        private long seconds;
+
+        /**
+         * The current rate in chunks of generation.
+         */
+        private double rate;
+
+        /**
+         * Constructs the progress instance with the given world and total number of chunks.
+         *
+         * @param world       The name of the world.
+         * @param totalChunks The total number of chunks.
+         */
         private Progress(final String world, final long totalChunks) {
             this.world = world;
             this.totalChunks = totalChunks;
@@ -187,42 +256,9 @@ public class GenerationTask implements Runnable {
             return world;
         }
 
-        public long getChunkCount() {
-            return chunkCount;
-        }
-
-        public boolean isComplete() {
-            return complete;
-        }
-
-        public float getPercentComplete() {
-            return percentComplete;
-        }
-
-        public long getHours() {
-            return hours;
-        }
-
-        public long getMinutes() {
-            return minutes;
-        }
-
-        public long getSeconds() {
-            return seconds;
-        }
-
-        public double getRate() {
-            return rate;
-        }
-
-        public int getChunkX() {
-            return chunkX;
-        }
-
-        public int getChunkZ() {
-            return chunkZ;
-        }
-
+        /**
+         * Sends an update to the logger with the progress of the generation.
+         */
         public void sendUpdate() {
             if (complete) {
                 Game.getLogger().info(String.format(
