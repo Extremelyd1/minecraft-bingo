@@ -1,7 +1,3 @@
-# Project ignores
-
-item_data/images/images
-
 # Created by https://www.toptal.com/developers/gitignore/api/java,gradle,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,gradle,intellij
 
@@ -172,3 +168,8 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,intellij
+
+# Project ignores
+
+item_data/images/**
+!item_data/images/images.zip
