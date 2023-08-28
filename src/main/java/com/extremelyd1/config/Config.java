@@ -94,14 +94,6 @@ public class Config {
      * Whether to pre-generate the worlds within the border in advance
      */
     private final boolean preGenerateWorlds;
-    /**
-     * The number of ticks in between generation cycles
-     */
-    private final int preGenerationTicksPerCycle;
-    /**
-     * The number of chunks to generate per cycle
-     */
-    private final int preGenerationChunksPerCycle;
 
     /**
      * The radius of the pregame border
@@ -157,12 +149,8 @@ public class Config {
         timerEnabled = config.getBoolean("timer.enable");
         timerLength = config.getInt("timer.length");
 
-        // Only allow pregeneration of worlds if there is the border is enabled
+        // Only allow pre-generation of worlds if there is the border is enabled
         preGenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
-
-        preGenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
-
-        preGenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
 
         preGameBorderRadius = config.getInt("pregame.border-radius");
     }
@@ -276,14 +264,6 @@ public class Config {
 
     public boolean isPreGenerateWorlds() {
         return preGenerateWorlds;
-    }
-
-    public int getPreGenerationTicksPerCycle() {
-        return preGenerationTicksPerCycle;
-    }
-
-    public int getPreGenerationChunksPerCycle() {
-        return preGenerationChunksPerCycle;
     }
 
     public int getPreGameBorderRadius() {

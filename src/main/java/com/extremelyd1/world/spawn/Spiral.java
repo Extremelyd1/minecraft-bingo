@@ -7,12 +7,12 @@ public class Spiral {
     /**
      * The center chunk coords of the spiral
      */
-    private final ChunkCoords center;
+    private final WorldChunkCoordinate center;
 
     /**
      * The current chunk coords of the spiral
      */
-    private final ChunkCoords currentChunk;
+    private final WorldChunkCoordinate currentChunk;
     /**
      * The current step size
      * How many steps are taking in a direction until the direction is switched
@@ -37,10 +37,10 @@ public class Spiral {
     private int stepCounter;
 
     public Spiral(Location center) {
-        this(new ChunkCoords(center));
+        this(new WorldChunkCoordinate(center));
     }
 
-    public Spiral(ChunkCoords center) {
+    public Spiral(WorldChunkCoordinate center) {
         this.center = center;
 
         this.currentChunk = center.copy();
@@ -57,7 +57,7 @@ public class Spiral {
      * Makes a step on the spiral and returns a copy of the resulting chunk coords
      * @return A copy of the resulting chunk coords
      */
-    public ChunkCoords step() {
+    public WorldChunkCoordinate step() {
         switch (direction) {
             case NORTH:
                 this.currentChunk.add(0, -1);
@@ -94,7 +94,7 @@ public class Spiral {
         return this.currentChunk;
     }
 
-    public ChunkCoords getCenter() {
+    public WorldChunkCoordinate getCenter() {
         return center;
     }
 

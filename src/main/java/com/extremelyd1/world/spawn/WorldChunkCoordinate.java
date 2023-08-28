@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 
-public class ChunkCoords {
+public class WorldChunkCoordinate {
 
     /**
      * The worlds in which this chunk is
@@ -19,13 +19,13 @@ public class ChunkCoords {
      */
     private int z;
 
-    public ChunkCoords(World world, int x, int z) {
+    public WorldChunkCoordinate(World world, int x, int z) {
         this.world = world;
         this.x = x;
         this.z = z;
     }
 
-    public ChunkCoords(Location location) {
+    public WorldChunkCoordinate(Location location) {
         this.world = location.getWorld();
         this.x = (int) Math.floor(location.getX() / 16);
         this.z = (int) Math.floor(location.getZ() / 16);
@@ -69,8 +69,8 @@ public class ChunkCoords {
      * Returns a new instance of chunks coords with the same values
      * @return A new instance of chunks coords
      */
-    public ChunkCoords copy() {
-        return new ChunkCoords(
+    public WorldChunkCoordinate copy() {
+        return new WorldChunkCoordinate(
                 this.world,
                 this.x,
                 this.z

@@ -69,23 +69,47 @@ public class FileUtil {
     }
 
     /**
+     * Packages a file/directory into a zip.
+     * @param zipFile The destination zip file.
+     * @param file The file or directory to zip.
+     * @param dirName If the file is a directory, the name of the directory in the zip.
+     */
+    public static void packZip(File zipFile, File file, String dirName) {
+        packZip(zipFile, "", file, dirName);
+    }
+
+    /**
      * Packages a file/directory into a zip
      * @param zipFile The destination zip file
      * @param startPath The path to store the file/directory at
      * @param file A file or directory to zip
-     * @param dirName If the file is a directory, what the name of the directory should be in the zip
+     * @param dirName If the file is a directory, the name of the directory in the zip
      */
     public static void packZip(File zipFile, String startPath, File file, String dirName) {
-        Game.getLogger().info(
-                "Packaging "
-                        + startPath
-                        + "/"
-                        + (dirName.equals("") ? file.getName() : dirName)
-                        + " to zip "
-                        + zipFile.getName()
-        );
+        Game.getLogger().info(String.format(
+                "Packaging %s%s into zip %s",
+                (startPath.equals("") ? "" : startPath + "/"),
+                (dirName.equals("") ? file.getName() : dirName),
+                zipFile.getName()
+        ));
 
         try {
+            if (!zipFile.exists()) {
+                if (!zipFile.createNewFile()) {
+                    Game.getLogger().warning(String.format(
+                            "Could not create zip file '%s', skipping it",
+                            zipFile.getName()
+                    ));
+
+                    return;
+                }
+            } else {
+                Game.getLogger().info(String.format(
+                        "Zip file '%s' already exists, overwriting contents",
+                        zipFile.getName()
+                ));
+            }
+
             // Create a temp file
             File tempFile = File.createTempFile(zipFile.getName(), null, zipFile.getParentFile());
 
@@ -94,10 +118,7 @@ public class FileUtil {
                 Game.getLogger().info("Could not delete temp file for zip");
             }
 
-            if (!zipFile.renameTo(tempFile)) {
-                Game.getLogger().warning("Could not rename zip to temp file");
-                return;
-            }
+            Files.move(zipFile.toPath(), tempFile.toPath());
 
             ZipInputStream zipIn = new ZipInputStream(new FileInputStream(tempFile));
             ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(zipFile));
@@ -135,7 +156,7 @@ public class FileUtil {
             zipOut.close();
 
             // Delete temp file
-            tempFile.delete();
+            Files.delete(tempFile.toPath());
         } catch (IOException e) {
             Game.getLogger().warning("Could not package files:");
             e.printStackTrace();

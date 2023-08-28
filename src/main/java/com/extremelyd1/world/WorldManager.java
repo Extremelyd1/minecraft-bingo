@@ -1,11 +1,10 @@
 package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.world.generation.PregenerationManager;
+import com.extremelyd1.world.generation.PreGenerationManager;
 
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -41,17 +40,25 @@ public class WorldManager {
      * The pregeneration manager instance
      * Only created if config value for pregeneration is true
      */
-    private PregenerationManager pregenerationManager;
+    private PreGenerationManager pregenerationManager;
 
     public WorldManager(Game game) throws IllegalArgumentException {
         this.game = game;
 
-        this.world = Bukkit.getWorld("world");
-        this.nether = Bukkit.getWorld("world_nether");
-        this.end = Bukkit.getWorld("world_the_end");
+        this.world = Bukkit.getWorlds().get(0);
+        if (Bukkit.getAllowNether()) {
+            this.nether = Bukkit.getWorlds().get(1);
+        } else {
+            this.nether = null;
+        }
+        if (Bukkit.getAllowEnd()) {
+            this.end = Bukkit.getWorlds().get(2);
+        } else {
+            this.end = null;
+        }
 
         if (this.world == null) {
-            throw new IllegalArgumentException("There is no overworld named 'world' loaded, cannot start game");
+            throw new IllegalArgumentException("There is no overworld loaded, cannot start game");
         }
 
         initialize();
@@ -80,7 +87,7 @@ public class WorldManager {
         // If the server is in pregeneration mode, create manager
         // and stop further initialization
         if (this.game.getConfig().isPreGenerateWorlds()) {
-            this.pregenerationManager = new PregenerationManager(this.game);
+            this.pregenerationManager = new PreGenerationManager(this.game);
             return;
         }
 
@@ -146,7 +153,7 @@ public class WorldManager {
             int searchRadius,
             int size
     ) {
-        Game.getLogger().info("Locating structure " + bukkitStructureType + " to determine border center");
+        Game.getLogger().info("Locating structure " + bukkitStructureType.getKey() + " to determine border center");
         // Find the closest structure
         StructureSearchResult structureSearchResult = world.locateNearestStructure(
                 new Location(world, 0, 0, 0),
