@@ -5,23 +5,26 @@ import com.extremelyd1.util.FileUtil;
 import org.bukkit.Material;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * A class that handles loading/storing of material names from file
  * Also provides methods to create bingo item sets and randomly picking from these sets
  */
 public class BingoItemMaterials {
-
     private final String S_TIER_FILE_NAME = "s_tier.txt";
     private final String A_TIER_FILE_NAME = "a_tier.txt";
     private final String B_TIER_FILE_NAME = "b_tier.txt";
     private final String C_TIER_FILE_NAME = "c_tier.txt";
     private final String D_TIER_FILE_NAME = "d_tier.txt";
+    private final String GROUPS_FILE_NAME = "groups.txt";
 
     private final String BLACKLIST_FILE_NAME = "blacklist.txt";
+
+    /**
+     * The number of times to attempt picking materials while respecting groups.
+     */
+    private static final int MAX_MATERIAL_PICK_TRIES = 10;
 
     /**
      * The game instance
@@ -29,153 +32,130 @@ public class BingoItemMaterials {
     private final Game game;
 
     /**
-     * A list of bingo item sets of S tier rarity
+     * A list of bingo items of S tier rarity
      */
-    private List<BingoItemSet> sTierItemSets;
+    private List<Material> sTierItems;
     /**
-     * A list of bingo item sets of A tier rarity
+     * A list of bingo items of A tier rarity
      */
-    private List<BingoItemSet> aTierItemSets;
+    private List<Material> aTierItems;
     /**
-     * A list of bingo item sets of B tier rarity
+     * A list of bingo items of B tier rarity
      */
-    private List<BingoItemSet> bTierItemSets;
+    private List<Material> bTierItems;
     /**
-     * A list of bingo item sets of C tier rarity
+     * A list of bingo items of C tier rarity
      */
-    private List<BingoItemSet> cTierItemSets;
+    private List<Material> cTierItems;
     /**
-     * A list of bingo item sets of D tier rarity
+     * A list of bingo items of D tier rarity
      */
-    private List<BingoItemSet> dTierItemSets;
+    private List<Material> dTierItems;
+    /**
+     * A list of bingo items that are blacklisted
+     */
+    private Set<Material> blacklist;
+
+    /**
+     * A mapping from material to all other materials that it shares a group with
+     */
+    private Map<Material, Set<Material>> mapMaterialToGroupMates;
 
     public BingoItemMaterials(Game game) {
         this.game = game;
     }
 
     /**
-     * Load the materials of all tiers (and blacklist if enabled) into the data structures
+     * Load the materials of all tiers and group (and blacklist if enabled) into the data structures
+     *
      * @param dataFolder The data folder in which the data files are stored
      */
     public void loadMaterials(File dataFolder) {
         String path = dataFolder.getPath() + "/item_data/";
 
-        this.sTierItemSets = createBingoItemSetList(path, S_TIER_FILE_NAME);
-        this.aTierItemSets = createBingoItemSetList(path, A_TIER_FILE_NAME);
-        this.bTierItemSets = createBingoItemSetList(path, B_TIER_FILE_NAME);
-        this.cTierItemSets = createBingoItemSetList(path, C_TIER_FILE_NAME);
-        this.dTierItemSets = createBingoItemSetList(path, D_TIER_FILE_NAME);
+        this.sTierItems = readMaterialsFile(path, S_TIER_FILE_NAME);
+        this.aTierItems = readMaterialsFile(path, A_TIER_FILE_NAME);
+        this.bTierItems = readMaterialsFile(path, B_TIER_FILE_NAME);
+        this.cTierItems = readMaterialsFile(path, C_TIER_FILE_NAME);
+        this.dTierItems = readMaterialsFile(path, D_TIER_FILE_NAME);
 
-        if (game.getConfig().isBlacklistEnabled()) {
-            List<Material> blacklistedMaterials = createMaterialList(path, BLACKLIST_FILE_NAME);
+        this.blacklist = new HashSet<>(readMaterialsFile(path, BLACKLIST_FILE_NAME));
 
-            filterBingoItemSets(this.sTierItemSets, blacklistedMaterials);
-            filterBingoItemSets(this.aTierItemSets, blacklistedMaterials);
-            filterBingoItemSets(this.bTierItemSets, blacklistedMaterials);
-            filterBingoItemSets(this.cTierItemSets, blacklistedMaterials);
-            filterBingoItemSets(this.dTierItemSets, blacklistedMaterials);
+        this.mapMaterialToGroupMates = new HashMap<>();
+        for (Collection<Material> group : readGroupsFile(path, GROUPS_FILE_NAME)) {
+            for (Material material : group) {
+                if (!this.mapMaterialToGroupMates.containsKey(material)) {
+                    this.mapMaterialToGroupMates.put(material, new HashSet<>());
+                }
+                this.mapMaterialToGroupMates.get(material).addAll(group);
+            }
         }
     }
 
     /**
-     * Create a list of materials that are stored in the file at the given path with the given file name
-     * @param path The path at which the file resides
+     * Read a file that contains a set of items/materials, one per line, returning the list of these materials
+     *
+     * @param path     The path at which the file resides
      * @param fileName The name of the file
      * @return A list of materials that are stored in the given file
      */
-    public List<Material> createMaterialList(String path, String fileName) {
+    private List<Material> readMaterialsFile(String path, String fileName) {
         String fileString = FileUtil.readFileToString(path + fileName);
         if (fileString == null) {
-            return null;
+            Game.getLogger().severe("Could not read materials file " + fileName);
+            return new ArrayList<>();
         }
 
-        List<Material> materialList = new ArrayList<>();
+        List<Material> materials = new ArrayList<>();
 
         for (String line : fileString.split("\n")) {
             try {
-                materialList.add(Material.valueOf(line));
+                materials.add(Material.valueOf(line));
             } catch (IllegalArgumentException e) {
-                Game.getLogger().warning(
-                        String.format(
-                                "Could not find material with name %s in file %s",
-                                line,
-                                fileName
-                        )
-                );
+                Game.getLogger().warning(String.format("Could not find material with name %s in file %s", line, fileName));
             }
         }
 
-        return materialList;
+        return materials;
     }
 
     /**
-     * Create a list of bingo item sets that are stored in the file at the given path with the given file name
-     * @param path The path at which the file resides
+     * Get the collection of groups (sets of items/materials) from a material groups file
+     * which contains a line per group, which is represented as a '|'-separated list of items.
+     *
+     * @param path     The path at which the file resides
      * @param fileName The name of the file
-     * @return A list of BingoItemSet instances that are stored in the given file
+     * @return The collection of groups that are stored in the given file
      */
-    public List<BingoItemSet> createBingoItemSetList(String path, String fileName) {
+    private Collection<Set<Material>> readGroupsFile(String path, String fileName) {
         String fileString = FileUtil.readFileToString(path + fileName);
         if (fileString == null) {
-            return null;
+            Game.getLogger().severe("Could not read material groups file " + fileName);
+            return new HashSet<>();
         }
 
-        List<BingoItemSet> bingoItemSets = new ArrayList<>();
+        Collection<Set<Material>> groups = new HashSet<>();
 
         for (String line : fileString.split("\n")) {
-            bingoItemSets.add(createBingoItemSet(line, fileName));
-        }
-
-        return bingoItemSets;
-    }
-
-    /**
-     * Create a single bingo item set given a line from the data file
-     * @param line The line containing the data
-     * @param fileName The name of the file of this line
-     * @return A BingoItemSet instance
-     */
-    public BingoItemSet createBingoItemSet(String line, String fileName) {
-        List<Material> itemSetMaterials = new ArrayList<>();
-        for (String material : line.split("\\|")) {
-            if (material.isEmpty()) {
-                continue;
-            }
-
-            try {
-                itemSetMaterials.add(Material.valueOf(material));
-            } catch (IllegalArgumentException e) {
-                Game.getLogger().warning(
-                        String.format(
-                                "Could not find material with name %s in file %s",
-                                material,
-                                fileName
-                        )
-                );
+            if (!line.isBlank()) {
+                Set<Material> group = new HashSet<>();
+                for (String material : line.split("\\|")) {
+                    try {
+                        group.add(Material.valueOf(material));
+                    } catch (IllegalArgumentException e) {
+                        Game.getLogger().warning(String.format("Could not find material with name %s in file %s", material, fileName));
+                    }
+                }
+                groups.add(group);
             }
         }
 
-        return new BingoItemSet(itemSetMaterials);
+        return groups;
     }
 
     /**
-     * Filters the given list of bingo item sets and removes items from the item set if they are
-     * contained in the given blacklist. Also removes bingo item sets entirely if they are empty after filtering
-     * @param bingoItemSets The list of bingo item sets to filter
-     * @param blacklist The blacklist on which to filter
-     */
-    public void filterBingoItemSets(List<BingoItemSet> bingoItemSets, List<Material> blacklist) {
-        for (int i = 0; i < bingoItemSets.size(); i++) {
-            BingoItemSet bingoItemSet = bingoItemSets.get(i);
-            if (!bingoItemSet.filter(blacklist)) {
-                bingoItemSets.remove(i);
-                i--;
-            }
-        }
-    }
-
-    /**
-     * Randomly pick a list of materials from the tiers based on the distribution denoted by the config values
+     * Randomly pick a list of materials from the tiers based on the distribution denoted by the config values.
+     *
      * @return A list of materials
      */
     public List<Material> pickMaterials() {
@@ -189,7 +169,15 @@ public class BingoItemMaterials {
     }
 
     /**
-     * Randomly pick a list of materials from the tiers
+     * Randomly pick a list of materials from the tiers.
+     *
+     * <p>
+     * Loops over the tiers, going over the items of that tier in random order, picking the first num(tier) materials
+     * that are not excluded either by being in the blacklist or by sharing a group with an already picked material.
+     * If this leads to no options remaining for a tier, the process is restarted.
+     * After MAX_MATERIAL_PICK_TRIES, one more attempt is made disregarding the grouping.
+     * </p>
+     *
      * @param numSTier The number of S tier materials to pick
      * @param numATier The number of A tier materials to pick
      * @param numBTier The number of B tier materials to pick
@@ -197,63 +185,73 @@ public class BingoItemMaterials {
      * @param numDTier The number of D tier materials to pick
      * @return A list of materials
      */
-    public List<Material> pickMaterials(
-            int numSTier,
-            int numATier,
-            int numBTier,
-            int numCTier,
-            int numDTier
-    ) {
-        List<Material> result = new ArrayList<>();
-
+    public List<Material> pickMaterials(int numSTier, int numATier, int numBTier, int numCTier, int numDTier) {
         Random random = new Random();
 
-        pickNumberOfRandomFromItemSets(sTierItemSets, result, numSTier, random);
-        pickNumberOfRandomFromItemSets(aTierItemSets, result, numATier, random);
-        pickNumberOfRandomFromItemSets(bTierItemSets, result, numBTier, random);
-        pickNumberOfRandomFromItemSets(cTierItemSets, result, numCTier, random);
-        pickNumberOfRandomFromItemSets(dTierItemSets, result, numDTier, random);
-
-        return result;
-    }
-
-    /**
-     * Randomly pick a number of materials from the given bingo item set and store them in result
-     * @param bingoItemSets The list of bingo item sets to choose from
-     * @param result The list of results in which to store the picked materials
-     * @param number The number of materials to pick
-     * @param random Instance of Random to use
-     */
-    private void pickNumberOfRandomFromItemSets(
-            List<BingoItemSet> bingoItemSets,
-            List<Material> result,
-            int number,
-            Random random
-    ) {
-        if (number > bingoItemSets.size()) {
-            throw new IllegalArgumentException("Cannot pick more than the total number of items");
+        record Tier(List<Material> items, int numRequired) {
         }
 
-        List<BingoItemSet> bingoItemSetsLeft = new ArrayList<>(bingoItemSets);
+        Tier[] tiers = new Tier[] {
+                new Tier(sTierItems, numSTier),
+                new Tier(aTierItems, numATier),
+                new Tier(bTierItems, numBTier),
+                new Tier(cTierItems, numCTier),
+                new Tier(dTierItems, numDTier),
+        };
 
-        for (int i = 0; i < number; i++) {
-            BingoItemSet randomItemSet = pickRandomFromItemSets(bingoItemSetsLeft, random);
-            result.add(randomItemSet.pick());
+        // Try to create a selection (trying again if the random picking results in no options remaining)
+        for (int attempt = 0; attempt < MAX_MATERIAL_PICK_TRIES + 1; attempt++) { // +1 to disregard groups in last try
+            boolean ignoreGroups = attempt == MAX_MATERIAL_PICK_TRIES;
+            Game.getLogger().info("Starting attempt " + (attempt + 1) + " at material picking.");
+            if (ignoreGroups) Game.getLogger().warning("Ignoring grouping as last resort to pick items.");
 
-            bingoItemSetsLeft.remove(randomItemSet);
+            List<Material> result = new ArrayList<>();
+            Set<Material> exclude = new HashSet<>(blacklist);
+
+            for (Tier tier : tiers) {
+                // Randomize the order of the items in the tier
+                Collections.shuffle(tier.items, random);
+
+                // Pick as many of this tier as required, skipping excluded items
+                int numLeftInTier = tier.numRequired;
+                for (Material material : tier.items) {
+                    if (numLeftInTier == 0) {
+                        break;
+                    }
+
+                    if (exclude.contains(material)) {
+                        Game.getLogger().info("Skipping excluded material " + material + "(" + exclude.size() + " excluded)");
+                        continue;
+                    }
+
+                    // Include the material
+                    result.add(material);
+                    numLeftInTier--;
+
+                    if (!ignoreGroups) {
+                        // Add the materials that the picked material shares a group with to the excluded materials,
+                        // to prevent picking multiple materials that share a group
+                        var addToExclude = mapMaterialToGroupMates.getOrDefault(material, new HashSet<>());
+                        exclude.addAll(addToExclude);
+                        Game.getLogger().info("Included material " + material +
+                                ", thus newly excluding " + addToExclude.size() + " group materials.");
+                    } else {
+                        Game.getLogger().info("Included material " + material);
+                    }
+
+                }
+            }
+
+            // Check whether enough items were picked (
+            if (result.size() == numSTier + numATier + numBTier + numCTier + numDTier) {
+                Game.getLogger().info("Completed material selection of " + result.size() + " items.");
+                return result;
+            } else {
+                Game.getLogger().info("Material selection incomplete, only picked " + result.size() + " items.");
+            }
         }
-    }
 
-    /**
-     * Pick a random bingo item set from a list of bingo item sets
-     * @param bingoItemSets The list to pick from
-     * @param random Instance of Random to use
-     * @return A random bingo item set
-     */
-    private BingoItemSet pickRandomFromItemSets(List<BingoItemSet> bingoItemSets, Random random) {
-        return bingoItemSets.get(
-                random.nextInt(bingoItemSets.size())
-        );
+        throw new IllegalStateException("Could not make material selection, even when disregarding groups.");
     }
 
 }
