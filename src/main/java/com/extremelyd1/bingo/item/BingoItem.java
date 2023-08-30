@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an single item on the bingo card for a single team
+ * Represents a single item on the bingo card for a single team
  */
 public class BingoItem {
 
