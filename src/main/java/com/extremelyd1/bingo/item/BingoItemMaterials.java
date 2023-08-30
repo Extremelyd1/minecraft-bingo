@@ -12,8 +12,6 @@ import java.util.*;
  * Also provides methods to create bingo item sets and randomly picking from these sets
  */
 public class BingoItemMaterials {
-
-
     private final String S_TIER_FILE_NAME = "s_tier.txt";
     private final String A_TIER_FILE_NAME = "a_tier.txt";
     private final String B_TIER_FILE_NAME = "b_tier.txt";
@@ -192,7 +190,8 @@ public class BingoItemMaterials {
 
         record Tier(List<Material> items, int numRequired) {
         }
-        Tier[] tiers = new Tier[]{
+
+        Tier[] tiers = new Tier[] {
                 new Tier(sTierItems, numSTier),
                 new Tier(aTierItems, numATier),
                 new Tier(bTierItems, numBTier),
@@ -233,7 +232,6 @@ public class BingoItemMaterials {
                         // Add the materials that the picked material shares a group with to the excluded materials,
                         // to prevent picking multiple materials that share a group
                         var addToExclude = mapMaterialToGroupMates.getOrDefault(material, new HashSet<>());
-                        addToExclude.removeAll(exclude);
                         exclude.addAll(addToExclude);
                         Game.getLogger().info("Included material " + material +
                                 ", thus newly excluding " + addToExclude.size() + " group materials.");
@@ -245,7 +243,7 @@ public class BingoItemMaterials {
             }
 
             // Check whether enough items were picked (
-            if (result.size() == Arrays.stream(tiers).mapToInt(t -> t.numRequired).sum()) {
+            if (result.size() == numSTier + numATier + numBTier + numCTier + numDTier) {
                 Game.getLogger().info("Completed material selection of " + result.size() + " items.");
                 return result;
             } else {
@@ -253,8 +251,7 @@ public class BingoItemMaterials {
             }
         }
 
-        Game.getLogger().severe("Could not make material selection, even when disregarding groups.");
-        return new ArrayList<>();
+        throw new IllegalStateException("Could not make material selection, even when disregarding groups.");
     }
 
 }
