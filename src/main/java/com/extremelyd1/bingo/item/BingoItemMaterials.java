@@ -206,7 +206,10 @@ public class BingoItemMaterials {
             if (ignoreGroups) Game.getLogger().warning("Ignoring grouping as last resort to pick items.");
 
             List<Material> result = new ArrayList<>();
-            Set<Material> exclude = new HashSet<>(blacklist);
+            Set<Material> exclude = new HashSet<>();
+            if (game.getConfig().isBlacklistEnabled()) {
+                exclude.addAll(blacklist);
+            }
 
             for (Tier tier : tiers) {
                 // Randomize the order of the items in the tier
