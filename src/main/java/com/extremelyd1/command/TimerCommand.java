@@ -6,10 +6,16 @@ import com.extremelyd1.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TimerCommand implements CommandExecutor {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class TimerCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -117,5 +123,18 @@ public class TimerCommand implements CommandExecutor {
                 Game.PREFIX + "Max timer length has been set to "
                         + ChatColor.YELLOW + TimeUtil.formatTimeLeft(seconds)
         );
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 1) {
+            return Arrays.asList("enable", "disable");
+        }
+
+        return Collections.emptyList();
     }
 }

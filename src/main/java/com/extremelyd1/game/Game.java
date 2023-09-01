@@ -188,7 +188,7 @@ public class Game {
      */
     private void registerCommands(JavaPlugin plugin) {
         final Game game = this;
-        final Map<String, CommandExecutor> executors = new HashMap<String, CommandExecutor>() {{
+        final Map<String, CommandExecutor> executors = new HashMap<>() {{
             put("team", new TeamCommand(game));
             put("start", new StartCommand(game));
             put("end", new EndCommand(game));

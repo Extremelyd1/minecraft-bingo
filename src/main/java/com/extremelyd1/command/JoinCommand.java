@@ -81,13 +81,15 @@ public class JoinCommand implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         List<String> teams = new ArrayList<>();
 
-        if (args.length != 1) return teams;
+        if (!(sender instanceof Player) || args.length != 1) {
+            return teams;
+        }
 
         for (PlayerTeam team : game.getTeamManager().getAvailableTeams()) {
-            if (team.getName().toLowerCase().contains(args[0].toLowerCase())) {
+            if (team.getName().toLowerCase().startsWith(args[0].toLowerCase())) {
                 teams.add(team.getName());
             }
         }

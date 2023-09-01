@@ -5,10 +5,15 @@ import com.extremelyd1.util.CommandUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class MaintenanceCommand implements CommandExecutor {
+import java.util.Collections;
+import java.util.List;
+
+public class MaintenanceCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -38,5 +43,10 @@ public class MaintenanceCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        return Collections.emptyList();
     }
 }

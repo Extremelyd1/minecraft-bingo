@@ -8,15 +8,18 @@ import com.extremelyd1.util.CommandUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class TeamCommand implements CommandExecutor {
+public class TeamCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -33,7 +36,7 @@ public class TeamCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length <= 0) {
+        if (args.length == 0) {
             sendUsage(sender, command);
 
             return true;
@@ -64,6 +67,15 @@ public class TeamCommand implements CommandExecutor {
                 sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Could not parse team size argument"
+                );
+
+                return true;
+            }
+
+            if (numTeams <= 0) {
+                sender.sendMessage(
+                        ChatColor.DARK_RED + "Error: "
+                            + ChatColor.WHITE + "Cannot create less than 1 team"
                 );
 
                 return true;
@@ -284,5 +296,54 @@ public class TeamCommand implements CommandExecutor {
         }
 
         return players;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 1) {
+            return Arrays.asList("random", "add", "remove");
+        }
+
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("random")) {
+                List<String> numTeams = new ArrayList<>();
+                for (int i = 1; i <= TeamManager.MAX_TEAMS; i++) {
+                    String s = String.valueOf(i);
+                    if (s.startsWith(args[1])) {
+                        numTeams.add(s);
+                    }
+                }
+
+                return numTeams;
+            } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
+                // Get all online players and return their names
+                return Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                        .toList();
+            }
+
+            return Collections.emptyList();
+        }
+
+        if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("add")) {
+                List<String> teams = new ArrayList<>();
+
+                for (PlayerTeam team : game.getTeamManager().getAvailableTeams()) {
+                    if (team.getName().toLowerCase().startsWith(args[2].toLowerCase())) {
+                        teams.add(team.getName());
+                    }
+                }
+
+                return teams;
+            }
+        }
+
+        return Collections.emptyList();
     }
 }

@@ -4,10 +4,16 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.util.CommandUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ItemDistributionCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ItemDistributionCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -107,7 +113,74 @@ public class ItemDistributionCommand implements CommandExecutor {
         );
         sender.sendMessage(
                 ChatColor.BLUE + "Example: "
-                        + ChatColor.WHITE + "2 6 9 6 2"
+                        + ChatColor.YELLOW + "2 6 9 6 2"
+                        + ChatColor.WHITE + " (S A B C D)"
         );
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        List<String> list = new ArrayList<>();
+
+        // If we have more than 5 arguments, we don't suggest anymore
+        if (args.length > 5) {
+            return list;
+        }
+
+        // If we only have 1 argument, we give the option of 0 through 25
+        if (args.length == 1) {
+            for (int i = 0; i < 26; i++) {
+                String s = String.valueOf(i);
+                if (s.startsWith(args[0])) {
+                    list.add(s);
+                }
+            }
+
+            return list;
+        }
+
+        // Int to keep track of total number of items that have been given in previous arguments
+        int total = 0;
+
+        // We loop over the arguments 2 through 5
+        for (int i = 2; i < 6; i++) {
+            // If at least argument i has been supplied
+            if (args.length >= i) {
+                // Figure out the integer value of the number of items for that tier
+                String tierString = args[i - 2];
+                int numTier;
+                try {
+                    numTier = Integer.parseInt(tierString);
+                } catch (NumberFormatException e) {
+                    // If we can't parse any previously supplied argument, there's no point in suggesting
+                    // other arguments
+                    return Collections.emptyList();
+                }
+
+                // Add the previous argument to the total
+                total += numTier;
+                if (total < 0 || total > 25) {
+                    // If the total is out of the range of 0 through 25, we don't suggest anything
+                    return Collections.emptyList();
+                }
+
+                // If i is the last argument that the user has supplied
+                if (args.length == i) {
+                    // Calculate how many items we can still put in the distribution and suggest those
+                    int leftInDist = 25 - total;
+                    for (int j = 0; j <= leftInDist; j++) {
+                        String s = String.valueOf(j);
+                        if (s.startsWith(args[i - 1])) {
+                            list.add(s);
+                        }
+                    }
+
+                    return list;
+                }
+            }
+        }
+
+        // This should never execute, but return the list anyway
+        return list;
     }
 }

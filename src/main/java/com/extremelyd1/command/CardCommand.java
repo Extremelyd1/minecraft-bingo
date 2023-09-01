@@ -7,11 +7,16 @@ import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.ItemUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class CardCommand implements CommandExecutor {
+import java.util.Collections;
+import java.util.List;
+
+public class CardCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -61,5 +66,10 @@ public class CardCommand implements CommandExecutor {
         );
 
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        return Collections.emptyList();
     }
 }

@@ -4,10 +4,16 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.util.CommandUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class GenerateCommand implements CommandExecutor {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class GenerateCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -65,6 +71,15 @@ public class GenerateCommand implements CommandExecutor {
         game.getWorldManager().createWorlds(start, numWorlds);
 
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args.length == 1) {
+            return List.of("stop");
+        }
+
+        return Collections.emptyList();
     }
 
     /**

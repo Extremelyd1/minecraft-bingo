@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
+import java.util.Collections;
 
 public class ChannelCommand implements TabExecutor {
 
@@ -55,8 +55,8 @@ public class ChannelCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
-        if (!(sender instanceof Player)) {
-            return emptyList();
+        if (!(sender instanceof Player) || args.length != 1) {
+            return Collections.emptyList();
         }
 
         return Arrays.asList("team", "global");
