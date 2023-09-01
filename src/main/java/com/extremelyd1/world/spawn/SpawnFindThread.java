@@ -8,25 +8,25 @@ import org.bukkit.World;
 public class SpawnFindThread extends Thread {
 
     /**
-     * The location used to start this search with
+     * The location used to start this search with.
      */
     private final Location startLocation;
 
     /**
-     * The spiral used to find a valid spawn
+     * The spiral used to find a valid spawn.
      */
     private final Spiral spiral;
     /**
-     * The max width of the spiral after which the search ends
+     * The max width of the spiral after which the search ends.
      */
     private final int maxSearchWidth;
 
     /**
-     * Whether the search is done
+     * Whether the search is done.
      */
     private boolean done;
     /**
-     * The location found in the search
+     * The location found in the search.
      */
     private Location foundLocation;
 
@@ -58,6 +58,8 @@ public class SpawnFindThread extends Thread {
                 // Default to returning start location if nothing can be found
                 this.foundLocation = this.startLocation;
                 this.done = true;
+
+                return;
             }
 
             // Advance the spiral a step and check new location
@@ -74,15 +76,11 @@ public class SpawnFindThread extends Thread {
                 // Default to returning start location if nothing can be found
                 this.foundLocation = this.startLocation;
                 this.done = true;
+
+                return;
             }
 
             if (LocationUtil.isValidSpawnBiome(newChunkCoords.getBiome())) {
-                Game.getLogger().info(
-                        "Spawn location found after "
-                                + this.spiral.getNumIterations()
-                                + " spiral iterations"
-                );
-
                 // Now find a suitable block location inside the found chunk
                 int startX = newChunkCoords.getX() * 16;
                 int startZ = newChunkCoords.getZ() * 16;
@@ -100,7 +98,12 @@ public class SpawnFindThread extends Thread {
                         );
                         // Check whether this location is a valid spawn
                         if (LocationUtil.isValidSpawnLocation(location)) {
-                            Game.getLogger().info("Valid spawn location found within chunk");
+                            Game.getLogger().info(String.format(
+                                    "Valid spawn location found (%s, %s) after %s spiral iterations",
+                                    x,
+                                    z,
+                                    this.spiral.getNumIterations()
+                            ));
 
                             // Set found location and return
                             this.foundLocation = location;
@@ -110,12 +113,12 @@ public class SpawnFindThread extends Thread {
                         }
                     }
                 }
+            }
 
-                Game.getLogger().info("No valid spawn location found within chunk, using center");
-
-                // In case no valid spawn could be found inside the chunk,
-                // simply return the center location of the chunk
-                this.foundLocation = centerLocation;
+            try {
+                //noinspection BusyWait
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
                 this.done = true;
             }
         }

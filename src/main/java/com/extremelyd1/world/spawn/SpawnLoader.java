@@ -2,63 +2,61 @@ package com.extremelyd1.world.spawn;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.WorldManager;
+import com.extremelyd1.world.platform.Environment;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
- * Provides a means of finding valid spawns and loading chunks and executing a method
- * once those spawns are found and chunks finish loading
+ * Provides a means of finding valid spawns, loading the chunks of these spawns, and executing a method once those
+ * spawns are found and chunks finish loading.
  */
 public class SpawnLoader implements Listener {
 
     /**
-     * The maximum width of a search spiral before cancelling the search
-     * Only used when the world border is disable
+     * The maximum width of a search spiral before cancelling the search.
+     * Only used when the world border is disabled.
      */
     private static final int MAX_SEARCH_WIDTH = 200;
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
     /**
-     * The world where these locations need to be loaded
+     * The world where these locations need to be loaded.
      */
     private final World world;
     /**
-     * The locations for which to load valid spawns
+     * The locations for which to load valid spawns.
      */
     private final List<Location> locations;
     /**
-     * The callback runnable
+     * The callback for when the spawn chunks are loaded.
      */
-    private final Runnable onLoad;
+    private final Consumer<List<Location>> onLoad;
 
     /**
-     * Whether chunks are loaded and the callback is executed
+     * A map containing all threads that are finding spawns.
      */
-    private boolean callbackExecuted;
+    private Set<SpawnFindThread> findThreads;
+    /**
+     * The locations that were found to be valid spawns.
+     */
+    private List<Location> foundLocations;
+    /**
+     * The number of chunks that need to be loaded.
+     */
+    private int toBeLoadedChunks;
 
     /**
-     * A map containing all threads that are finding spawns
-     */
-    private Map<Integer, SpawnFindThread> findThreads;
-    /**
-     * A list of chunks that need to be loaded
-     */
-    private List<Chunk> toBeLoadedChunks;
-
-    /**
-     * The bukkit task that checks the asynchronous tasks synchronously
+     * The bukkit task that checks the asynchronous tasks synchronously.
      */
     private BukkitTask threadCheckTask;
 
@@ -66,28 +64,27 @@ public class SpawnLoader implements Listener {
             Game game,
             WorldManager worldManager,
             List<Location> locations,
-            Runnable onLoad
+            Consumer<List<Location>> onLoad
     ) {
         this.game = game;
         this.world = worldManager.getWorld();
         this.locations = locations;
         this.onLoad = onLoad;
-
-        this.callbackExecuted = false;
     }
 
     /**
-     * Start finding spawns, then loading the chunks, and if finished execute the on-load method
+     * Start finding spawns, then loading the chunks, and if finished execute the on-load method.
      */
     public void start() {
         if (game.getConfig().isPreventWaterSpawns()) {
             Game.getLogger().info("Starting threads to find team spawns");
 
-            this.findThreads = new HashMap<>();
+            this.findThreads = new HashSet<>();
+            this.foundLocations = new ArrayList<>();
 
             // Create all the threads for finding spawns
             // and their associated tasks
-            for (int i = 0; i < this.locations.size(); i++) {
+            for (Location location : this.locations) {
                 // Decide search width based on whether a border is enabled
                 // In case of a border, use half of the border size as search radius
                 // since the spawns start between border center and border wall
@@ -96,13 +93,13 @@ public class SpawnLoader implements Listener {
                         : MAX_SEARCH_WIDTH;
 
                 SpawnFindThread findThread = new SpawnFindThread(
-                        this.locations.get(i),
+                        location,
                         searchWidth
                 );
 
                 findThread.start();
 
-                this.findThreads.put(i, findThread);
+                this.findThreads.add(findThread);
             }
 
             // Start a synchronous timer to check for thread completion
@@ -113,34 +110,35 @@ public class SpawnLoader implements Listener {
                     1L
             );
         } else {
+            this.foundLocations = new ArrayList<>(this.locations);
+
             startChunkLoading();
         }
     }
 
     /**
-     * Synchronously checks the asynchronous threads if they are done
-     * And if they are all done, starts the chunk loading
+     * Synchronously checks the asynchronous threads if they are done.
+     * And if they are all done, starts the chunk loading.
      */
     private void checkThreads() {
-        // Get iterator for spawn find thread mapping
-        Iterator<Map.Entry<Integer, SpawnFindThread>> iterator = this.findThreads.entrySet().iterator();
+        Iterator<SpawnFindThread> iterator = findThreads.iterator();
 
         while (iterator.hasNext()) {
-            // Get next entry from map
-            Map.Entry<Integer, SpawnFindThread> entry = iterator.next();
+            SpawnFindThread thread = iterator.next();
 
-            SpawnFindThread spawnFindThread = entry.getValue();
-            if (spawnFindThread.isDone()) {
-                // Update location in list to found location
-                this.locations.set(entry.getKey(), spawnFindThread.getFoundLocation());
+            if (thread.isDone()) {
+                // Add found location to list
+                this.foundLocations.add(thread.getFoundLocation());
 
                 // Join the thread
                 try {
-                    spawnFindThread.join();
-                } catch (InterruptedException ignored) {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    Game.getLogger().warning("Could not join spawn find thread");
+                    e.printStackTrace();
                 }
 
-                // Remove from lists
+                // Remove this thread from the set of threads that we iterate over each time
                 iterator.remove();
             }
         }
@@ -153,7 +151,7 @@ public class SpawnLoader implements Listener {
     }
 
     /**
-     * Starts the chunk loading process with the list of locations
+     * Starts the chunk loading process with the list of locations.
      */
     private void startChunkLoading() {
         Game.getLogger().info("Starting chunk loading of found spawn locations");
@@ -162,57 +160,32 @@ public class SpawnLoader implements Listener {
             this.threadCheckTask.cancel();
         }
 
-        // Initialize chunk list
-        this.toBeLoadedChunks = new ArrayList<>();
+        this.toBeLoadedChunks = this.foundLocations.size();
 
-        // Register this class as event listener
-        Bukkit.getPluginManager().registerEvents(this, this.game.getPlugin());
+        for (Location location : this.foundLocations) {
+            // Get chunk coordinates of the location
+            int chunkX = (int) Math.floor(location.getX() / 16);
+            int chunkZ = (int) Math.floor(location.getZ() / 16);
 
-        for (Location location : this.locations) {
-            // Get chunk associated with the location
-            Chunk chunk = this.world.getChunkAt(location);
-
-            // Keep chunk loaded until starting is finished
-            chunk.setForceLoaded(true);
-
-            // Check if chunk is not already loaded
-            if (!chunk.isLoaded()) {
-                // Load the chunk and add to list to wait for its load
-                this.toBeLoadedChunks.add(chunk);
-                chunk.load();
-            }
+            // Request the chunk to be loaded with a callback
+            Environment.getChunkAtAsync(world, chunkX, chunkZ, false).thenAccept(this::onChunkLoad);
         }
     }
 
-    @EventHandler
-    public void onChunkLoad(ChunkLoadEvent e) {
-        // Prevent multiple executions of the callback
-        if (this.callbackExecuted) {
-            return;
-        }
-
-        Chunk chunk = e.getChunk();
-
-        // Whether it is or is not on the list, try to remove it
-        toBeLoadedChunks.remove(chunk);
+    /**
+     * Callback method for when a chunk is loaded.
+     * @param chunk The chunk that was loaded.
+     */
+    private void onChunkLoad(Chunk chunk) {
+        // Decrease the number of chunks to be loaded
+        toBeLoadedChunks--;
 
         // If we have loaded all chunks that needed to be loaded
-        if (toBeLoadedChunks.isEmpty()) {
+        if (toBeLoadedChunks == 0) {
             Game.getLogger().info("All chunks are loaded, executing callback");
 
-            // Prevent multiple executions of the callback
-            this.callbackExecuted = true;
-
             // Run on-load method
-            onLoad.run();
-
-            // Unregister this event listener
-            HandlerList.unregisterAll(this);
-
-            // Release all force loaded chunks
-            for (Location location : locations) {
-                world.getChunkAt(location).setForceLoaded(false);
-            }
+            onLoad.accept(this.foundLocations);
         }
     }
 }

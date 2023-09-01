@@ -6,6 +6,7 @@ notify-other-team-completions: True
 prevent-water-spawns: True
 show-all-maps-after-game: True
 give-all-recipes: True
+freeze-time-on-start: 5
 notify-progress:
   lines:
     - each

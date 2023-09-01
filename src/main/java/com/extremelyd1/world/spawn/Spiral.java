@@ -3,12 +3,6 @@ package com.extremelyd1.world.spawn;
 import org.bukkit.Location;
 
 public class Spiral {
-
-    /**
-     * The center chunk coords of the spiral
-     */
-    private final WorldChunkCoordinate center;
-
     /**
      * The current chunk coords of the spiral
      */
@@ -41,8 +35,6 @@ public class Spiral {
     }
 
     public Spiral(WorldChunkCoordinate center) {
-        this.center = center;
-
         this.currentChunk = center.copy();
         this.stepSize = 1;
         this.direction = Direction.NORTH;
@@ -58,19 +50,15 @@ public class Spiral {
      * @return A copy of the resulting chunk coords
      */
     public WorldChunkCoordinate step() {
+        if (this.numIterations == 0) {
+            return this.currentChunk;
+        }
+
         switch (direction) {
-            case NORTH:
-                this.currentChunk.add(0, -1);
-                break;
-            case EAST:
-                this.currentChunk.add(1, 0);
-                break;
-            case SOUTH:
-                this.currentChunk.add(0, 1);
-                break;
-            case WEST:
-                this.currentChunk.add(-1, 0);
-                break;
+            case NORTH -> this.currentChunk.add(0, -1);
+            case EAST -> this.currentChunk.add(1, 0);
+            case SOUTH -> this.currentChunk.add(0, 1);
+            case WEST -> this.currentChunk.add(-1, 0);
         }
 
         this.stepCounter++;
@@ -94,10 +82,6 @@ public class Spiral {
         return this.currentChunk;
     }
 
-    public WorldChunkCoordinate getCenter() {
-        return center;
-    }
-
     public int getCurrentWidth() {
         return currentWidth;
     }
@@ -112,19 +96,12 @@ public class Spiral {
      * @return The next direction
      */
     private static Direction nextDirection(Direction direction) {
-        switch (direction) {
-            case NORTH:
-                return Direction.EAST;
-            case EAST:
-                return Direction.SOUTH;
-            case SOUTH:
-                return Direction.WEST;
-            case WEST:
-                return Direction.NORTH;
-        }
-
-        // Fallback values just in case
-        return Direction.NORTH;
+        return switch (direction) {
+            case NORTH -> Direction.EAST;
+            case EAST -> Direction.SOUTH;
+            case SOUTH -> Direction.WEST;
+            case WEST -> Direction.NORTH;
+        };
     }
 
     private enum Direction {

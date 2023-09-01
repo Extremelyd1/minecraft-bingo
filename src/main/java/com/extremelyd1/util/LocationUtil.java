@@ -31,6 +31,7 @@ public class LocationUtil {
             Biome.DEEP_OCEAN,
             Biome.WARM_OCEAN,
             Biome.SNOWY_BEACH,
+            Biome.STONY_SHORE,
             Biome.FROZEN_RIVER,
             Biome.FROZEN_OCEAN,
             Biome.LUKEWARM_OCEAN,
