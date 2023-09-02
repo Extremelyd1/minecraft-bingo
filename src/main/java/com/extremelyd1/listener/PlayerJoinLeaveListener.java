@@ -57,6 +57,12 @@ public class PlayerJoinLeaveListener implements Listener {
                 }
             }
 
+            for (UUID uuid : game.getTeamManager().getSpectatorTeam().getUUIDs()) {
+                if (uuid.equals(e.getUniqueId())) {
+                    return;
+                }
+            }
+
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
                     "Game is currently in progress"
