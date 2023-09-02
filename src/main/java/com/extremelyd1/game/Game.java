@@ -368,7 +368,7 @@ public class Game {
                         gameBoardManager.onTimeUpdate(timeLeft);
 
                         if (timeLeft <= 0) {
-                            WinReason winReason = winConditionChecker.decideWinner(teamManager.getActiveTeams());
+                            WinReason winReason = winConditionChecker.decideWinner(teamManager.getActiveTeams(), bingoCard);
                             end(winReason);
 
                             return true;

@@ -76,7 +76,8 @@ public class GameBoardManager {
             if (game.getConfig().showCurrentlyWinningTeam()) {
                 // Obtain a preliminary win reason
                 WinReason winReason = game.getWinConditionChecker().decideWinner(
-                        game.getTeamManager().getActiveTeams()
+                        game.getTeamManager().getActiveTeams(),
+                        game.getBingoCard()
                 );
 
                 // Based on this win reason update the in-game boards
