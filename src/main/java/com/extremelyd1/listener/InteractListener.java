@@ -3,9 +3,16 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.InventoryUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -66,15 +73,33 @@ public class InteractListener implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         Action action = e.getAction();
         if (game.getState().equals(Game.State.POST_GAME)) {
-            // Check if we right clicked a block
+            // Check if we right-clicked a block
             if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
                 Block clickedBlock = e.getClickedBlock();
                 if (clickedBlock != null) {
+                    // Obtain the NSM level for the world
+                    World world = clickedBlock.getWorld();
+                    CraftWorld craftWorld = (CraftWorld) world;
+                    ServerLevel level = craftWorld.getHandle();
+
+                    // Check if there is a block entity at the location of the clicked block
+                    BlockEntity blockEntity = level.getBlockEntity(new BlockPos(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ()));
+                    if (blockEntity != null) {
+                        // If this block entity is a randomizable container, we can generate the loot table for it
+                        if (blockEntity instanceof RandomizableContainerBlockEntity randomizableContainerBlockEntity) {
+                            // Get the NSM player and unpack the loot table into this block
+                            Player player = e.getPlayer();
+                            CraftPlayer craftPlayer = (CraftPlayer) player;
+
+                            randomizableContainerBlockEntity.unpackLootTable(craftPlayer.getHandle());
+                        }
+                    }
+
                     // Get block state and check if it is a container
                     BlockState blockState = clickedBlock.getState();
-                    if (blockState instanceof Container) {
+                    if (blockState instanceof Container container) {
                         // Create copy of inventory
-                        Inventory inventory = InventoryUtil.copyInventory(((Container) blockState).getInventory());
+                        Inventory inventory = InventoryUtil.copyInventory(container.getInventory());
                         // Show the player the copied inventory
                         e.getPlayer().openInventory(inventory);
                     }
