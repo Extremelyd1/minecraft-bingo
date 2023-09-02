@@ -71,7 +71,7 @@ public class LocationUtil {
 
             // Simply get highest block's Y value at the calculated position and increase it by 1
             circleLocation.setY(
-                    center.getWorld().getHighestBlockYAt(circleLocation) + 1
+                    center.getWorld().getHighestBlockYAt(circleLocation)
             );
 
             // Add 0.5 to X and Z to spawn on center of block
@@ -105,9 +105,10 @@ public class LocationUtil {
      * @return Whether this is a valid location to spawn
      */
     public static boolean isValidSpawnLocation(Location location) {
-        Material topMaterial = copyLocation(location).add(0, 1, 0).getBlock().getType();
-        Material middleMaterial = location.getBlock().getType();
-        Block bottomBlock = copyLocation(location).subtract(0, 1, 0).getBlock();
+        Material topMaterial = copyLocation(location).add(0, 2, 0).getBlock().getType();
+        Material middleMaterial = copyLocation(location).add(0, 1, 0).getBlock().getType();
+        Block bottomBlock = location.getBlock();
+
         // Check whether the bottom block is valid
         // Non-empty, non-liquid, non-passable
         boolean bottomValid = !bottomBlock.isEmpty()

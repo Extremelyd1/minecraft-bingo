@@ -51,6 +51,7 @@ public class Spiral {
      */
     public WorldChunkCoordinate step() {
         if (this.numIterations == 0) {
+            this.numIterations++;
             return this.currentChunk;
         }
 

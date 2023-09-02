@@ -37,7 +37,7 @@ public class WorldChunkCoordinate {
      */
     public Biome getBiome() {
         return getBiome(
-                this.world.getHighestBlockYAt(this.x, this.z) - 1
+                this.world.getHighestBlockYAt(this.x, this.z)
         );
     }
 
