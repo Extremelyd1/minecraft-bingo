@@ -55,11 +55,15 @@ public class Config {
      * The size of the world border
      */
     private final int overworldBorderSize;
-
     /**
      * The size of the nether border
      */
     private final int netherBorderSize;
+    /**
+     * Whether to override world generation when using pre-generated maps to prevent lag from chunks outside the
+     * world border.
+     */
+    private final boolean overrideWorldGeneration;
 
     /**
      * Whether to prevent teams from spawning in water
@@ -148,6 +152,7 @@ public class Config {
         borderEnabled = config.getBoolean("border.enable");
         overworldBorderSize = config.getInt("border.overworld-size");
         netherBorderSize = config.getInt("border.nether-size");
+        overrideWorldGeneration = config.getBoolean("border.override-world-generation");
 
         if (overworldBorderSize < netherBorderSize) {
             throw new IllegalArgumentException("Nether border should be at most as large as the overworld border size");
@@ -256,6 +261,10 @@ public class Config {
 
     public int getNetherBorderSize() {
         return netherBorderSize;
+    }
+
+    public boolean isOverrideWorldGeneration() {
+        return overrideWorldGeneration;
     }
 
     public boolean isTimerEnabled() {

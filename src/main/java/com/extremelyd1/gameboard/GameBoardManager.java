@@ -19,14 +19,26 @@ public class GameBoardManager {
     /**
      * The pregame board instance
      */
-    private final PregameBoard pregameBoard;
+    private PregameBoard pregameBoard;
     /**
      * A mapping from team to the respective in-game board
      */
-    private Map<Team, IngameBoard> ingameBoards;
+    private Map<Team, IngameBoard> inGameBoards;
+
+    /**
+     * Whether this manager is initialized.
+     */
+    private boolean isInitialized;
 
     public GameBoardManager(Game game) {
         this.game = game;
+    }
+
+    /**
+     * Initialize the game board manager by creating the pre-game board.
+     */
+    public void initialize() {
+        isInitialized = true;
 
         this.pregameBoard = new PregameBoard(game);
     }
@@ -35,22 +47,22 @@ public class GameBoardManager {
      * Creates the boards used while in the in-game phase
      * @param teams An iterable of teams for which to create the boards
      */
-    public void createIngameBoards(Iterable<PlayerTeam> teams) {
-        if (ingameBoards == null) {
-            ingameBoards = new HashMap<>();
+    public void createInGameBoards(Iterable<PlayerTeam> teams) {
+        if (inGameBoards == null) {
+            inGameBoards = new HashMap<>();
         }
 
         for (PlayerTeam team : teams) {
-            ingameBoards.put(team, new IngameBoard(game, team));
+            inGameBoards.put(team, new IngameBoard(game, team));
         }
     }
 
     public void createSpectatorBoard(Team spectatorTeam) {
-        if (ingameBoards == null) {
-            ingameBoards = new HashMap<>();
+        if (inGameBoards == null) {
+            inGameBoards = new HashMap<>();
         }
 
-        ingameBoards.put(spectatorTeam, new IngameBoard(game, spectatorTeam));
+        inGameBoards.put(spectatorTeam, new IngameBoard(game, spectatorTeam));
     }
 
     /**
@@ -71,7 +83,7 @@ public class GameBoardManager {
      */
     public void onItemCollected(PlayerTeam team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
-            ingameBoards.get(team).updateNumItems(team.getNumCollected());
+            inGameBoards.get(team).updateNumItems(team.getNumCollected());
 
             if (game.getConfig().showCurrentlyWinningTeam()) {
                 // Obtain a preliminary win reason
@@ -86,7 +98,7 @@ public class GameBoardManager {
                     leadingTeam = winReason.getTeam();
                 }
 
-                for (IngameBoard ingameBoard : ingameBoards.values()) {
+                for (IngameBoard ingameBoard : inGameBoards.values()) {
                     ingameBoard.updateWinningTeam(leadingTeam);
                 }
             }
@@ -99,7 +111,7 @@ public class GameBoardManager {
      */
     public void onTimeUpdate(long timeLeft) {
         if (game.getState().equals(Game.State.IN_GAME)) {
-            for (IngameBoard ingameBoard : ingameBoards.values()) {
+            for (IngameBoard ingameBoard : inGameBoards.values()) {
                 ingameBoard.updateTime(timeLeft);
             }
         }
@@ -113,11 +125,14 @@ public class GameBoardManager {
             pregameBoard.update(game, Bukkit.getOnlinePlayers().size());
             pregameBoard.broadcast();
         } else if (game.getState().equals(Game.State.IN_GAME)) {
-            for (IngameBoard ingameBoard : ingameBoards.values()) {
+            for (IngameBoard ingameBoard : inGameBoards.values()) {
                 ingameBoard.update();
                 ingameBoard.broadcast();
             }
         }
     }
 
+    public boolean isInitialized() {
+        return isInitialized;
+    }
 }

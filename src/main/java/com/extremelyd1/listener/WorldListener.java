@@ -17,12 +17,6 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlayerPortal(PlayerPortalEvent e) {
-        // Check if there exists a location that we are portalling to
-        if (e.getTo() == null) {
-            Game.getLogger().warning("Player portal event called, but target location is null");
-            return;
-        }
-
         // Check if the both portal ends have a world
         if (e.getTo().getWorld() == null
                 || e.getFrom().getWorld() == null) {

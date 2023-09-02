@@ -9,7 +9,6 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class GenerateCommand implements TabExecutor {
         }
 
         if (args[0].equalsIgnoreCase("stop")) {
-            game.getWorldManager().stopPregeneration();
+            game.getWorldManager().stopPreGeneration();
 
             return true;
         } else if (args.length < 2) {

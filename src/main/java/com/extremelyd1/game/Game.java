@@ -166,6 +166,7 @@ public class Game {
      * @param plugin The plugin instance to register the listeners to
      */
     private void registerListeners(JavaPlugin plugin) {
+        Bukkit.getPluginManager().registerEvents(this.worldManager, plugin);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinLeaveListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new ItemListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), plugin);
@@ -344,7 +345,7 @@ public class Game {
         worldManager.onGameStart();
 
         // Enable scoreboards
-        gameBoardManager.createIngameBoards(teamManager.getActiveTeams());
+        gameBoardManager.createInGameBoards(teamManager.getActiveTeams());
         gameBoardManager.createSpectatorBoard(teamManager.getSpectatorTeam());
         gameBoardManager.broadcast();
 
@@ -584,6 +585,10 @@ public class Game {
 
     public Config getConfig() {
         return config;
+    }
+
+    public GameBoardManager getGameBoardManager() {
+        return gameBoardManager;
     }
 
     public TeamManager getTeamManager() {
