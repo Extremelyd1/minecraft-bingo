@@ -108,6 +108,21 @@ public class BingoCard {
     }
 
     /**
+     * Checks whether the bingo item for the given material is locked due to its number of completions
+     * @param material The material that corresponds to a bingo item to check for
+     * @return False if the number of completions to lock is zero or the number of completions for the given item
+     * is less than the number of completions to lock
+     */
+    public boolean isItemLocked(Material material) {
+        BingoItem bingoItem = getItemByMaterial(material);
+        if (bingoItem == null) {
+            throw new IllegalArgumentException("No bingo item with the given material exists");
+        }
+
+        return isItemLocked(bingoItem);
+    }
+
+    /**
      * Gets the bingo item with the given material
      * @param material The material to search for
      * @return The bingo item with the given material or null if no such item exists

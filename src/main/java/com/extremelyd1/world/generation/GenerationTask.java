@@ -137,7 +137,6 @@ public class GenerationTask implements Runnable {
     public void run() {
         final String poolThreadName = Thread.currentThread().getName();
         Thread.currentThread().setName(String.format("BingoGen-%s Thread", world.getName()));
-        // TODO: change to config value instead of hardcoded value
         final Semaphore working = new Semaphore(MAX_PERMITS);
         startTime.set(System.currentTimeMillis());
         while (!stopped && chunkIterator.hasNext()) {

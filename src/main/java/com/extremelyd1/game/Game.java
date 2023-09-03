@@ -542,7 +542,11 @@ public class Game {
                                 + ChatColor.WHITE + " team has obtained "
                                 + ChatColor.AQUA + StringUtil.formatMaterialName(material)
                 );
+            }
 
+            if (config.notifyOtherTeamCompletions() ||
+                    (winConditionChecker.getCompletionsToLock() > 0 && bingoCard.isItemLocked(material))
+            ) {
                 // Update the cards of all players in all teams
                 for (PlayerTeam playerTeam : teamManager.getActiveTeams()) {
                     ItemUtil.updateBingoCard(bingoCard, playerTeam, bingoCardItemFactory);
@@ -550,8 +554,6 @@ public class Game {
             } else {
                 // Update only the bingo card of the players in the team that collected the item
                 ItemUtil.updateBingoCard(bingoCard, collectorTeam, bingoCardItemFactory);
-                // TODO: also might need to update other cards if lockout is enabled and this item is now locked
-                // for other teams
             }
 
             config.getProgressController().onCollection(this, collectorTeam, linesCompletedBefore);

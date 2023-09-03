@@ -184,7 +184,6 @@ public class Config {
         return progressController;
     }
 
-    // TODO: not used at the moment, make sure it is used when the blacklist is applied
     public boolean isBlacklistEnabled() {
         return enableBlacklist;
     }
