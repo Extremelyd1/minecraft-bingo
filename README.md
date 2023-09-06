@@ -20,10 +20,14 @@ The team with the highest number of items wins, or the game ends in a tie.
 Note that the bingo card can be right-clicked in order to view which items need to be gathered.
 
 ## Install
-The plugin can be downloaded from one of the [releases](https://github.com/Extremelyd1/minecraft-bingo/releases) or compiled yourself using Spigot.
-The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server running version 1.19. 
-Move the `.txt` files and the `images/images.zip` in the `item_data` folder to `<server>/plugins/MinecraftBingo/item_data`. 
-Then unzip the `images/images.zip` archive.
+Download the [latest release](https://github.com/Extremelyd1/minecraft-bingo/releases/latest) or compile it yourself using Gradle.
+The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server to run.
+Place the `MinecraftBingo-[version].jar` file in the plugins directory of your server.
+Unzip the `item_data.zip` into the `<server>/plugins/MinecraftBingo/` directory.
+If done successfully, you should have the following two directories:
+- `<server>/plugins/MinecraftBingo/item_data/`
+- `<server>/plugins/MinecraftBingo/item_data/images/`
+
 The first time you run the plugin a config file will be generated in `<server>/plugins/MinecraftBingo`, in which you can edit some configuration settings.
 
 ## Commands
@@ -65,8 +69,8 @@ The following command can be used to manage this:
 - `/generate <start world number> <number of worlds>` Start pre-generating the given number of worlds from the given index and storing them in zip format
 - `/generate stop` Stop pre-generating worlds  
 
-This command only works if the config value `pregeneration-mode` is enabled.
-The config file also include two parameters that can tweak/boost the chunk generation based on the processing power of your machine.
-The `ticks-per-cycle` parameter denotes the time between chunk generation cycles and `chunks-per-cycle` denotes how many chunks it should generate in a single cycle.
-A lower `ticks-per-cycle` and higher `chunks-per-cycle` will require more RAM and processing speed.
-Note that using this feature and increasing these parameters drastically may crash your server. 
+This command only works if the config value `pregeneration-mode.enabled` is set to `True`.
+Pre-generation also requires you to set a world border for the worlds you want to have generated.
+The sizes for these borders can be set in the config file: `border.overworld-size` and `border.nether-size`.
+All chunks within the world border, including a buffer of 2 chunks outside the world border will be generated in this process.
+When finished, the directories for the overworld and nether will be zipped as `world[number].zip` and placed in `<server>/plugins/MinecrftBingo/worlds/` directory.
