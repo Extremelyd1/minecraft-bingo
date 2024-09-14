@@ -11,8 +11,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -166,9 +166,9 @@ public class InteractListener implements Listener {
             }
 
             // Only allow the following inventory holding entities as interaction targets
-            if (entity.getType().equals(EntityType.MINECART_CHEST)
-                    || entity.getType().equals(EntityType.MINECART_FURNACE)
-                    || entity.getType().equals(EntityType.MINECART_HOPPER)) {
+            if (entity.getType().equals(EntityType.CHEST_MINECART)
+                    || entity.getType().equals(EntityType.FURNACE_MINECART)
+                    || entity.getType().equals(EntityType.HOPPER_MINECART)) {
                 InventoryHolder inventoryHolder = (InventoryHolder) entity;
 
                 e.getPlayer().openInventory(inventoryHolder.getInventory());
