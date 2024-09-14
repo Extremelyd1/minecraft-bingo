@@ -310,7 +310,7 @@ public class Game {
                     teamPlayer.addPotionEffect(PotionEffects.BLINDNESS.withDuration(freezeTimeOnStart * 20));
                     teamPlayer.addPotionEffect(PotionEffects.DARKNESS.withDuration(freezeTimeOnStart * 20));
                     teamPlayer.addPotionEffect(PotionEffects.SLOWNESS.withDuration(freezeTimeOnStart * 20));
-                    teamPlayer.addPotionEffect(PotionEffects.JUMP.withDuration(freezeTimeOnStart * 20));
+                    teamPlayer.addPotionEffect(PotionEffects.JUMP_BOOST.withDuration(freezeTimeOnStart * 20));
                 }
 
                 teamPlayer.teleport(location);

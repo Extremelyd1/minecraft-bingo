@@ -4,18 +4,18 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.world.generation.PreGenerationManager;
 
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.generator.structure.StructureType;
-import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.craftbukkit.CraftChunk;
 import org.bukkit.util.StructureSearchResult;
 
 import java.lang.reflect.Field;
@@ -196,11 +196,6 @@ public class WorldManager implements Listener {
         // Get the structure start map from the NMS Chunk
         // Suppress warnings are again needed due to generic cast and type erasure
         Map<Structure, StructureStart> structureStartMap = chunk.getAllStarts();
-
-        if (structureStartMap == null) {
-            Game.getLogger().warning("Structure start map is null");
-            return;
-        }
 
         StructureStart structureStart = null;
 

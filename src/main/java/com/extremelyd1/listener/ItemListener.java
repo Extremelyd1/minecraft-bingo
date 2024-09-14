@@ -8,7 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Beehive;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,7 +46,7 @@ public class ItemListener implements Listener {
     }};
 
     private static final Map<EntityType, Material> FOOD_TYPE_TO_MATERIAL = new HashMap<EntityType, Material>() {{
-        put(EntityType.MUSHROOM_COW, Material.MUSHROOM_STEW);
+        put(EntityType.MOOSHROOM, Material.MUSHROOM_STEW);
     }};
 
     @EventHandler
