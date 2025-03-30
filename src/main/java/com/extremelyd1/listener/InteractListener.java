@@ -243,7 +243,7 @@ public class InteractListener implements Listener {
                 }
             }
 
-            if (e.getAction().equals(InventoryAction.HOTBAR_MOVE_AND_READD)) {
+            if (e.getClick().equals(ClickType.NUMBER_KEY)) {
                 // We are dealing with a move to specific hotbar position
                 if (playerInventory.getStorageContents()[e.getHotbarButton()] != null) {
                     // The slot we are trying to move the result to is non-empty, so minecraft will not move the item
