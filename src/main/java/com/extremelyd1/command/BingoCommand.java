@@ -3,10 +3,10 @@ package com.extremelyd1.command;
 import com.extremelyd1.bingo.item.BingoItem;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
-import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.CommandUtil;
-import com.extremelyd1.util.StringUtil;
-import org.bukkit.ChatColor;
+import com.extremelyd1.util.ChatUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BingoCommand implements TabExecutor {
 
@@ -32,31 +31,18 @@ public class BingoCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!CommandUtil.checkCommandSender(sender, false, false)) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            String @NotNull [] strings
+    ) {
+        if (!CommandUtil.checkCommandSender(sender, game, false, false, true, true)) {
             return true;
         }
 
         Player player = (Player) sender;
-
-        if (!game.getState().equals(Game.State.IN_GAME)) {
-            player.sendMessage(
-                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command now"
-            );
-
-            return true;
-        }
-
-        Team team = game.getTeamManager().getTeamByPlayer(player);
-        if (team == null || team.isSpectatorTeam()) {
-            player.sendMessage(
-                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command as spectator"
-            );
-
-            return true;
-        }
-
-        PlayerTeam playerTeam = (PlayerTeam) team;
+        PlayerTeam playerTeam = (PlayerTeam) game.getTeamManager().getTeamByPlayer(player);
 
         List<Material> itemsCollected = new ArrayList<>();
         List<Material> itemsLeft = new ArrayList<>();
@@ -71,39 +57,62 @@ public class BingoCommand implements TabExecutor {
             }
         }
 
-        String itemsLeftString;
+        Component message = Component
+                .text("Items left on the board:")
+                .appendNewline();
 
-        if (itemsLeft.size() == 0) {
-            itemsLeftString = ChatColor.GRAY + "No items";
+        if (itemsLeft.isEmpty()) {
+            message = message.append(Component
+                    .text("No items")
+                    .color(NamedTextColor.GRAY)
+            );
         } else {
-            itemsLeftString = ChatColor.AQUA + itemsLeft.stream()
-                    .map(StringUtil::formatMaterialName)
-                    .collect(Collectors.joining(ChatColor.WHITE + ", " + ChatColor.AQUA));
+            appendFormattedMaterialList(message, itemsLeft);
         }
 
-        String itemsCollectedString;
+        message = message.appendNewline().append(Component
+                .text("Items already collected:")
+                .color(NamedTextColor.WHITE)
+                .appendNewline()
+        );
 
-        if (itemsCollected.size() == 0) {
-            itemsCollectedString = ChatColor.GRAY + "No items";
+        if (itemsCollected.isEmpty()) {
+            message = message.append(Component
+                    .text("No items")
+                    .color(NamedTextColor.GRAY)
+            );
         } else {
-            itemsCollectedString = ChatColor.AQUA + itemsCollected.stream()
-                    .map(StringUtil::formatMaterialName)
-                    .collect(Collectors.joining(ChatColor.WHITE + ", " + ChatColor.AQUA));
+            appendFormattedMaterialList(message, itemsCollected);
         }
 
-        String response = Game.PREFIX
-                + "Items left on the board:\n"
-                + itemsLeftString
-                + ChatColor.WHITE + "\nItems already collected:\n"
-                + itemsCollectedString;
-
-        player.sendMessage(response);
+        player.sendMessage(message);
 
         return true;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         return Collections.emptyList();
+    }
+
+    /**
+     * Append the given list of materials as formatted strings to the given component.
+     * @param baseComponent The component to append strings to.
+     * @param list The list of materials to format.
+     */
+    private static void appendFormattedMaterialList(Component baseComponent, List<Material> list) {
+        for (int i = 0; i < list.size(); i++) {
+            baseComponent = baseComponent.append(Component
+                    .text(ChatUtil.formatMaterialName(list.get(i)))
+                    .color(NamedTextColor.AQUA)
+            );
+
+            if (i != list.size() - 1) {
+                baseComponent = baseComponent.append(Component
+                        .text(", ")
+                        .color(NamedTextColor.WHITE)
+                );
+            }
+        }
     }
 }

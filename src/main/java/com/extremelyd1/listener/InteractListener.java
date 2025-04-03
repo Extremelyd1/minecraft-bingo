@@ -1,5 +1,6 @@
 package com.extremelyd1.listener;
 
+import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.InventoryUtil;
@@ -28,17 +29,22 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class InteractListener implements Listener {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
-    public InteractListener(Game game) {
+    /**
+     * The bingo card item factory instance to check whether an item is a bingo card.
+     */
+    private final BingoCardItemFactory bingoCardItemFactory;
+
+    public InteractListener(Game game, BingoCardItemFactory bingoCardItemFactory) {
         this.game = game;
+        this.bingoCardItemFactory = bingoCardItemFactory;
     }
 
     @EventHandler
@@ -129,12 +135,7 @@ public class InteractListener implements Listener {
         }
 
         ItemStack itemStack = e.getItem();
-        if (!itemStack.hasItemMeta()) {
-            return;
-        }
-
-        ItemMeta meta = itemStack.getItemMeta();
-        if (!meta.getDisplayName().contains("Bingo Card")) {
+        if (!bingoCardItemFactory.isBingoCard(itemStack)) {
             return;
         }
 
@@ -180,11 +181,9 @@ public class InteractListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player)) {
+        if (!(e.getWhoClicked() instanceof Player player)) {
             return;
         }
-
-        Player player = (Player) e.getWhoClicked();
 
         if (!game.getState().equals(Game.State.IN_GAME)) {
             e.setCancelled(true);
@@ -193,9 +192,7 @@ public class InteractListener implements Listener {
 
         if (e.getClick().equals(ClickType.MIDDLE)) {
             ItemStack itemStack = e.getCurrentItem();
-            if (itemStack != null
-                    && itemStack.hasItemMeta()
-                    && itemStack.getItemMeta().getDisplayName().contains("Bingo Card")) {
+            if (bingoCardItemFactory.isBingoCard(itemStack)) {
                 Team team = game.getTeamManager().getTeamByPlayer(player);
                 if (team == null || team.isSpectatorTeam()) {
                     return;
@@ -205,7 +202,7 @@ public class InteractListener implements Listener {
             }
         }
 
-        if (e.getView().getTitle().contains("Bingo Card")) {
+        if (game.getBingoCard().getBingoCardInventory().isBingoCard(e.getView().getTopInventory())) {
             e.setCancelled(true);
             return;
         }

@@ -3,6 +3,8 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,7 +37,7 @@ public class PlayerJoinLeaveListener implements Listener {
 
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    "Game is currently in maintenance mode"
+                    Component.text("Game is currently in maintenance mode")
             );
             return;
         }
@@ -43,7 +45,7 @@ public class PlayerJoinLeaveListener implements Listener {
         if (game.getConfig().isPreGenerateWorlds()) {
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    "Game is currently pre-generating worlds"
+                    Component.text("Game is currently pre-generating worlds")
             );
             return;
         }
@@ -65,7 +67,7 @@ public class PlayerJoinLeaveListener implements Listener {
 
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    "Game is currently in progress"
+                    Component.text("Game is currently in progress")
             );
         }
     }
@@ -85,7 +87,7 @@ public class PlayerJoinLeaveListener implements Listener {
 
             Location spawnLocation = game.getWorldManager().getSpawnLocation();
             player.teleport(spawnLocation);
-            player.setBedSpawnLocation(spawnLocation);
+            player.setRespawnLocation(spawnLocation);
         }
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
@@ -95,10 +97,16 @@ public class PlayerJoinLeaveListener implements Listener {
             team = game.getTeamManager().getSpectatorTeam();
         }
 
-        e.setJoinMessage(
-                ChatColor.GREEN + "+ " + ChatColor.RESET
-                        + team.getColor() + player.getName()
-                        + ChatColor.WHITE + " joined"
+        e.joinMessage(Component
+                .text("+ ")
+                .color(NamedTextColor.GREEN)
+                .append(Component
+                        .text(player.getName())
+                        .color(team.getColor())
+                ).append(Component
+                        .text(" joined")
+                        .color(NamedTextColor.WHITE)
+                )
         );
     }
 
@@ -112,19 +120,28 @@ public class PlayerJoinLeaveListener implements Listener {
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
         if (team == null) {
-            e.setQuitMessage(
-                    ChatColor.RED + "- "
-                            + player.getName()
-                            + ChatColor.WHITE + " left"
+            e.quitMessage(Component
+                    .text("- ")
+                    .color(NamedTextColor.RED)
+                    .append(Component
+                            .text(player.getName() + " left")
+                            .color(NamedTextColor.WHITE)
+                    )
             );
 
             return;
         }
 
-        e.setQuitMessage(
-                ChatColor.RED + "- "
-                        + team.getColor() + player.getName()
-                        + ChatColor.WHITE + " left"
+        e.quitMessage(Component
+                .text("- ")
+                .color(NamedTextColor.RED)
+                .append(Component
+                        .text(player.getName())
+                        .color(team.getColor())
+                ).append(Component
+                        .text(" left")
+                        .color(NamedTextColor.WHITE)
+                )
         );
     }
 

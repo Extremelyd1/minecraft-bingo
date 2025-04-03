@@ -1,5 +1,6 @@
 package com.extremelyd1.listener;
 
+import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.game.Game;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
@@ -21,7 +22,6 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,22 +30,28 @@ import java.util.Map;
 public class ItemListener implements Listener {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
-    public ItemListener(Game game) {
+    /**
+     * The bingo card item factory instance to check whether an item is a bingo card.
+     */
+    private final BingoCardItemFactory bingoCardItemFactory;
+
+    public ItemListener(Game game, BingoCardItemFactory bingoCardItemFactory) {
         this.game = game;
+        this.bingoCardItemFactory = bingoCardItemFactory;
     }
 
-    private static final Map<EntityType, Material> FISH_TYPE_TO_MATERIAL = new HashMap<EntityType, Material>() {{
+    private static final Map<EntityType, Material> FISH_TYPE_TO_MATERIAL = new HashMap<>() {{
         put(EntityType.SALMON, Material.SALMON_BUCKET);
         put(EntityType.COD, Material.COD_BUCKET);
         put(EntityType.PUFFERFISH, Material.PUFFERFISH_BUCKET);
         put(EntityType.TROPICAL_FISH, Material.TROPICAL_FISH_BUCKET);
     }};
 
-    private static final Map<EntityType, Material> FOOD_TYPE_TO_MATERIAL = new HashMap<EntityType, Material>() {{
+    private static final Map<EntityType, Material> FOOD_TYPE_TO_MATERIAL = new HashMap<>() {{
         put(EntityType.MOOSHROOM, Material.MUSHROOM_STEW);
     }};
 
@@ -73,9 +79,7 @@ public class ItemListener implements Listener {
             return;
         }
 
-        ItemMeta itemMeta = e.getItemDrop().getItemStack().getItemMeta();
-
-        if (itemMeta != null && itemMeta.getDisplayName().contains("Bingo Card")) {
+        if (bingoCardItemFactory.isBingoCard(e.getItemDrop().getItemStack())) {
             e.setCancelled(true);
         }
     }
@@ -124,8 +128,6 @@ public class ItemListener implements Listener {
                         FOOD_TYPE_TO_MATERIAL.get(entityType)
                 );
             }
-
-            return;
         }
     }
 
@@ -149,7 +151,7 @@ public class ItemListener implements Listener {
             return;
         }
 
-        // Check whether we are right clicking Beehives or Bee nests
+        // Check whether we are right-clicking Beehives or Bee nests
         if (clickedBlock != null) {
             Material clickedType = clickedBlock.getType();
 
@@ -180,13 +182,11 @@ public class ItemListener implements Listener {
                     }
 
                     // We only need AreaEffectCloud entities
-                    if (!(nmsEntity instanceof AreaEffectCloud)) {
+                    if (!(nmsEntity instanceof AreaEffectCloud effectCloud)) {
                         return false;
                     }
 
-                    // Cast it and do the same checks as the ItemGlassBottle class
-                    AreaEffectCloud effectCloud = (AreaEffectCloud) nmsEntity;
-
+                    // Do the same checks as the ItemGlassBottle class
                     return effectCloud.isAlive() && effectCloud.getOwner() instanceof EnderDragon;
                 }
         );

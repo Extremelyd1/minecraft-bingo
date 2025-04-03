@@ -1,29 +1,29 @@
 package com.extremelyd1.util;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ColorUtil {
 
-    private static final Map<ChatColor, Integer> chatColorIntegers = new HashMap<ChatColor, Integer>() {{
-        put(ChatColor.BLACK, getFromRgb(0, 0, 0));
-        put(ChatColor.DARK_BLUE, getFromRgb(0, 0, 170));
-        put(ChatColor.DARK_GREEN, getFromRgb(0, 170, 0));
-        put(ChatColor.DARK_AQUA, getFromRgb(0, 170, 170));
-        put(ChatColor.DARK_RED, getFromRgb(170, 0, 0));
-        put(ChatColor.DARK_PURPLE, getFromRgb(170, 0, 170));
-        put(ChatColor.GOLD, getFromRgb(170, 170, 0));
-        put(ChatColor.GRAY, getFromRgb(170, 170, 170));
-        put(ChatColor.DARK_GRAY, getFromRgb(85, 85, 85));
-        put(ChatColor.BLUE, getFromRgb(85, 85, 255));
-        put(ChatColor.GREEN, getFromRgb(127, 178, 56)); // Same as GRASS on maps (https://minecraft.fandom.com/wiki/Map_item_format)
-        put(ChatColor.AQUA, getFromRgb(43, 199, 172));
-        put(ChatColor.RED, getFromRgb(255, 0, 0));
-        put(ChatColor.LIGHT_PURPLE, getFromRgb(255, 85, 255));
-        put(ChatColor.YELLOW, getFromRgb(255, 255, 85));
-        put(ChatColor.WHITE, getFromRgb(255, 255, 255));
+    private static final Map<NamedTextColor, Integer> textColorIntegers = new HashMap<>() {{
+        put(NamedTextColor.BLACK, getFromRgb(0, 0, 0));
+        put(NamedTextColor.DARK_BLUE, getFromRgb(0, 0, 170));
+        put(NamedTextColor.DARK_GREEN, getFromRgb(0, 170, 0));
+        put(NamedTextColor.DARK_AQUA, getFromRgb(0, 170, 170));
+        put(NamedTextColor.DARK_RED, getFromRgb(170, 0, 0));
+        put(NamedTextColor.DARK_PURPLE, getFromRgb(170, 0, 170));
+        put(NamedTextColor.GOLD, getFromRgb(170, 170, 0));
+        put(NamedTextColor.GRAY, getFromRgb(170, 170, 170));
+        put(NamedTextColor.DARK_GRAY, getFromRgb(85, 85, 85));
+        put(NamedTextColor.BLUE, getFromRgb(85, 85, 255));
+        put(NamedTextColor.GREEN, getFromRgb(127, 178, 56)); // Same as GRASS on maps (https://minecraft.fandom.com/wiki/Map_item_format)
+        put(NamedTextColor.AQUA, getFromRgb(43, 199, 172));
+        put(NamedTextColor.RED, getFromRgb(255, 0, 0));
+        put(NamedTextColor.LIGHT_PURPLE, getFromRgb(255, 85, 255));
+        put(NamedTextColor.YELLOW, getFromRgb(255, 255, 85));
+        put(NamedTextColor.WHITE, getFromRgb(255, 255, 255));
     }};
 
     /**
@@ -42,12 +42,12 @@ public class ColorUtil {
     }
 
     /**
-     * Get an integer value representing the given ChatColor
-     * @param color The ChatColor
+     * Get an integer value representing the given NamedTextColor
+     * @param color The NamedTextColor
      * @return An integer value representing the color
      */
-    public static int chatColorToInt(ChatColor color) {
-        return chatColorIntegers.get(color);
+    public static int textColorToInt(NamedTextColor color) {
+        return textColorIntegers.get(color);
     }
 
 }

@@ -4,9 +4,11 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
+import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -16,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class TeamCommand implements TabExecutor {
 
@@ -31,7 +31,12 @@ public class TeamCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
@@ -43,12 +48,10 @@ public class TeamCommand implements TabExecutor {
         }
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
-            sender.sendMessage(
-                    ChatColor.DARK_RED
-                            + "Error: "
-                            + ChatColor.WHITE
-                            + "Cannot execute this command now"
-            );
+            sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                    .text("Cannot execute this command now")
+                    .color(NamedTextColor.WHITE)
+            ));
 
             return true;
         }
@@ -64,28 +67,28 @@ public class TeamCommand implements TabExecutor {
             try {
                 numTeams = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED + "Error: "
-                                + ChatColor.WHITE + "Could not parse team size argument"
-                );
+                sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                        .text("Could not parse team size argument")
+                        .color(NamedTextColor.WHITE)
+                ));
 
                 return true;
             }
 
             if (numTeams <= 0) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "Cannot create less than 1 team"
-                );
+                sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                        .text("Cannot create less than 1 team")
+                        .color(NamedTextColor.WHITE)
+                ));
 
                 return true;
             }
 
             if (numTeams >= TeamManager.MAX_TEAMS) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED + "Error: "
-                                + ChatColor.WHITE + "Cannot create more than 8 teams"
-                );
+                sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                        .text("Cannot create more than 8 teams")
+                        .color(NamedTextColor.WHITE)
+                ));
 
                 return true;
             }
@@ -100,11 +103,11 @@ public class TeamCommand implements TabExecutor {
                     }
 
                     Collection<Player> excludedPlayers = parsePlayerArguments(args, 3);
-                    if (excludedPlayers.size() == 0) {
-                        sender.sendMessage(
-                                ChatColor.DARK_RED + "Error: "
-                                        + ChatColor.WHITE + "Could not find the given players"
-                        );
+                    if (excludedPlayers.isEmpty()) {
+                        sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                                .text("Could not find the given players")
+                                .color(NamedTextColor.WHITE)
+                        ));
 
                         return true;
                     }
@@ -118,11 +121,11 @@ public class TeamCommand implements TabExecutor {
                 }
             }
 
-            if (players.size() == 0) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED + "Error: "
-                                + ChatColor.WHITE + "There are no players to create teams with"
-                );
+            if (players.isEmpty()) {
+                sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                        .text("There are no players to create teams with")
+                        .color(NamedTextColor.WHITE)
+                ));
 
                 return true;
             }
@@ -133,19 +136,19 @@ public class TeamCommand implements TabExecutor {
                     true
             );
 
-            sender.sendMessage(
-                    ChatColor.GREEN + "Successfully"
-                    + ChatColor.WHITE + " created random teams"
-            );
+            sender.sendMessage(ChatUtil.successPrefix().append(Component
+                    .text("Created random teams")
+                    .color(NamedTextColor.WHITE)
+            ));
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 3) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED
-                                + "Usage: "
-                                + ChatColor.WHITE
-                                + "/"
-                                + command.getName()
-                                + " add <player> <team-name>"
+                sender.sendMessage(Component
+                        .text("Usage: ")
+                        .color(NamedTextColor.DARK_RED)
+                        .append(Component
+                                .text("/ " + command.getName() + " add <player> <team name>")
+                                .color(NamedTextColor.WHITE)
+                        )
                 );
 
                 return true;
@@ -153,12 +156,10 @@ public class TeamCommand implements TabExecutor {
 
             Player argumentPlayer = getPlayerByName(args[1]);
             if (argumentPlayer == null) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED
-                                + "Error: "
-                                + ChatColor.WHITE
-                                + "Could not find player with that name"
-                );
+                sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                        .text("Could not find player with that name")
+                        .color(NamedTextColor.WHITE)
+                ));
 
                 return true;
             }
@@ -167,12 +168,10 @@ public class TeamCommand implements TabExecutor {
 
             PlayerTeam argumentTeam = teamManager.getTeamByName(args[2]);
             if (argumentTeam == null) {
-                sender.sendMessage(
-                        ChatColor.DARK_RED
-                                + "Error: "
-                                + ChatColor.WHITE
-                                + "Could not find team with that name"
-                );
+                sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                        .text("Could not find team with that name")
+                        .color(NamedTextColor.WHITE)
+                ));
 
                 return true;
             }
@@ -180,13 +179,13 @@ public class TeamCommand implements TabExecutor {
             teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);
         } else if (args[0].equalsIgnoreCase("remove")) {
                 if (args.length < 2) {
-                    sender.sendMessage(
-                            ChatColor.DARK_RED
-                                    + "Usage: "
-                                    + ChatColor.WHITE
-                                    + "/"
-                                    + command.getName()
-                                    + " remove <player>"
+                    sender.sendMessage(Component
+                            .text("Usage: ")
+                            .color(NamedTextColor.DARK_RED)
+                            .append(Component
+                                    .text("/ " + command.getName() + " remove <player>")
+                                    .color(NamedTextColor.WHITE)
+                            )
                     );
 
                     return true;
@@ -194,12 +193,10 @@ public class TeamCommand implements TabExecutor {
 
                 Player argumentPlayer = getPlayerByName(args[1]);
                 if (argumentPlayer == null) {
-                    sender.sendMessage(
-                            ChatColor.DARK_RED
-                                    + "Error: "
-                                    + ChatColor.WHITE
-                                    + "Could not find player with that name"
-                    );
+                    sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                            .text("Could not find player with that name")
+                            .color(NamedTextColor.WHITE)
+                    ));
 
                     return true;
                 }
@@ -208,12 +205,10 @@ public class TeamCommand implements TabExecutor {
 
                 Team team = teamManager.getTeamByPlayer(argumentPlayer);
                 if (team == null || team.isSpectatorTeam()) {
-                    sender.sendMessage(
-                            ChatColor.DARK_RED
-                                    + "Error: "
-                                    + ChatColor.WHITE
-                                    + "Player is not currently on a team"
-                    );
+                    sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                            .text("Player is not currently on a team")
+                            .color(NamedTextColor.WHITE)
+                    ));
 
                     return true;
                 }
@@ -231,40 +226,40 @@ public class TeamCommand implements TabExecutor {
     }
 
     /**
-     * Send the usage of this command to the given sender
-     * @param sender The sender to send the command to
-     * @param command The command instance
+     * Send the usage of this command to the given sender.
+     * @param sender The sender to send the command to.
+     * @param command The command instance.
      */
     private void sendUsage(CommandSender sender, Command command) {
-        sender.sendMessage(
-                ChatColor.DARK_RED
-                        + "Usage: "
-                        + ChatColor.WHITE
-                        + "/"
-                        + command.getName()
-                        + " <random|add|remove>"
+        sender.sendMessage(Component
+                .text("Usage: ")
+                .color(NamedTextColor.DARK_RED)
+                .append(Component
+                        .text("/ " + command.getName() + " <random|add|remove>")
+                        .color(NamedTextColor.WHITE)
+                )
         );
     }
 
     /**
-     * Send the usage of the random sub command
-     * @param sender The sender to send the usag eto
+     * Send the usage of the random sub command.
+     * @param sender The sender to send the usage to.
      */
     private void sendUsageRandom(CommandSender sender, Command command) {
-        sender.sendMessage(
-                ChatColor.DARK_RED
-                        + "Usage: "
-                        + ChatColor.WHITE
-                        + "/"
-                        + command.getName()
-                        + " random <num teams> [-e] [players...]"
+        sender.sendMessage(Component
+                .text("Usage: ")
+                .color(NamedTextColor.DARK_RED)
+                .append(Component
+                        .text("/ " + command.getName() + " random <num teams> [-e] [players...]")
+                        .color(NamedTextColor.WHITE)
+                )
         );
     }
 
     /**
-     * Get a player by its name
-     * @param name The name of the player
-     * @return The player corresponding to this name, or null if no such player exists
+     * Get a player by its name.
+     * @param name The name of the player.
+     * @return The player corresponding to this name, or null if no such player exists.
      */
     private Player getPlayerByName(String name) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -277,10 +272,10 @@ public class TeamCommand implements TabExecutor {
     }
 
     /**
-     * Parse the given argument list to player instances
-     * @param args The argument list
-     * @param index The index to start parsing at
-     * @return A collection of players that match the names given in the argument list
+     * Parse the given argument list to player instances.
+     * @param args The argument list.
+     * @param index The index to start parsing at.
+     * @return A collection of players that match the names given in the argument list.
      */
     private Collection<Player> parsePlayerArguments(String[] args, int index) {
         Collection<Player> players = new ArrayList<>();
@@ -299,7 +294,12 @@ public class TeamCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             return Collections.emptyList();
         }
@@ -310,15 +310,7 @@ public class TeamCommand implements TabExecutor {
 
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("random")) {
-                List<String> numTeams = new ArrayList<>();
-                for (int i = 1; i <= TeamManager.MAX_TEAMS; i++) {
-                    String s = String.valueOf(i);
-                    if (s.startsWith(args[1])) {
-                        numTeams.add(s);
-                    }
-                }
-
-                return numTeams;
+                return CommandUtil.GetTabCompletionForNumTeams(args[1]);
             } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                 // Get all online players and return their names
                 return Bukkit.getOnlinePlayers().stream()

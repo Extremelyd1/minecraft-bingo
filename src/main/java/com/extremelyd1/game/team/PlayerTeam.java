@@ -1,5 +1,6 @@
 package com.extremelyd1.game.team;
 
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
@@ -18,7 +19,7 @@ public class PlayerTeam extends Team {
      */
     private Location spawnLocation;
 
-    public PlayerTeam(String name, ChatColor color) {
+    public PlayerTeam(String name, NamedTextColor color) {
         super(name, color, false);
     }
 

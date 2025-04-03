@@ -2,7 +2,8 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.CommandUtil;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -24,7 +25,12 @@ public class GenerateCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
@@ -73,7 +79,13 @@ public class GenerateCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String
+            @NotNull [] args
+    ) {
         if (args.length == 1) {
             return List.of("stop");
         }
@@ -87,13 +99,13 @@ public class GenerateCommand implements TabExecutor {
      * @param command The command instance
      */
     private void sendUsage(CommandSender sender, Command command) {
-        sender.sendMessage(
-                ChatColor.DARK_RED
-                        + "Usage: "
-                        + ChatColor.WHITE
-                        + "/"
-                        + command.getName()
-                        + " stop | <start> <numberOfWorlds>"
+        sender.sendMessage(Component
+                .text("Usage: ")
+                .color(NamedTextColor.DARK_RED)
+                .append(Component
+                        .text("/" + command.getName() + " stop | <start> <number of worlds>")
+                        .color(NamedTextColor.WHITE)
+                )
         );
     }
 }

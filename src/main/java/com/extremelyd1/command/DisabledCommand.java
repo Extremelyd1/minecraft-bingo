@@ -1,6 +1,8 @@
 package com.extremelyd1.command;
 
-import org.bukkit.ChatColor;
+import com.extremelyd1.util.ChatUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -13,17 +15,27 @@ import java.util.List;
 public class DisabledCommand implements TabExecutor {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage(
-                ChatColor.DARK_RED + "Error: "
-                        + ChatColor.WHITE + "this command is currently disabled"
-        );
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
+        sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                .text("This command is currently disabled")
+                .color(NamedTextColor.WHITE)
+        ));
 
         return true;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         return Collections.emptyList();
     }
 }

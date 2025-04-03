@@ -1,8 +1,8 @@
 package com.extremelyd1.game.team;
 
-import com.extremelyd1.game.Game;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -12,28 +12,28 @@ import java.util.UUID;
 public class Team {
 
     /**
-     * The name of the team
+     * The name of the team.
      */
     protected final String name;
     /**
-     * The color of the team
+     * The color of the team.
      */
-    protected final ChatColor color;
+    protected final NamedTextColor color;
     /**
-     * The list of players in this team, stored as UUIDs
+     * The list of players in this team, stored as UUIDs.
      */
     protected final List<UUID> uuids;
 
     /**
-     * Whether this is an spectator team
+     * Whether this is a spectator team.
      */
     protected final boolean isSpectatorTeam;
 
     public Team() {
-        this("Spectators", ChatColor.WHITE, true);
+        this("Spectators", NamedTextColor.WHITE, true);
     }
 
-    public Team(String name, ChatColor color, boolean isSpectatorTeam) {
+    public Team(String name, NamedTextColor color, boolean isSpectatorTeam) {
         this.name = name;
         this.color = color;
 
@@ -43,50 +43,47 @@ public class Team {
     }
 
     /**
-     * Add a player to this team
-     * @param player The player to add
-     */
-    void addPlayer(Player player) {
-        this.addPlayer(player, false);
-    }
-
-    /**
-     * Add a player to this team, and whether to notify them of their new team
-     * @param player The player to add
-     * @param notify Whether to notify the player of their new team
+     * Add a player to this team, and whether to notify them of their new team.
+     * @param player The player to add.
+     * @param notify Whether to notify the player of their new team.
      */
     void addPlayer(Player player, boolean notify) {
         this.uuids.add(player.getUniqueId());
 
         if (notify) {
-            player.sendMessage(
-                    Game.PREFIX +
-                            "Joined "
-                            + color + name
-                            + ChatColor.WHITE + " team"
+            player.sendMessage(Component
+                    .text("Joined ")
+                    .color(NamedTextColor.WHITE)
+                    .append(Component
+                            .text(name)
+                            .color(color)
+                    ).append(Component
+                            .text(" team")
+                            .color(NamedTextColor.WHITE)
+                    )
             );
         }
     }
 
     /**
-     * Remove a player from this team
-     * @param player The player to remove
+     * Remove a player from this team.
+     * @param player The player to remove.
      */
     void removePlayer(Player player) {
         this.uuids.remove(player.getUniqueId());
     }
 
     /**
-     * Check whether the given player is on this team
-     * @param player The player to check for
-     * @return Whether to player is on this team
+     * Check whether the given player is on this team.
+     * @param player The player to check for.
+     * @return Whether to player is on this team.
      */
     public boolean contains(Player player) {
         return this.uuids.contains(player.getUniqueId());
     }
 
     /**
-     * Removes all players from this team
+     * Removes all players from this team.
      */
     public void clear() {
         uuids.clear();
@@ -96,14 +93,14 @@ public class Team {
         return name;
     }
 
-    public ChatColor getColor() {
+    public NamedTextColor getColor() {
         return color;
     }
 
     /**
      * Gets player objects in this team by retrieving them by UUID,
-     * does not return any null objects
-     * @return An iterable of Player instances
+     * does not return any null objects.
+     * @return An iterable of Player instances.
      */
     public Iterable<Player> getPlayers() {
         return () -> uuids.stream()
@@ -120,8 +117,8 @@ public class Team {
     }
 
     /**
-     * Gets the number of players on this team
-     * @return The number of players on this team
+     * Gets the number of players on this team.
+     * @return The number of players on this team.
      */
     public int getNumPlayers() {
         return uuids.size();

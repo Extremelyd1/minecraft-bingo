@@ -99,14 +99,14 @@ public class GameBoard {
             }
 
             // Get scoreboard team with color enum name
-            Team scoreboardTeam = scoreboard.getTeam(gameTeam.getColor().name());
+            Team scoreboardTeam = scoreboard.getTeam(gameTeam.getName());
 
             if (scoreboardTeam == null) {
                 // Create new scoreboard team with color enum name
-                scoreboardTeam = scoreboard.registerNewTeam(gameTeam.getColor().name());
+                scoreboardTeam = scoreboard.registerNewTeam(gameTeam.getName());
 
                 // Set prefix to color code
-                scoreboardTeam.setColor(gameTeam.getColor());
+                scoreboardTeam.color(gameTeam.getColor());
             }
 
             // Add player name to this scoreboard team
@@ -127,7 +127,7 @@ public class GameBoard {
     /**
      * Format the win condition of the given WinConditionChecker to a human readable form
      * @param winConditionChecker The class containing the win condition
-     * @return A human readable string representing the win condition
+     * @return A human-readable string representing the win condition
      */
     protected String formatWinCondition(WinConditionChecker winConditionChecker) {
         int completionsToLock = winConditionChecker.getCompletionsToLock();
