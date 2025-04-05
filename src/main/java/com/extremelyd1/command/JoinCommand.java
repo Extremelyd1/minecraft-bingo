@@ -78,7 +78,7 @@ public class JoinCommand implements TabExecutor {
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/ " + command.getName() + " <team name>")
+                        .text("/" + command.getName() + " <team name>")
                         .color(NamedTextColor.WHITE)
                 )
         );

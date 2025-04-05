@@ -212,7 +212,12 @@ public class WinConditionCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             return Collections.emptyList();
         }

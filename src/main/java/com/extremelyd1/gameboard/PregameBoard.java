@@ -5,113 +5,144 @@ import com.extremelyd1.gameboard.boardEntry.BlankBoardEntry;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import com.extremelyd1.gameboard.boardEntry.DynamicBoardEntry;
 import com.extremelyd1.util.TimeUtil;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
- * Represents the scoreboard in the pregame state
+ * Represents the scoreboard in the pregame state.
  */
 public class PregameBoard extends GameBoard {
 
     /**
-     * The entry representing the number of players online
+     * The entry representing the number of players online.
      */
     private final DynamicBoardEntry<Integer> numPlayersEntry;
 
-    private final DynamicBoardEntry<String> currentItemDistribution;
+    /**
+     * The entry representing the current item distribution.
+     */
+    private final DynamicBoardEntry<Component> currentItemDistribution;
 
-    private final DynamicBoardEntry<String> timerStatus;
+    /**
+     * The entry representing the timer status.
+     */
+    private final DynamicBoardEntry<Component> timerStatus;
 
+    /**
+     * The entry representing the game type.
+     */
     private final DynamicBoardEntry<String> gameTypeEntry;
 
     public PregameBoard(Game game) {
         super(game);
 
-        this.objective.setDisplayName(
-                ChatColor.BOLD.toString()
-                        + ChatColor.YELLOW.toString()
-                        + "Minecraft Bingo"
-        );
-
-        int numberOfSpaces = 1;
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
-        this.boardEntries.add(new BoardEntry(
-                "Status: " + ChatColor.YELLOW + "Pre-Game"
+        this.boardEntries.add(new BlankBoardEntry());
+        this.boardEntries.add(new BoardEntry(Component
+                .text("Status: ")
+                .append(Component
+                        .text("Pre-Game")
+                        .color(NamedTextColor.YELLOW)
+                )
         ));
-        this.boardEntries.add(new BoardEntry("Waiting for players..."));
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
-        numPlayersEntry = new DynamicBoardEntry<>(
-                "Players: " + ChatColor.YELLOW + "%d",
+        this.boardEntries.add(new BoardEntry(Component
+                .text("Waiting for players...")
+        ));
+        this.boardEntries.add(new BlankBoardEntry());
+        numPlayersEntry = new DynamicBoardEntry<>(Component
+                .text("Players: ")
+                .append(Component
+                        .text("%s")
+                        .color(NamedTextColor.YELLOW)
+                ),
                 0
         );
         this.boardEntries.add(numPlayersEntry);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
-        this.boardEntries.add(new BoardEntry("Item Distribution:"));
+        this.boardEntries.add(new BlankBoardEntry());
+        this.boardEntries.add(new BoardEntry(Component
+                .text("Item Distribution:")
+        ));
 
         currentItemDistribution = new DynamicBoardEntry<>(
-                "%s",
-                String.format(ChatColor.DARK_RED + "%d "
-                        + ChatColor.RED + "%d "
-                        + ChatColor.GOLD + "%d "
-                        + ChatColor.YELLOW + "%d "
-                        + ChatColor.GREEN + "%d",
-                        game.getConfig().getNumSTier(),
-                        game.getConfig().getNumATier(),
-                        game.getConfig().getNumBTier(),
-                        game.getConfig().getNumCTier(),
-                        game.getConfig().getNumDTier()
-                )
+                Component.empty(),
+                getItemDistributionComponent(game)
         );
         this.boardEntries.add(currentItemDistribution);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+        this.boardEntries.add(new BlankBoardEntry());
 
-        timerStatus = new DynamicBoardEntry<>(
-                "Timer: %s",
-                "00:00"
+        timerStatus = new DynamicBoardEntry<>(Component
+                .text("Timer: "),
+                Component
+                        .text("00:00")
         );
         this.boardEntries.add(timerStatus);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+        this.boardEntries.add(new BlankBoardEntry());
 
-        gameTypeEntry = new DynamicBoardEntry<>(
-                "Game Type: %s",
+        gameTypeEntry = new DynamicBoardEntry<>(Component
+                .text("Game Type: ")
+                .append(Component
+                        .text("%s")
+                        .color(NamedTextColor.GOLD)
+                ),
                 "-"
         );
         this.boardEntries.add(gameTypeEntry);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
+        this.boardEntries.add(new BlankBoardEntry());
     }
 
-    private String getItemDistributionString(Game game) {
-        return String.format(ChatColor.DARK_RED + "%d "
-                        + ChatColor.RED + "%d "
-                        + ChatColor.GOLD + "%d "
-                        + ChatColor.YELLOW + "%d "
-                        + ChatColor.GREEN + "%d",
-                game.getConfig().getNumSTier(),
-                game.getConfig().getNumATier(),
-                game.getConfig().getNumBTier(),
-                game.getConfig().getNumCTier(),
-                game.getConfig().getNumDTier()
-        );
+    /**
+     * Get the item distribution component for the board.
+     * @param game The game instance for getting the item distribution configuration.
+     * @return A component that represents the item distribution.
+     */
+    private static Component getItemDistributionComponent(Game game) {
+        return Component
+                .text(game.getConfig().getNumSTier())
+                .color(NamedTextColor.DARK_RED)
+                .appendSpace()
+                .append(Component
+                        .text(game.getConfig().getNumATier())
+                        .color(NamedTextColor.RED)
+                ).appendSpace()
+                .append(Component
+                        .text(game.getConfig().getNumBTier())
+                        .color(NamedTextColor.GOLD)
+                ).appendSpace()
+                .append(Component
+                        .text(game.getConfig().getNumCTier())
+                        .color(NamedTextColor.YELLOW)
+                ).appendSpace()
+                .append(Component
+                        .text(game.getConfig().getNumDTier())
+                        .color(NamedTextColor.GREEN)
+                );
     }
 
-    private String getTimerStatus(Game game) {
+    /**
+     * Get the status of the timer.
+     * @param game The game instance for getting the timer configuration.
+     * @return A component that represents the timer status.
+     */
+    private static Component getTimerStatus(Game game) {
         if (game.getConfig().isTimerEnabled()) {
-            return ChatColor.GREEN + TimeUtil.formatTimeLeft(game.getConfig().getTimerLength());
+            return Component
+                    .text(TimeUtil.formatTimeLeft(game.getConfig().getTimerLength()))
+                    .color(NamedTextColor.GREEN);
         } else {
-            return ChatColor.RED + "Disabled";
+            return Component
+                    .text("Disabled")
+                    .color(NamedTextColor.RED);
         }
     }
 
     /**
-     * Updates this board with the new number of players
-     * @param numPlayers The new number of players
+     * Updates this board with the new number of players.
+     * @param numPlayers The new number of players.
      */
     public void update(Game game, int numPlayers) {
         numPlayersEntry.setValue(numPlayers);
-        currentItemDistribution.setValue(getItemDistributionString(game));
+        currentItemDistribution.setValue(getItemDistributionComponent(game));
         timerStatus.setValue(getTimerStatus(game));
-        gameTypeEntry.setValue(
-                ChatColor.GOLD + formatWinCondition(game.getWinConditionChecker())
-        );
+        gameTypeEntry.setValue(formatWinCondition(game.getWinConditionChecker()));
 
         super.update();
     }

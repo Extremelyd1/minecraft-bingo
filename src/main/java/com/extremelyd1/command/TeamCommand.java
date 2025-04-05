@@ -146,7 +146,7 @@ public class TeamCommand implements TabExecutor {
                         .text("Usage: ")
                         .color(NamedTextColor.DARK_RED)
                         .append(Component
-                                .text("/ " + command.getName() + " add <player> <team name>")
+                                .text("/" + command.getName() + " add <player> <team name>")
                                 .color(NamedTextColor.WHITE)
                         )
                 );
@@ -183,7 +183,7 @@ public class TeamCommand implements TabExecutor {
                             .text("Usage: ")
                             .color(NamedTextColor.DARK_RED)
                             .append(Component
-                                    .text("/ " + command.getName() + " remove <player>")
+                                    .text("/" + command.getName() + " remove <player>")
                                     .color(NamedTextColor.WHITE)
                             )
                     );
@@ -235,7 +235,7 @@ public class TeamCommand implements TabExecutor {
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/ " + command.getName() + " <random|add|remove>")
+                        .text("/" + command.getName() + " <random|add|remove>")
                         .color(NamedTextColor.WHITE)
                 )
         );
@@ -250,7 +250,7 @@ public class TeamCommand implements TabExecutor {
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/ " + command.getName() + " random <num teams> [-e] [players...]")
+                        .text("/" + command.getName() + " random <num teams> [-e] [players...]")
                         .color(NamedTextColor.WHITE)
                 )
         );

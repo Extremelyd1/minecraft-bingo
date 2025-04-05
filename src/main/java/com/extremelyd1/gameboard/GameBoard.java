@@ -3,43 +3,43 @@ package com.extremelyd1.gameboard;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.winCondition.WinConditionChecker;
 import com.extremelyd1.gameboard.boardEntry.BoardEntry;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a scoreboard with GameBoardEntry instances in it
+ * Represents a scoreboard with GameBoardEntry instances in it.
  */
 public class GameBoard {
 
     /**
-     * The last id of a created objective
-     * Makes sure that there are no collisions between objective names
+     * The last id of a created objective.
+     * Makes sure that there are no collisions between objective names.
      */
     protected static int lastObjectiveId = 0;
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
     /**
-     * The Scoreboard instance of the game board
+     * The Scoreboard instance of the game board.
      */
     protected Scoreboard scoreboard;
     /**
-     * The Objective instance of this Scoreboard
+     * The Objective instance of this Scoreboard.
      */
     protected Objective objective;
 
     /**
-     * The list of entries on this board
+     * The list of entries on this board.
      */
     protected List<BoardEntry> boardEntries;
 
@@ -49,28 +49,34 @@ public class GameBoard {
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         this.objective = this.scoreboard.registerNewObjective(
                 String.valueOf(lastObjectiveId++),
-                "dummy",
-                "scoreboard"
+                Criteria.DUMMY,
+                Component.text("Minecraft Bingo")
+                        .color(NamedTextColor.YELLOW)
+                        .decorate(TextDecoration.BOLD)
         );
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         this.boardEntries = new ArrayList<>();
     }
 
     /**
-     * Updates this board by updating all board entries and resetting the prefixes of players
+     * Updates this board by updating all board entries and resetting the prefixes of players.
      * The following steps are taken to update the board efficiently.
-     * - Remove scores that no longer exist in the board
-     * - Update the board to the most recent scores which will add new values/update existing ones
+     * - Remove scores that no longer exist in the board.
+     * - Update the board to the most recent scores which will add new values/update existing ones.
      */
     public void update() {
-        //Remove entries that no longer exist
+        // Remove entries that no longer exist
         for (String entry : this.scoreboard.getEntries()) {
             boolean entryStillExists = false;
 
-            for (BoardEntry newEntry: boardEntries) {
-                if (newEntry.getString().equals(entry)) {
-                    entryStillExists = true;
-                    break;
+            Team team = this.scoreboard.getEntryTeam(entry);
+            if (team != null) {
+                Component prefix = team.prefix();
+                for (BoardEntry newEntry : boardEntries) {
+                    if (newEntry.getComponent().equals(prefix)) {
+                        entryStillExists = true;
+                        break;
+                    }
                 }
             }
 
@@ -81,7 +87,17 @@ public class GameBoard {
 
         // Add the new scores/update existing ones
         for (int i = 0; i < boardEntries.size(); i++) {
-            this.objective.getScore(boardEntries.get(i).getString()).setScore(boardEntries.size() - i);
+            Team team = this.scoreboard.getTeam(String.valueOf(i));
+            if (team == null) {
+                team = this.scoreboard.registerNewTeam(String.valueOf(i));
+            }
+
+            String entry = spacedString(i);
+
+            team.addEntry(entry);
+            team.prefix(boardEntries.get(i).getComponent());
+
+            this.objective.getScore(entry).setScore(boardEntries.size() - i);
         }
 
         // Update team colors
@@ -116,7 +132,7 @@ public class GameBoard {
     }
 
     /**
-     * Broadcasts this board to all online players
+     * Broadcasts this board to all online players.
      */
     public void broadcast() {
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -125,9 +141,9 @@ public class GameBoard {
     }
 
     /**
-     * Format the win condition of the given WinConditionChecker to a human readable form
-     * @param winConditionChecker The class containing the win condition
-     * @return A human-readable string representing the win condition
+     * Format the win condition of the given WinConditionChecker to a human-readable form.
+     * @param winConditionChecker The class containing the win condition.
+     * @return A human-readable string representing the win condition.
      */
     protected String formatWinCondition(WinConditionChecker winConditionChecker) {
         int completionsToLock = winConditionChecker.getCompletionsToLock();
@@ -149,4 +165,12 @@ public class GameBoard {
         return numLines + " Line" + (numLines == 1 ? "" : "s");
     }
 
+    /**
+     * Get a string consisting of spaces with the given number of spaces.
+     * @param numberOfSpaces The number of spaces in the string.
+     * @return A string consisting of spaces.
+     */
+    public static String spacedString(int numberOfSpaces) {
+        return " ".repeat(Math.max(0, numberOfSpaces));
+    }
 }

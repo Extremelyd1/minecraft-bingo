@@ -1,20 +1,15 @@
 package com.extremelyd1.util;
 
-import com.extremelyd1.game.team.Team;
-import com.extremelyd1.game.team.TeamManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 public class ChatUtil {
     /**
-     * Formats the given material into a nice human-readable string
-     * @param material The material to format
-     * @return A nice human-readable string
+     * Formats the given material into a nice human-readable string.
+     * @param material The material to format.
+     * @return A nice human-readable string.
      */
     public static String formatMaterialName(Material material) {
         String[] wordSplit = material.name().split("_");
@@ -39,8 +34,11 @@ public class ChatUtil {
     }
 
     public static Component divider() {
-        return Component.text("                                                                        ")
-                .style(Style.style(TextDecoration.STRIKETHROUGH));
+        return Component.empty().append(Component
+                .text(" ".repeat(80))
+                .color(NamedTextColor.BLUE)
+                .decorate(TextDecoration.STRIKETHROUGH)
+        );
     }
 
     public static Component errorPrefix() {
