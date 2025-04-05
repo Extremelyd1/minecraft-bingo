@@ -108,7 +108,7 @@ public class BingoCardItemFactory {
     /**
      * Create an ItemStack from the given bingo card
      *
-     * @param bingoCard      The BingoCard to make the itemstack from
+     * @param bingoCard      The BingoCard to make the item stack from
      * @param team           The team that this card should be created for
      * @return The created ItemStack
      */
@@ -119,7 +119,7 @@ public class BingoCardItemFactory {
     /**
      * Create an ItemStack from the given bingo card
      *
-     * @param bingoCard      The BingoCard to make the itemstack from
+     * @param bingoCard      The BingoCard to make the item stack from
      * @param team           The team that this card should be created for
      * @param borderColor    The color of the border of the bingo card
      * @return The created ItemStack

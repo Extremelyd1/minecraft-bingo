@@ -10,7 +10,7 @@ public class BoardEntry {
     /**
      * The component for this entry.
      */
-    protected Component component;
+    protected final Component component;
 
     public BoardEntry(Component component) {
         this.component = component;

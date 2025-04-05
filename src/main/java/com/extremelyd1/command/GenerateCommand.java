@@ -94,8 +94,8 @@ public class GenerateCommand implements TabExecutor {
     }
 
     /**
-     * Send the usage of this command to the given commandsender
-     * @param sender The commandsender to send the usage to
+     * Send the usage of this command to the given command sender
+     * @param sender The command sender to send the usage to
      * @param command The command instance
      */
     private void sendUsage(CommandSender sender, Command command) {

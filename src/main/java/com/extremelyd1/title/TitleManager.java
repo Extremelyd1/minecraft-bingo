@@ -34,7 +34,7 @@ public class TitleManager {
      * @param winReason The win reason
      */
     public void sendEndTitle(WinReason winReason) {
-        String title = "";
+        String title;
         String subtitle = "";
 
         switch (winReason.getReason()) {

@@ -47,7 +47,7 @@ public class ItemUtil {
     }
 
     /**
-     * Get the itemstack of the bingo card from the given player
+     * Get the item stack of the bingo card from the given player
      * @param player The player to get the item stack from
      * @return The ItemStack of the bingo card item
      */

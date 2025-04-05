@@ -69,7 +69,7 @@ public class LocationUtil {
                     Math.floor(center.getZ() + Math.sin(currentAngle) * radius)
             );
 
-            // Simply get highest block's Y value at the calculated position and increase it by 1
+            // Simply get the highest block's Y value at the calculated position and increase it by 1
             circleLocation.setY(
                     center.getWorld().getHighestBlockYAt(circleLocation)
             );
@@ -132,7 +132,7 @@ public class LocationUtil {
     }
 
     /**
-     * Checks whether a given location is inside the worldborder
+     * Checks whether a given location is inside the world border
      * @param location The location
      * @return True if it is in the world border, false otherwise
      */

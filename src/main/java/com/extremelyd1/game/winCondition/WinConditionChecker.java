@@ -164,7 +164,7 @@ public class WinConditionChecker {
             );
         } else {
             winReason = new WinReason(
-                    potentialWinners.get(0),
+                    potentialWinners.getFirst(),
                     WinReason.Reason.COMPLETE
             );
         }

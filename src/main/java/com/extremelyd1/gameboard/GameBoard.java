@@ -32,16 +32,16 @@ public class GameBoard {
     /**
      * The Scoreboard instance of the game board.
      */
-    protected Scoreboard scoreboard;
+    protected final Scoreboard scoreboard;
     /**
      * The Objective instance of this Scoreboard.
      */
-    protected Objective objective;
+    protected final Objective objective;
 
     /**
      * The list of entries on this board.
      */
-    protected List<BoardEntry> boardEntries;
+    protected final List<BoardEntry> boardEntries;
 
     public GameBoard(Game game) {
         this.game = game;

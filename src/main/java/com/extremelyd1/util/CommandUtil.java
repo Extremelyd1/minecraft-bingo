@@ -74,7 +74,7 @@ public class CommandUtil {
             boolean disallowSpectator
     ) {
         if (!checkCommandSender(sender, allowConsole, needsOp)) {
-            return false;
+            return true;
         }
 
         Player player = (Player) sender;
@@ -85,7 +85,7 @@ public class CommandUtil {
                     .color(NamedTextColor.WHITE))
             );
 
-            return false;
+            return true;
         }
 
         if (disallowSpectator) {
@@ -96,11 +96,11 @@ public class CommandUtil {
                         .color(NamedTextColor.WHITE))
                 );
 
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     /**

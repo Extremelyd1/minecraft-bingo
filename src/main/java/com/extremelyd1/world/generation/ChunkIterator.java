@@ -12,6 +12,7 @@ public class ChunkIterator {
     /**
      * The minimum x coordinate of the corner chunks.
      */
+    @SuppressWarnings("FieldCanBeLocal")
     private final int x1;
     /**
      * The maximum x coordinate of the corner chunk.

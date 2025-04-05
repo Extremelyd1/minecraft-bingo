@@ -43,7 +43,7 @@ public class CardCommand implements TabExecutor {
             @NotNull String s,
             String @NotNull [] strings
     ) {
-        if (!CommandUtil.checkCommandSender(sender, game, false, false, true, true)) {
+        if (CommandUtil.checkCommandSender(sender, game, false, false, true, true)) {
             return true;
         }
 

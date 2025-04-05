@@ -28,7 +28,12 @@ public class TeamChatCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String @NotNull [] strings
+    ) {
         if (!CommandUtil.checkCommandSender(sender, false, false)) {
             return true;
         }
@@ -61,7 +66,12 @@ public class TeamChatCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         return Collections.emptyList();
     }
 }

@@ -1,7 +1,6 @@
 package com.extremelyd1.game.team;
 
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 /**

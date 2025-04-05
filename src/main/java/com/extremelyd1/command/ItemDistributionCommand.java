@@ -165,7 +165,7 @@ public class ItemDistributionCommand implements TabExecutor {
 
         // We loop over the arguments 2 through 5
         for (int i = 2; i < 6; i++) {
-            // If at least argument i has been supplied
+            // If at least argument 'i' has been supplied
             if (args.length >= i) {
                 // Figure out the integer value of the number of items for that tier
                 String tierString = args[i - 2];
@@ -185,7 +185,7 @@ public class ItemDistributionCommand implements TabExecutor {
                     return Collections.emptyList();
                 }
 
-                // If i is the last argument that the user has supplied
+                // If 'i' is the last argument that the user has supplied
                 if (args.length == i) {
                     // Calculate how many items we can still put in the distribution and suggest those
                     int leftInDist = 25 - total;

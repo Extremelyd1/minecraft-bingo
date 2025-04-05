@@ -134,8 +134,7 @@ public class SpawnLoader implements Listener {
                 try {
                     thread.join();
                 } catch (InterruptedException e) {
-                    Game.getLogger().warning("Could not join spawn find thread");
-                    e.printStackTrace();
+                    Game.getLogger().warning("Could not join spawn find thread, exception:\n%s".formatted(e));
                 }
 
                 // Remove this thread from the set of threads that we iterate over each time

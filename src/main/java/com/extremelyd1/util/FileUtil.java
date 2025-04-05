@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -35,8 +36,10 @@ public class FileUtil {
         try {
             return ImageIO.read(file);
         } catch (IOException e) {
-            e.printStackTrace();
-
+            Game.getLogger().warning("Could not read image file for material: %s, exception:\n%s".formatted(
+                    material.toString(),
+                    e
+            ));
             return null;
         }
     }
@@ -47,24 +50,11 @@ public class FileUtil {
      * @return The string value of the read data
      */
     public static String readFileToString(String path) {
-        try {
-            return Files.lines(Paths.get(path)).collect(Collectors.joining("\n"));
+        try (Stream<String> stream = Files.lines(Paths.get(path))){
+            return stream.collect(Collectors.joining("\n"));
         } catch (IOException e) {
-            e.printStackTrace();
+            Game.getLogger().warning("Could not read file to string, exception:\n%s".formatted(e));
             return null;
-        }
-    }
-
-    /**
-     * Writes a string value to file
-     * @param path The path to which to write
-     * @param value The string value to write
-     */
-    public static void writeStringToFile(String path, String value) {
-        try (PrintStream out = new PrintStream(new FileOutputStream(path))) {
-            out.print(value);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
     }
 
@@ -88,8 +78,8 @@ public class FileUtil {
     public static void packZip(File zipFile, String startPath, File file, String dirName) {
         Game.getLogger().info(String.format(
                 "Packaging %s%s into zip %s",
-                (startPath.equals("") ? "" : startPath + "/"),
-                (dirName.equals("") ? file.getName() : dirName),
+                (startPath.isEmpty() ? "" : startPath + "/"),
+                (dirName.isEmpty() ? file.getName() : dirName),
                 zipFile.getName()
         ));
 
@@ -133,7 +123,7 @@ public class FileUtil {
 
                 // Transfer bytes from existing zip to output zip
                 byte[] buffer = new byte[4092];
-                int byteCount = 0;
+                int byteCount;
                 while ((byteCount = zipIn.read(buffer)) != -1) {
                     zipOut.write(buffer, 0, byteCount);
                 }
@@ -158,8 +148,7 @@ public class FileUtil {
             // Delete temp file
             Files.delete(tempFile.toPath());
         } catch (IOException e) {
-            Game.getLogger().warning("Could not package files:");
-            e.printStackTrace();
+            Game.getLogger().warning("Could not package files:\n%s".formatted(e));
             return;
         }
 
@@ -197,18 +186,20 @@ public class FileUtil {
         }
 
         File[] files = dir.listFiles();
-        if (dirName.equals("")) {
+        if (dirName.isEmpty()) {
             dirName = dir.getName();
         }
         path = buildPath(path, dirName);
 
         Game.getLogger().info("Adding directory " + path + " to zip");
 
-        for (File source : files) {
-            if (source.isDirectory()) {
-                zipDirectory(zos, path, source);
-            } else {
-                zipFile(zos, path, source);
+        if (files != null) {
+            for (File source : files) {
+                if (source.isDirectory()) {
+                    zipDirectory(zos, path, source);
+                } else {
+                    zipFile(zos, path, source);
+                }
             }
         }
 
@@ -236,7 +227,7 @@ public class FileUtil {
         FileInputStream fis = new FileInputStream(file);
 
         byte[] buffer = new byte[4092];
-        int byteCount = 0;
+        int byteCount;
         while ((byteCount = fis.read(buffer)) != -1) {
             zos.write(buffer, 0, byteCount);
         }

@@ -23,7 +23,7 @@ public class ProgressController {
     private final List<String> fullCardCountRules;
 
     /**
-     * Rules for lockout gamemode
+     * Rules for lockout game mode
      */
     private final List<String> lockoutRules;
 

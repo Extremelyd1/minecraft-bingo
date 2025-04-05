@@ -168,7 +168,7 @@ public class Config {
     }
 
     /**
-     * Parse the given string value to an integer or throw a exception if not possible
+     * Parse the given string value to an integer or throw an exception if not possible
      * @param stringValue The string value to parse
      * @return The parsed integer value
      */

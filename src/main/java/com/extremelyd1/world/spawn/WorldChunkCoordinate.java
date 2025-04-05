@@ -56,7 +56,7 @@ public class WorldChunkCoordinate {
     }
 
     /**
-     * Adds the given coordinates to this chunks coords
+     * Adds the given coordinates to this chunk's coords
      * @param x The x to add
      * @param z The z to add
      */
