@@ -84,7 +84,7 @@ public class ItemDistributionCommand implements TabExecutor {
                                 numDTierItems
                         ).color(NamedTextColor.YELLOW)
                 ).append(Component
-                        .text("(S, A, B, C, D)")
+                        .text(" (S, A, B, C, D)")
                         .color(NamedTextColor.WHITE)
                 )
         ));
@@ -128,7 +128,7 @@ public class ItemDistributionCommand implements TabExecutor {
                         .text("2 6 9 6 2")
                         .color(NamedTextColor.YELLOW)
                 ).append(Component
-                        .text("(S A B C D)")
+                        .text(" (S A B C D)")
                         .color(NamedTextColor.WHITE)
                 )
         ));
