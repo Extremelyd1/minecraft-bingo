@@ -219,27 +219,28 @@ public class InteractListener implements Listener {
 
         InventoryType invType = e.getClickedInventory().getType();
 
+        PlayerInventory playerInventory = e.getWhoClicked().getInventory();
+
         // In certain inventory types and while performing certain inventory actions,
         // we need to check whether we can actually perform the action.
         // Because if this can't be done, it will not consume the ingredients in the recipe.
+        if (e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+            // We are dealing with shift-click, now we need to check whether
+            // there is space in the player inventory to insert this item
+            if (!InventoryUtil.canShiftClickItem(
+                    playerInventory.getStorageContents(),
+                    currentItem
+            )) {
+                return;
+            }
+        }
+
         if (invType.equals(InventoryType.WORKBENCH)
                 || invType.equals(InventoryType.CRAFTING)
                 || invType.equals(InventoryType.SMITHING)
                 || invType.equals(InventoryType.STONECUTTER)
-                || invType.equals(InventoryType.MERCHANT)) {
-            PlayerInventory playerInventory = e.getWhoClicked().getInventory();
-
-            if (e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
-                // We are dealing with shift-click, now we need to check whether
-                // there is space in the player inventory to insert this item
-                if (!InventoryUtil.canShiftClickItem(
-                        playerInventory.getStorageContents(),
-                        currentItem
-                )) {
-                    return;
-                }
-            }
-
+                || invType.equals(InventoryType.MERCHANT)
+        ) {
             if (e.getClick().equals(ClickType.NUMBER_KEY)) {
                 // We are dealing with a move to specific hotbar position
                 if (playerInventory.getStorageContents()[e.getHotbarButton()] != null) {
