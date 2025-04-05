@@ -356,7 +356,7 @@ public class Game {
                 ChatUtil.divider()
                         .append(Component.newline())
                         .append(Component
-                                .text("                                 Game has started!")
+                                .text(" ".repeat(28) + "Game has started!")
                                 .color(NamedTextColor.WHITE)
                         )
                         .append(Component.newline())
@@ -402,7 +402,7 @@ public class Game {
             case COMPLETE -> {
                 PlayerTeam team = winReason.getTeam();
                 yield message.append(Component
-                        .text("                     " + team.getName())
+                        .text(" ".repeat(21) + team.getName())
                         .color(team.getColor())
                 ).append(Component
                         .text(" team has gotten bingo!")
@@ -410,11 +410,11 @@ public class Game {
                 );
             }
             case RANDOM_TIE -> message.append(Component
-                            .text("                      Game has ended in a tie!")
+                            .text(" ".repeat(22) + "Game has ended in a tie!")
                             .color(NamedTextColor.WHITE)
                     );
             default -> message.append(Component
-                    .text("                            Game has ended!")
+                    .text(" ".repeat(30) + "Game has ended!")
                     .color(NamedTextColor.WHITE)
             );
         };
