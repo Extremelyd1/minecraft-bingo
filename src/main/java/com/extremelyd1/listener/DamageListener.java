@@ -33,7 +33,7 @@ public class DamageListener implements Listener {
             return;
         }
 
-        if (!game.isPvpEnabled()) {
+        if (game.isPvpDisabled()) {
             e.setCancelled(true);
         }
     }

@@ -10,7 +10,7 @@ public class ChatChannelController {
 
     private static final ChatChannel DEFAULT_CHANNEL = ChatChannel.TEAM;
 
-    public Map<UUID, ChatChannel> playerChatChannels = new HashMap<>();
+    public final Map<UUID, ChatChannel> playerChatChannels = new HashMap<>();
 
     public void setPlayerChatChannel(Player player, ChatChannel channel) {
         playerChatChannels.put(player.getUniqueId(), channel);

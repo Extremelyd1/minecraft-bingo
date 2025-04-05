@@ -3,13 +3,12 @@ package com.extremelyd1.game.progress;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.winCondition.WinConditionChecker;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
-
-import static com.extremelyd1.game.Game.PREFIX;
 
 public class ProgressController {
 
@@ -24,7 +23,7 @@ public class ProgressController {
     private final List<String> fullCardCountRules;
 
     /**
-     * Rules for lockout gamemode
+     * Rules for lockout game mode
      */
     private final List<String> lockoutRules;
 
@@ -39,11 +38,19 @@ public class ProgressController {
 
         if (winConditionChecker.isFullCard()) {
             if (shouldNotifyCountAmount(collectorTeam.getNumCollected())) {
-                Bukkit.broadcastMessage(
-                        PREFIX +
-                                collectorTeam.getColor() + collectorTeam.getName()
-                                + ChatColor.WHITE + " team has collected "
-                                + ChatColor.AQUA + collectorTeam.getNumCollected() + ChatColor.WHITE + " items"
+                Bukkit.broadcast(Component
+                        .text(collectorTeam.getName())
+                        .color(collectorTeam.getColor())
+                        .append(Component
+                                .text(" team has collected ")
+                                .color(NamedTextColor.WHITE)
+                        ).append(Component
+                                .text(collectorTeam.getNumCollected())
+                                .color(NamedTextColor.AQUA)
+                        ).append(Component
+                                .text(" items")
+                                .color(NamedTextColor.WHITE)
+                        )
                 );
             }
         } else if (winConditionChecker.getNumLinesToComplete() > 0) {
@@ -51,21 +58,37 @@ public class ProgressController {
 
             if (linesCompletedNow > linesCompletedBefore) {
                 if (shouldNotifyProgressLines(linesCompletedNow)) {
-                    Bukkit.broadcastMessage(
-                            PREFIX +
-                                    collectorTeam.getColor() + collectorTeam.getName()
-                                    + ChatColor.WHITE + " team has completed "
-                                    + ChatColor.AQUA + linesCompletedNow + ChatColor.WHITE + " lines"
+                    Bukkit.broadcast(Component
+                            .text(collectorTeam.getName())
+                            .color(collectorTeam.getColor())
+                            .append(Component
+                                    .text(" team has completed ")
+                                    .color(NamedTextColor.WHITE)
+                            ).append(Component
+                                    .text(collectorTeam.getNumCollected())
+                                    .color(NamedTextColor.AQUA)
+                            ).append(Component
+                                    .text(" lines")
+                                    .color(NamedTextColor.WHITE)
+                            )
                     );
                 }
             }
         } else if (winConditionChecker.getCompletionsToLock() > 0) {
             if (shouldNotifyLockoutAmount(collectorTeam.getNumCollected())) {
-                Bukkit.broadcastMessage(
-                        PREFIX +
-                                collectorTeam.getColor() + collectorTeam.getName()
-                                + ChatColor.WHITE + " team has collected "
-                                + ChatColor.AQUA + collectorTeam.getNumCollected() + ChatColor.WHITE + " items"
+                Bukkit.broadcast(Component
+                        .text(collectorTeam.getName())
+                        .color(collectorTeam.getColor())
+                        .append(Component
+                                .text(" team has collected ")
+                                .color(NamedTextColor.WHITE)
+                        ).append(Component
+                                .text(collectorTeam.getNumCollected())
+                                .color(NamedTextColor.AQUA)
+                        ).append(Component
+                                .text(" items")
+                                .color(NamedTextColor.WHITE)
+                        )
                 );
             }
         }

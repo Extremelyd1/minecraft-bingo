@@ -1,11 +1,14 @@
 package com.extremelyd1.command;
 
+import com.extremelyd1.bingo.map.BingoCardItemFactory;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.ItemUtil;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -23,37 +26,35 @@ public class CardCommand implements TabExecutor {
      */
     private final Game game;
 
-    public CardCommand(Game game) {
+    /**
+     * The bingo card item factory instance to check whether a given item stack is a bingo card.
+     */
+    private final BingoCardItemFactory bingoCardItemFactory;
+
+    public CardCommand(Game game, BingoCardItemFactory bingoCardItemFactory) {
         this.game = game;
+        this.bingoCardItemFactory = bingoCardItemFactory;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!CommandUtil.checkCommandSender(sender, false, false)) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            String @NotNull [] strings
+    ) {
+        if (CommandUtil.checkCommandSender(sender, game, false, false, true, true)) {
             return true;
         }
 
         Player player = (Player) sender;
-
-        if (!game.getState().equals(Game.State.IN_GAME)) {
-            player.sendMessage(
-                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command now"
-            );
-
-            return true;
-        }
-
         Team team = game.getTeamManager().getTeamByPlayer(player);
-        if (team == null || team.isSpectatorTeam()) {
-            player.sendMessage(
-                    ChatColor.DARK_RED + "Error: " + ChatColor.WHITE + "Can not execute this command as spectator"
-            );
 
-            return true;
-        }
-
-        if (ItemUtil.hasBingoCard(player)) {
-            player.sendMessage(Game.PREFIX + "You already have a bingo card in your inventory");
+        if (ItemUtil.hasBingoCard(player, bingoCardItemFactory)) {
+            player.sendMessage(ChatUtil.errorPrefix().append(Component
+                    .text("You already have a bingo card in your inventory")
+                    .color(NamedTextColor.WHITE)
+            ));
 
             return true;
         }
@@ -61,15 +62,22 @@ public class CardCommand implements TabExecutor {
         player.getInventory().addItem(
                 game.getBingoCardItemFactory().create(game.getBingoCard(), (PlayerTeam) team)
         );
-        player.sendMessage(
-                Game.PREFIX + "You have been given a new bingo card"
-        );
+
+        player.sendMessage(ChatUtil.successPrefix().append(Component
+                .text("You have been given a new bingo card")
+                .color(NamedTextColor.WHITE)
+        ));
 
         return true;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         return Collections.emptyList();
     }
 }

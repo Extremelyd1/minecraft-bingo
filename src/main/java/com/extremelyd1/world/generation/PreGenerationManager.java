@@ -119,17 +119,17 @@ public class PreGenerationManager {
                 continue;
             }
 
-            // Unload the world without saving, since we are not zipping it anymore and we are deleting it afterwards
+            // Unload the world without saving, since we are not zipping it anymore, and we are deleting it afterward
             Bukkit.unloadWorld(world, false);
 
             try {
                 FileUtils.deleteDirectory(world.getWorldFolder());
             } catch (IOException e) {
                 Game.getLogger().warning(String.format(
-                        "Could not delete world folder for %s:",
-                        world.getName()
+                        "Could not delete world folder for %s, exception:\n%s",
+                        world.getName(),
+                        e
                 ));
-                e.printStackTrace();
             }
         }
 
@@ -307,10 +307,10 @@ public class PreGenerationManager {
             FileUtils.deleteDirectory(world.getWorldFolder());
         } catch (IOException e) {
             Game.getLogger().warning(String.format(
-                    "Could not delete world folder for %s:",
-                    world.getName()
+                    "Could not delete world folder for %s, exception:\n%s",
+                    world.getName(),
+                    e
             ));
-            e.printStackTrace();
         }
 
         generationSemaphore.release();
@@ -319,7 +319,7 @@ public class PreGenerationManager {
     /**
      * Gets the folder that pre-generated worlds should be stored in.
      *
-     * @return A file instance for the worlds folder.
+     * @return A file instance for the 'worlds' folder.
      */
     private File getWorldsFolder() {
         File dataFolder = game.getDataFolder();

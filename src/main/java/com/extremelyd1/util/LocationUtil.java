@@ -11,17 +11,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Class with static methods for location related operations.
+ */
 public class LocationUtil {
 
     /**
-     * A list of air materials
+     * A list of air materials.
      */
     private static final List<Material> airMaterials = new ArrayList<>(Arrays.asList(
             Material.AIR,
             Material.VOID_AIR
     ));
     /**
-     * A list of non-valid spawn biomes
+     * A list of non-valid spawn biomes.
      */
     private static final List<Biome> invalidSpawnBiomes = new ArrayList<>(Arrays.asList(
             Biome.BEACH,
@@ -41,11 +44,11 @@ public class LocationUtil {
     ));
 
     /**
-     * Gets a list of a number of random locations on a circle with given center and radius
-     * @param center The center of the circle
-     * @param numLocations The number of locations to get
-     * @param radius The radius of the circle
-     * @return A list of locations on the circle
+     * Gets a list of a number of random locations on a circle with given center and radius.
+     * @param center The center of the circle.
+     * @param numLocations The number of locations to get.
+     * @param radius The radius of the circle.
+     * @return A list of locations on the circle.
      */
     public static List<Location> getRandomCircleLocations(
             Location center,
@@ -69,7 +72,7 @@ public class LocationUtil {
                     Math.floor(center.getZ() + Math.sin(currentAngle) * radius)
             );
 
-            // Simply get highest block's Y value at the calculated position and increase it by 1
+            // Simply get the highest block's Y value at the calculated position and increase it by 1
             circleLocation.setY(
                     center.getWorld().getHighestBlockYAt(circleLocation)
             );
@@ -84,25 +87,9 @@ public class LocationUtil {
     }
 
     /**
-     * Checks whether the block column given by x and z contains a valid spawn location at the highest y block
-     * @param x The x coordinate
-     * @param z The z coordinate
-     * @return True if the highest y block in this column is a valid spawn
-     */
-    public static boolean containsValidSpawnLocation(World world, int x, int z) {
-        Location location = new Location(
-                world,
-                x,
-                world.getHighestBlockYAt(x, z),
-                z
-        );
-        return isValidSpawnLocation(location);
-    }
-
-    /**
-     * Checks whether a given location is valid for spawning a player
-     * @param location The location to check
-     * @return Whether this is a valid location to spawn
+     * Checks whether a given location is valid for spawning a player.
+     * @param location The location to check.
+     * @return Whether this is a valid location to spawn.
      */
     public static boolean isValidSpawnLocation(Location location) {
         Material topMaterial = copyLocation(location).add(0, 2, 0).getBlock().getType();
@@ -123,18 +110,18 @@ public class LocationUtil {
     }
 
     /**
-     * Checks whether the given biome is valid for spawning a player
-     * @param biome The biome to check
-     * @return True if it is a valid spawn location, false otherwise
+     * Checks whether the given biome is valid for spawning a player.
+     * @param biome The biome to check.
+     * @return True if it is a valid spawn location, false otherwise.
      */
     public static boolean isValidSpawnBiome(Biome biome) {
         return !invalidSpawnBiomes.contains(biome);
     }
 
     /**
-     * Checks whether a given location is inside the worldborder
-     * @param location The location
-     * @return True if it is in the world border, false otherwise
+     * Checks whether a given location is inside the world border.
+     * @param location The location.
+     * @return True if it is in the world border, false otherwise.
      */
     public static boolean isInsideWorldBorder(Location location) {
         World world = location.getWorld();
@@ -146,9 +133,9 @@ public class LocationUtil {
     }
 
     /**
-     * Copies a Location instance
-     * @param location The location to copy
-     * @return A copy of the location
+     * Copies a Location instance.
+     * @param location The location to copy.
+     * @return A copy of the location.
      */
     public static Location copyLocation(Location location) {
         return new Location(

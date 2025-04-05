@@ -1,8 +1,10 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -16,7 +18,7 @@ import java.util.List;
 public class ItemDistributionCommand implements TabExecutor {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
@@ -25,7 +27,12 @@ public class ItemDistributionCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String @NotNull [] args
+    ) {
         if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
@@ -50,10 +57,10 @@ public class ItemDistributionCommand implements TabExecutor {
         }
 
         if (numSTierItems + numATierItems + numBTierItems + numCTierItems + numDTierItems != 25) {
-            sender.sendMessage(
-                    ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "The distribution must add up to 25 in total"
-            );
+            sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                    .text("The distribution must add up to 25 in total")
+                    .color(NamedTextColor.WHITE)
+            ));
 
             return true;
         }
@@ -66,17 +73,21 @@ public class ItemDistributionCommand implements TabExecutor {
                 numDTierItems
         );
 
-        sender.sendMessage(
-                ChatColor.GREEN + "Successfully"
-                        + ChatColor.WHITE + " set item distribution to "
-                        + ChatColor.YELLOW
-                        + numSTierItems + " "
-                        + numATierItems + " "
-                        + numBTierItems + " "
-                        + numCTierItems + " "
-                        + numDTierItems + " "
-                        + ChatColor.WHITE + "(S, A, B, C, D)"
-        );
+        sender.sendMessage(ChatUtil.successPrefix().append(Component
+                .text("Set item distribution to ")
+                .color(NamedTextColor.WHITE)
+                .append(Component
+                        .text(numSTierItems + " " +
+                                numATierItems + " " +
+                                numBTierItems + " " +
+                                numCTierItems + " " +
+                                numDTierItems
+                        ).color(NamedTextColor.YELLOW)
+                ).append(Component
+                        .text(" (S, A, B, C, D)")
+                        .color(NamedTextColor.WHITE)
+                )
+        ));
 
         game.onPregameUpdate();
 
@@ -84,10 +95,10 @@ public class ItemDistributionCommand implements TabExecutor {
     }
 
     /**
-     * Parse the item in the given string, or send an error message to the given command sender
-     * @param item The item in string format
-     * @param sender The sender to send the error to
-     * @return The parsed integer of this string value or -1 if it cannot be parsed
+     * Parse the item in the given string, or send an error message to the given command sender.
+     * @param item The item in string format.
+     * @param sender The sender to send the error to.
+     * @return The parsed integer of this string value or -1 if it cannot be parsed.
      */
     private int parseItemDistribution(String item, CommandSender sender) {
         int value;
@@ -103,23 +114,33 @@ public class ItemDistributionCommand implements TabExecutor {
     }
 
     /**
-     * Sends the item distribution error message to the sender
-     * @param sender The command sender to send the error message to
+     * Sends the item distribution error message to the sender.
+     * @param sender The command sender to send the error message to.
      */
     private void sendItemDistributionError(CommandSender sender) {
-        sender.sendMessage(
-                ChatColor.DARK_RED + "Error: "
-                        + ChatColor.WHITE + "Please provide a valid item distribution"
-        );
-        sender.sendMessage(
-                ChatColor.BLUE + "Example: "
-                        + ChatColor.YELLOW + "2 6 9 6 2"
-                        + ChatColor.WHITE + " (S A B C D)"
-        );
+        sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                .text("Please provide a valid item distribution")
+                .color(NamedTextColor.WHITE)
+                .appendNewline().append(Component
+                        .text("Example: ")
+                        .color(NamedTextColor.BLUE)
+                ).append(Component
+                        .text("2 6 9 6 2")
+                        .color(NamedTextColor.YELLOW)
+                ).append(Component
+                        .text(" (S A B C D)")
+                        .color(NamedTextColor.WHITE)
+                )
+        ));
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String @NotNull [] args
+    ) {
         List<String> list = new ArrayList<>();
 
         // If we have more than 5 arguments, we don't suggest anymore
@@ -144,7 +165,7 @@ public class ItemDistributionCommand implements TabExecutor {
 
         // We loop over the arguments 2 through 5
         for (int i = 2; i < 6; i++) {
-            // If at least argument i has been supplied
+            // If at least argument 'i' has been supplied
             if (args.length >= i) {
                 // Figure out the integer value of the number of items for that tier
                 String tierString = args[i - 2];
@@ -164,7 +185,7 @@ public class ItemDistributionCommand implements TabExecutor {
                     return Collections.emptyList();
                 }
 
-                // If i is the last argument that the user has supplied
+                // If 'i' is the last argument that the user has supplied
                 if (args.length == i) {
                     // Calculate how many items we can still put in the distribution and suggest those
                     int leftInDist = 25 - total;

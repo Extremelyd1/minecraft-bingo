@@ -19,11 +19,6 @@ public class TeamManager {
     public static final int MAX_TEAMS = 8;
 
     /**
-     * The game instance
-     */
-    private final Game game;
-
-    /**
      * The list of possible teams
      */
     private final List<PlayerTeam> teams;
@@ -36,8 +31,7 @@ public class TeamManager {
      */
     private final Team spectatorTeam;
 
-    public TeamManager(Game game) {
-        this.game = game;
+    public TeamManager() {
         this.teams = new ArrayList<>();
         this.activeTeams = new ArrayList<>();
 
@@ -136,19 +130,16 @@ public class TeamManager {
 
     /**
      * Remove a given player from a team if they are on a team
+     *
      * @param player The player to remove from the team
-     * @return Whether the player was remove from a team
      */
-    private boolean removePlayerFromTeam(Player player) {
+    private void removePlayerFromTeam(Player player) {
         Team team = getTeamByPlayer(player);
 
         if (team != null) {
             removePlayerFromTeam(player, team);
 
-            return true;
         }
-
-        return false;
     }
 
     /**
@@ -160,6 +151,7 @@ public class TeamManager {
         team.removePlayer(player);
 
         if (!team.isSpectatorTeam() && team.getNumPlayers() == 0) {
+            //noinspection SuspiciousMethodCalls
             activeTeams.remove(team);
         }
     }
@@ -192,7 +184,7 @@ public class TeamManager {
      */
     public void clearTeams() {
         while (!activeTeams.isEmpty()) {
-            PlayerTeam team = activeTeams.get(0);
+            PlayerTeam team = activeTeams.getFirst();
 
             team.clear();
 

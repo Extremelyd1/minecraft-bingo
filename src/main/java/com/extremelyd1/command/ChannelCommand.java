@@ -2,12 +2,15 @@ package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.chat.ChatChannelController;
+import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +29,12 @@ public class ChannelCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String @NotNull [] args
+    ) {
         if (!CommandUtil.checkCommandSender(sender, false, false)) {
             return true;
         }
@@ -41,11 +49,14 @@ public class ChannelCommand implements TabExecutor {
         try {
             ChatChannelController.ChatChannel channel = ChatChannelController.ChatChannel.valueOf(args[0].toUpperCase());
             game.getChatChannelController().setPlayerChatChannel(player, channel);
-            player.sendMessage(
-                    ChatColor.GREEN + "Successfully"
-                            + ChatColor.WHITE + " updated chat channel to "
-                            + ChatColor.YELLOW + channel.name()
-            );
+            player.sendMessage(ChatUtil.successPrefix().append(Component
+                    .text("Updated chat channel to ")
+                    .color(NamedTextColor.WHITE)
+                    .append(Component
+                            .text(channel.name())
+                            .color(NamedTextColor.YELLOW)
+                    )
+            ));
         } catch (IllegalArgumentException ex) {
             sendUsage(sender, command);
         }
@@ -54,7 +65,12 @@ public class ChannelCommand implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
+    public List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String @NotNull [] args
+    ) {
         if (!(sender instanceof Player) || args.length != 1) {
             return Collections.emptyList();
         }
@@ -68,13 +84,13 @@ public class ChannelCommand implements TabExecutor {
      * @param command The command instance
      */
     private void sendUsage(CommandSender sender, Command command) {
-        sender.sendMessage(
-                ChatColor.DARK_RED
-                        + "Usage: "
-                        + ChatColor.WHITE
-                        + "/"
-                        + command.getName()
-                        + " <team|global>"
+        sender.sendMessage(Component
+                .text("Usage: ")
+                .color(NamedTextColor.DARK_RED)
+                .append(Component
+                        .text("/" + command.getName() + " <team|global>")
+                        .color(NamedTextColor.WHITE)
+                )
         );
     }
 }

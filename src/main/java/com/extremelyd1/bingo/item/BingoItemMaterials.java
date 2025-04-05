@@ -12,15 +12,6 @@ import java.util.*;
  * Also provides methods to create bingo item sets and randomly picking from these sets
  */
 public class BingoItemMaterials {
-    private final String S_TIER_FILE_NAME = "s_tier.txt";
-    private final String A_TIER_FILE_NAME = "a_tier.txt";
-    private final String B_TIER_FILE_NAME = "b_tier.txt";
-    private final String C_TIER_FILE_NAME = "c_tier.txt";
-    private final String D_TIER_FILE_NAME = "d_tier.txt";
-    private final String GROUPS_FILE_NAME = "groups.txt";
-
-    private final String BLACKLIST_FILE_NAME = "blacklist.txt";
-
     /**
      * The number of times to attempt picking materials while respecting groups.
      */
@@ -73,16 +64,16 @@ public class BingoItemMaterials {
     public void loadMaterials(File dataFolder) {
         String path = dataFolder.getPath() + "/item_data/";
 
-        this.sTierItems = readMaterialsFile(path, S_TIER_FILE_NAME);
-        this.aTierItems = readMaterialsFile(path, A_TIER_FILE_NAME);
-        this.bTierItems = readMaterialsFile(path, B_TIER_FILE_NAME);
-        this.cTierItems = readMaterialsFile(path, C_TIER_FILE_NAME);
-        this.dTierItems = readMaterialsFile(path, D_TIER_FILE_NAME);
+        this.sTierItems = readMaterialsFile(path, "s_tier.txt");
+        this.aTierItems = readMaterialsFile(path, "a_tier.txt");
+        this.bTierItems = readMaterialsFile(path, "b_tier.txt");
+        this.cTierItems = readMaterialsFile(path, "c_tier.txt");
+        this.dTierItems = readMaterialsFile(path, "d_tier.txt");
 
-        this.blacklist = new HashSet<>(readMaterialsFile(path, BLACKLIST_FILE_NAME));
+        this.blacklist = new HashSet<>(readMaterialsFile(path, "blacklist.txt"));
 
         this.mapMaterialToGroupMates = new HashMap<>();
-        for (Collection<Material> group : readGroupsFile(path, GROUPS_FILE_NAME)) {
+        for (Collection<Material> group : readGroupsFile(path)) {
             for (Material material : group) {
                 if (!this.mapMaterialToGroupMates.containsKey(material)) {
                     this.mapMaterialToGroupMates.put(material, new HashSet<>());
@@ -123,14 +114,13 @@ public class BingoItemMaterials {
      * Get the collection of groups (sets of items/materials) from a material groups file
      * which contains a line per group, which is represented as a '|'-separated list of items.
      *
-     * @param path     The path at which the file resides
-     * @param fileName The name of the file
+     * @param path The path at which the file resides
      * @return The collection of groups that are stored in the given file
      */
-    private Collection<Set<Material>> readGroupsFile(String path, String fileName) {
-        String fileString = FileUtil.readFileToString(path + fileName);
+    private Collection<Set<Material>> readGroupsFile(String path) {
+        String fileString = FileUtil.readFileToString(path + "groups.txt");
         if (fileString == null) {
-            Game.getLogger().severe("Could not read material groups file " + fileName);
+            Game.getLogger().severe("Could not read material groups file " + "groups.txt");
             return new HashSet<>();
         }
 
@@ -143,7 +133,7 @@ public class BingoItemMaterials {
                     try {
                         group.add(Material.valueOf(material));
                     } catch (IllegalArgumentException e) {
-                        Game.getLogger().warning(String.format("Could not find material with name %s in file %s", material, fileName));
+                        Game.getLogger().warning(String.format("Could not find material with name %s in file %s", material, "groups.txt"));
                     }
                 }
                 groups.add(group);

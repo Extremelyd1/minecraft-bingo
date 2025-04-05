@@ -1,8 +1,8 @@
 package com.extremelyd1.util;
 
-import com.extremelyd1.game.Game;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 public class TimeUtil {
 
@@ -12,16 +12,23 @@ public class TimeUtil {
      * @param timeLeft The time left in seconds
      */
     public static void broadcastTimeLeft(long timeLeft) {
-        String message = Game.PREFIX + "Time left: " + ChatColor.YELLOW + "%d" + ChatColor.WHITE + " %s";
+        Component message = Component.text("Time left: ");
+
         long minutesLeft = timeLeft / 60;
 
         // More than 5 minutes left
         if (timeLeft > 5 * 60) {
             // Broadcast every 5 minutes
             if (timeLeft % (5 * 60) == 0) {
-                message = String.format(message, minutesLeft, "minutes");
+                message = message.append(Component
+                        .text(minutesLeft)
+                        .color(NamedTextColor.YELLOW)
+                ).append(Component
+                        .text(" minutes")
+                        .color(NamedTextColor.WHITE)
+                );
 
-                Bukkit.broadcastMessage(message);
+                Bukkit.broadcast(message);
             }
         } else if (timeLeft > 10) {
             // Less than 5 minutes left, more than 10 seconds
@@ -31,9 +38,15 @@ public class TimeUtil {
                 if (timeLeft == 60) {
                     minutes = "minute";
                 }
-                message = String.format(message, minutesLeft, minutes);
+                message = message.append(Component
+                        .text(minutesLeft)
+                        .color(NamedTextColor.YELLOW)
+                ).append(Component
+                        .text(" " + minutes)
+                        .color(NamedTextColor.WHITE)
+                );
 
-                Bukkit.broadcastMessage(message);
+                Bukkit.broadcast(message);
             }
         } else if (timeLeft > 0) {
             // At most 10 seconds left
@@ -41,9 +54,15 @@ public class TimeUtil {
             if (timeLeft == 1) {
                 seconds = "second";
             }
-            message = String.format(message, timeLeft, seconds);
+            message = message.append(Component
+                    .text(timeLeft)
+                    .color(NamedTextColor.YELLOW)
+            ).append(Component
+                    .text(" " + seconds)
+                    .color(NamedTextColor.WHITE)
+            );
 
-            Bukkit.broadcastMessage(message);
+            Bukkit.broadcast(message);
         }
     }
 
