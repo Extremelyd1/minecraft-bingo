@@ -290,6 +290,9 @@ public class Game {
 
         this.state = State.IN_GAME;
 
+        // Clear previously created bingo cards
+        bingoCardItemFactory.clearCreatedBingoCards();
+
         // Create random bingo card
         bingoCard = new BingoCard(bingoItemMaterials.pickMaterials(), winConditionChecker.getCompletionsToLock());
 
