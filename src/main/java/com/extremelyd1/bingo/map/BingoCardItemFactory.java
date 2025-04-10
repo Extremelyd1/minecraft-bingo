@@ -264,14 +264,26 @@ public class BingoCardItemFactory {
                     continue;
                 }
 
+                float baseR = ((baseColor >> 0x10) & 0xff) / 255f;
+                float baseG = ((baseColor >> 0x08) & 0xff) / 255f;
+                float baseB = ((baseColor >> 0x00) & 0xff) / 255f;
+
                 for (int imageX = 0; imageX < IMAGE_SIZE; imageX++) {
                     for (int imageY = 0; imageY < IMAGE_SIZE; imageY++) {
-                        int colorToSet = itemImage.getRGB(imageX, imageY);
-                        int alpha = (colorToSet >>> 24);
+                        int itemColor = itemImage.getRGB(imageX, imageY);
 
-                        if (alpha == 0) {
-                            colorToSet = baseColor;
-                        }
+                        float itemA = ((itemColor >> 0x18) & 0xff) / 255f;
+                        float itemR = ((itemColor >> 0x10) & 0xff) / 255f;
+                        float itemG = ((itemColor >> 0x08) & 0xff) / 255f;
+                        float itemB = ((itemColor >> 0x00) & 0xff) / 255f;
+
+                        // Blend item color and base color using item color's alpha value
+                        int compositeR = Math.clamp(Math.round(255f * (itemA * itemR + (1f - itemA) * baseR)), 0, 255);
+                        int compositeG = Math.clamp(Math.round(255f * (itemA * itemG + (1f - itemA) * baseG)), 0, 255);
+                        int compositeB = Math.clamp(Math.round(255f * (itemA * itemB + (1f - itemA) * baseB)), 0, 255);
+
+                        int colorToSet = (0xff << 0x18) | (compositeR << 0x10) |
+                                   (compositeG << 0x08) | (compositeB << 0x00);
 
                         image.setRGB(
                                 backgroundStartX + IMAGE_PADDING + imageX,
