@@ -186,6 +186,7 @@ public class BingoCardItemFactory {
      * @return A BufferedImage that represents the current state of the bingo card for the given team
      * with the given border color
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     private BufferedImage drawBingoCardImage(BingoCard bingoCard, PlayerTeam team, int borderColor) {
         BufferedImage image = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_INT_RGB);
         // Base layer of map color
