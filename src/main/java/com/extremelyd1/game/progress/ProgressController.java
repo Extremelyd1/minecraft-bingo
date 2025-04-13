@@ -65,7 +65,7 @@ public class ProgressController {
                                     .text(" team has completed ")
                                     .color(NamedTextColor.WHITE)
                             ).append(Component
-                                    .text(collectorTeam.getNumCollected())
+                                    .text(linesCompletedNow)
                                     .color(NamedTextColor.AQUA)
                             ).append(Component
                                     .text(" lines")
