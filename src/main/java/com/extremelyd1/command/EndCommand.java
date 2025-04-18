@@ -3,19 +3,15 @@ package com.extremelyd1.command;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.util.CommandUtil;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-
-public class EndCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class EndCommand implements BasicCommand {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
@@ -24,28 +20,11 @@ public class EndCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] strings
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, true, true)) {
+            return;
         }
 
         game.end(new WinReason());
-
-        return true;
-    }
-
-    @Override
-    public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
-        return Collections.emptyList();
     }
 }

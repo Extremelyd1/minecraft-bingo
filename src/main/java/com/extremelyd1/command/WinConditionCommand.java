@@ -4,22 +4,19 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.TeamManager;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-public class WinConditionCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class WinConditionCommand implements BasicCommand {
 
     /**
      * The game instance
@@ -31,15 +28,12 @@ public class WinConditionCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, true, true)) {
+            return;
         }
+
+        CommandSender sender = commandSourceStack.getSender();
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             sender.sendMessage(ChatUtil.errorPrefix().append(Component
@@ -47,7 +41,7 @@ public class WinConditionCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         if (args.length == 0) {
@@ -56,7 +50,7 @@ public class WinConditionCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         if (args[0].equalsIgnoreCase("full")) {
@@ -73,7 +67,7 @@ public class WinConditionCommand implements TabExecutor {
 
             game.onPregameUpdate();
 
-            return true;
+            return;
         } else if (args[0].equalsIgnoreCase("lines")) {
             if (args.length < 2) {
                 sender.sendMessage(ChatUtil.errorPrefix().append(Component
@@ -81,7 +75,7 @@ public class WinConditionCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             int numLines;
@@ -93,7 +87,7 @@ public class WinConditionCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             if (numLines < 1 || numLines > 10) {
@@ -115,7 +109,7 @@ public class WinConditionCommand implements TabExecutor {
                         )
                 ));
 
-                return true;
+                return;
             }
 
             game.getWinConditionChecker().setNumLinesToComplete(numLines);
@@ -131,7 +125,7 @@ public class WinConditionCommand implements TabExecutor {
 
             game.onPregameUpdate();
 
-            return true;
+            return;
         } else if (args[0].equalsIgnoreCase("lockout")) {
             int completionsToLock = 1;
             if (args.length > 1) {
@@ -143,7 +137,7 @@ public class WinConditionCommand implements TabExecutor {
                             .color(NamedTextColor.WHITE)
                     ));
 
-                    return true;
+                    return;
                 }
             }
 
@@ -167,7 +161,7 @@ public class WinConditionCommand implements TabExecutor {
                         )
                 ));
 
-                return true;
+                return;
             }
 
             game.getWinConditionChecker().setCompletionsToLock(completionsToLock);
@@ -200,24 +194,17 @@ public class WinConditionCommand implements TabExecutor {
 
             game.onPregameUpdate();
 
-            return true;
+            return;
         }
 
         sender.sendMessage(ChatUtil.errorPrefix().append(Component
                 .text("Please provide a valid win condition type: 'full', 'lines' or 'lockout'")
                 .color(NamedTextColor.WHITE)
         ));
-
-        return true;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
+    public @NotNull Collection<String> suggest(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             return Collections.emptyList();
         }

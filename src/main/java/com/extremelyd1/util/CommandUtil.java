@@ -3,35 +3,37 @@ package com.extremelyd1.util;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CommandUtil {
     /**
-     * Checks whether the command sender has permission to execute a command.
-     * @param sender The sender to check.
+     * Checks whether the given command source has permission to execute a command.
+     * @param commandSourceStack The source of the command execution.
      * @return True if the sender is a player and has OP rights; False otherwise.
      */
-    public static boolean checkCommandSender(CommandSender sender) {
-        return checkCommandSender(sender, false, true);
+    public static boolean checkCommandSender(@NotNull CommandSourceStack commandSourceStack) {
+        return checkCommandSender(commandSourceStack, false, true);
     }
 
     /**
-     * Checks whether the command sender has permission to execute a command.
-     * @param sender The sender to check.
+     * Checks whether the given command source has permission to execute a command.
+     * @param commandSourceStack The source of the command execution.
      * @param allowConsole Whether to allow console to execute.
      * @param needsOp Whether the player needs to be OP to execute.
      * @return True if the sender is allowed to execute the given command.
      */
-    public static boolean checkCommandSender(CommandSender sender, boolean allowConsole, boolean needsOp) {
-        if (!(sender instanceof Player player)) {
+    public static boolean checkCommandSender(@NotNull CommandSourceStack commandSourceStack, boolean allowConsole, boolean needsOp) {
+        if (!(commandSourceStack.getSender() instanceof Player player)) {
             if (!allowConsole) {
-                sender.sendMessage("This command can only be executed as a player");
+                commandSourceStack.getSender().sendMessage("This command can only be executed as a player");
 
                 return false;
             } else {
@@ -57,8 +59,8 @@ public class CommandUtil {
     }
 
     /**
-     * Checks whether the command sender has permission to execute a command.
-     * @param sender The sender to check.
+     * Checks whether the given command source has permission to execute a command.
+     * @param commandSourceStack The source of the command execution.
      * @param allowConsole Whether to allow console to execute.
      * @param needsOp Whether the player needs to be OP to execute.
      * @param requiresInGame Whether the game state needs to be in-game.
@@ -66,18 +68,18 @@ public class CommandUtil {
      * @return True if the sender is allowed to execute the given command.
      */
     public static boolean checkCommandSender(
-            CommandSender sender,
+            @NotNull CommandSourceStack commandSourceStack,
             Game game,
             boolean allowConsole,
             boolean needsOp,
             boolean requiresInGame,
             boolean disallowSpectator
     ) {
-        if (!checkCommandSender(sender, allowConsole, needsOp)) {
+        if (!checkCommandSender(commandSourceStack, allowConsole, needsOp)) {
             return true;
         }
 
-        Player player = (Player) sender;
+        Player player = (Player) commandSourceStack.getSender();
 
         if (requiresInGame && !game.getState().equals(Game.State.IN_GAME)) {
             player.sendMessage(ChatUtil.errorPrefix().append(Component

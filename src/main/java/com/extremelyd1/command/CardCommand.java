@@ -7,22 +7,18 @@ import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.ItemUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-
-public class CardCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class CardCommand implements BasicCommand {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
@@ -37,17 +33,16 @@ public class CardCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            String @NotNull [] strings
-    ) {
-        if (CommandUtil.checkCommandSender(sender, game, false, false, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (CommandUtil.checkCommandSender(commandSourceStack, game, false, false, true, true)) {
+            return;
         }
 
-        Player player = (Player) sender;
+        if (!(commandSourceStack.getExecutor() instanceof Player player)) {
+            commandSourceStack.getSender().sendMessage("This command can only be executed on a player");
+            return;
+        }
+
         Team team = game.getTeamManager().getTeamByPlayer(player);
 
         if (ItemUtil.hasBingoCard(player, bingoCardItemFactory)) {
@@ -56,7 +51,7 @@ public class CardCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         player.getInventory().addItem(
@@ -67,17 +62,5 @@ public class CardCommand implements TabExecutor {
                 .text("You have been given a new bingo card")
                 .color(NamedTextColor.WHITE)
         ));
-
-        return true;
-    }
-
-    @Override
-    public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
-        return Collections.emptyList();
     }
 }
