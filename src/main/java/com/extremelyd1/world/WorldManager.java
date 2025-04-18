@@ -52,7 +52,7 @@ public class WorldManager implements Listener {
     public WorldManager(Game game) throws IllegalArgumentException {
         this.game = game;
 
-        if (game.getConfig().isBorderEnabled() && game.getConfig().isOverrideWorldGeneration()) {
+        if (game.getConfig().isBorderEnabled() && game.getConfig().shouldGenerateEmptyChunks()) {
             Server server = Bukkit.getServer();
             CraftServer craftServer = (CraftServer) server;
 
