@@ -2,7 +2,6 @@ package com.extremelyd1.world.generation;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.Pair;
-import com.extremelyd1.world.platform.Environment;
 import org.bukkit.World;
 
 import java.util.Deque;
@@ -161,7 +160,7 @@ public class GenerationTask implements Runnable {
                         if (Boolean.TRUE.equals(generated)) {
                             return CompletableFuture.completedFuture(null);
                         } else {
-                            return Environment.getChunkAtAsync(world, chunk.x(), chunk.z(), true);
+                            return world.getChunkAtAsync(chunk.x(), chunk.z(), true);
                         }
                     }).whenComplete((ignored, throwable) -> {
                         update();
