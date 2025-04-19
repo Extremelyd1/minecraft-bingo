@@ -21,7 +21,9 @@ border:
   enable: True
   overworld-size: 3000
   nether-size: 1000
-  override-world-generation: False
+  generation:
+    empty-chunks-outside-border: True
+    biome-size: normal
 timer:
   enable: True
   length: 1800

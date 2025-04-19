@@ -21,11 +21,11 @@ import com.extremelyd1.title.TitleManager;
 import com.extremelyd1.util.*;
 import com.extremelyd1.world.WorldManager;
 import com.extremelyd1.world.spawn.SpawnLoader;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -175,44 +175,44 @@ public class Game {
     }
 
     /**
-     * Register all commands
-     * @param plugin The plugin instance to register the commands to
+     * Register all commands.
+     * @param plugin The plugin instance to register the commands to.
      */
+    @SuppressWarnings("UnstableApiUsage")
     private void registerCommands(JavaPlugin plugin) {
-        final Game game = this;
-        final Map<String, CommandExecutor> executors = new HashMap<>() {{
-            put("team", new TeamCommand(game));
-            put("start", new StartCommand(game));
-            put("end", new EndCommand(game));
-            put("bingo", new BingoCommand(game));
-            put("card", new CardCommand(game, bingoCardItemFactory));
-            put("pvp", new PvpCommand(game));
-            put("maintenance", new MaintenanceCommand(game));
-            put("wincondition", new WinConditionCommand(game));
-            put("reroll", new RerollCommand(game));
-            put("itemdistribution", new ItemDistributionCommand(game));
-            put("timer", new TimerCommand(game));
-            put("coordinates", new CoordinatesCommand(game));
-            put("all", new AllCommand(game));
-            put("channel", new ChannelCommand(game));
-            put("teamchat", new TeamChatCommand(game));
-            put("join", new JoinCommand(game));
+        plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Game game = this;
+            final Map<String[], BasicCommand> commands = new HashMap<>() {{
+                put(new String[] {"team"}, new TeamCommand(game));
+                put(new String[] {"start"}, new StartCommand(game));
+                put(new String[] {"end"}, new EndCommand(game));
+                put(new String[] {"bingo"}, new BingoCommand(game));
+                put(new String[] {"card"}, new CardCommand(game, bingoCardItemFactory));
+                put(new String[] {"pvp"}, new PvpCommand(game));
+                put(new String[] {"maintenance"}, new MaintenanceCommand(game));
+                put(new String[] {"wincondition", "wincon"}, new WinConditionCommand(game));
+                put(new String[] {"reroll"}, new RerollCommand(game));
+                put(new String[] {"itemdistribution", "itemdist", "distribution", "dist"}, new ItemDistributionCommand(game));
+                put(new String[] {"timer"}, new TimerCommand(game));
+                put(new String[] {"coordinates", "coord", "coords"}, new CoordinatesCommand(game));
+                put(new String[] {"all", "a", "g", "global"}, new AllCommand(game));
+                put(new String[] {"channel", "c"}, new ChannelCommand(game));
+                put(new String[] {"teamchat", "tc"}, new TeamChatCommand(game));
+                put(new String[] {"join"}, new JoinCommand(game));
 
-            if (config.isPreGenerateWorlds()) {
-                put("generate", new GenerateCommand(game));
-            } else {
-                put("generate", new DisabledCommand());
-            }
-        }};
+                if (config.isPreGenerateWorlds()) {
+                    put(new String[] {"generate", "gen"}, new GenerateCommand(game));
+                } else {
+                    put(new String[] {"generate", "gen"}, new DisabledCommand());
+                }
+            }};
 
-        for (String cmdName : executors.keySet()) {
-            PluginCommand command = plugin.getCommand(cmdName);
-            if (command != null) {
-                command.setExecutor(executors.get(cmdName));
-            } else {
-                throw new IllegalStateException("Command " + cmdName + " could not be registered");
+            for (Map.Entry<String[], BasicCommand> entry : commands.entrySet()) {
+                for (String commandName : entry.getKey()) {
+                    event.registrar().register(commandName, entry.getValue());
+                }
             }
-        }
+        });
     }
 
     /**

@@ -4,23 +4,23 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.chat.ChatChannelController;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import java.util.Collections;
 
-public class ChannelCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class ChannelCommand implements BasicCommand {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
@@ -29,21 +29,16 @@ public class ChannelCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, false, false)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, false, false)) {
+            return;
         }
 
-        Player player = (Player) sender;
+        Player player = (Player) commandSourceStack.getSender();
 
         if (args.length == 0) {
-            sendUsage(sender, command);
-            return true;
+            sendUsage(commandSourceStack);
+            return;
         }
 
         try {
@@ -58,20 +53,13 @@ public class ChannelCommand implements TabExecutor {
                     )
             ));
         } catch (IllegalArgumentException ex) {
-            sendUsage(sender, command);
+            sendUsage(commandSourceStack);
         }
-
-        return true;
     }
 
     @Override
-    public List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!(sender instanceof Player) || args.length != 1) {
+    public @NotNull Collection<String> suggest(CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!(commandSourceStack.getSender() instanceof Player) || args.length != 1) {
             return Collections.emptyList();
         }
 
@@ -79,16 +67,15 @@ public class ChannelCommand implements TabExecutor {
     }
 
     /**
-     * Send the usage of this command to the given sender
-     * @param sender The sender to send the command to
-     * @param command The command instance
+     * Send the usage of this command to the given sender.
+     * @param commandSourceStack The command source to send the usage to.
      */
-    private void sendUsage(CommandSender sender, Command command) {
-        sender.sendMessage(Component
+    private void sendUsage(@NotNull CommandSourceStack commandSourceStack) {
+        commandSourceStack.getSender().sendMessage(Component
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/" + command.getName() + " <team|global>")
+                        .text("/channel <team|global>")
                         .color(NamedTextColor.WHITE)
                 )
         );
