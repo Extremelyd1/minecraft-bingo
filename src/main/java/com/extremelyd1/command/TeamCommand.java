@@ -6,23 +6,23 @@ import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TeamCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class TeamCommand implements BasicCommand {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
@@ -31,20 +31,17 @@ public class TeamCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, true, true)) {
+            return;
         }
 
-        if (args.length == 0) {
-            sendUsage(sender, command);
+        CommandSender sender = commandSourceStack.getSender();
 
-            return true;
+        if (args.length == 0) {
+            sendUsage(sender);
+
+            return;
         }
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
@@ -53,14 +50,14 @@ public class TeamCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         if (args[0].equalsIgnoreCase("random")) {
             if (args.length < 2) {
-                sendUsageRandom(sender, command);
+                sendUsageRandom(sender);
 
-                return true;
+                return;
             }
 
             int numTeams;
@@ -72,7 +69,7 @@ public class TeamCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             if (numTeams <= 0) {
@@ -81,7 +78,7 @@ public class TeamCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             if (numTeams >= TeamManager.MAX_TEAMS) {
@@ -90,7 +87,7 @@ public class TeamCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             Collection<? extends Player> players = Bukkit.getOnlinePlayers();
@@ -98,8 +95,8 @@ public class TeamCommand implements TabExecutor {
             if (args.length > 2) {
                 if (args[2].equalsIgnoreCase("-e")) {
                     if (args.length < 4) {
-                        sendUsageRandom(sender, command);
-                        return true;
+                        sendUsageRandom(sender);
+                        return;
                     }
 
                     Collection<Player> excludedPlayers = parsePlayerArguments(args, 3);
@@ -109,7 +106,7 @@ public class TeamCommand implements TabExecutor {
                                 .color(NamedTextColor.WHITE)
                         ));
 
-                        return true;
+                        return;
                     }
 
                     // Filter the online players to exclude the players given in the command
@@ -127,7 +124,7 @@ public class TeamCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             game.getTeamManager().createRandomizedTeams(
@@ -146,12 +143,12 @@ public class TeamCommand implements TabExecutor {
                         .text("Usage: ")
                         .color(NamedTextColor.DARK_RED)
                         .append(Component
-                                .text("/" + command.getName() + " add <player> <team name>")
+                                .text("/team add <player> <team name>")
                                 .color(NamedTextColor.WHITE)
                         )
                 );
 
-                return true;
+                return;
             }
 
             Player argumentPlayer = getPlayerByName(args[1]);
@@ -161,7 +158,7 @@ public class TeamCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             TeamManager teamManager = game.getTeamManager();
@@ -173,7 +170,7 @@ public class TeamCommand implements TabExecutor {
                         .color(NamedTextColor.WHITE)
                 ));
 
-                return true;
+                return;
             }
 
             teamManager.addPlayerToTeam(argumentPlayer, argumentTeam, true);
@@ -183,12 +180,12 @@ public class TeamCommand implements TabExecutor {
                             .text("Usage: ")
                             .color(NamedTextColor.DARK_RED)
                             .append(Component
-                                    .text("/" + command.getName() + " remove <player>")
+                                    .text("/team remove <player>")
                                     .color(NamedTextColor.WHITE)
                             )
                     );
 
-                    return true;
+                    return;
                 }
 
                 Player argumentPlayer = getPlayerByName(args[1]);
@@ -198,7 +195,7 @@ public class TeamCommand implements TabExecutor {
                             .color(NamedTextColor.WHITE)
                     ));
 
-                    return true;
+                    return;
                 }
 
                 TeamManager teamManager = game.getTeamManager();
@@ -210,32 +207,29 @@ public class TeamCommand implements TabExecutor {
                             .color(NamedTextColor.WHITE)
                     ));
 
-                    return true;
+                    return;
                 }
 
                 // Add player to spectators
                 teamManager.addPlayerToTeam(argumentPlayer, teamManager.getSpectatorTeam());
         } else {
-            sendUsage(sender, command);
-            return true;
+            sendUsage(sender);
+            return;
         }
 
         game.onPregameUpdate();
-
-        return true;
     }
 
     /**
      * Send the usage of this command to the given sender.
      * @param sender The sender to send the command to.
-     * @param command The command instance.
      */
-    private void sendUsage(CommandSender sender, Command command) {
+    private void sendUsage(CommandSender sender) {
         sender.sendMessage(Component
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/" + command.getName() + " <random|add|remove>")
+                        .text("/team <random|add|remove>")
                         .color(NamedTextColor.WHITE)
                 )
         );
@@ -243,14 +237,13 @@ public class TeamCommand implements TabExecutor {
 
     /**
      * Send the usage of the random sub command.
-     * @param sender The sender to send the usage to.
      */
-    private void sendUsageRandom(CommandSender sender, Command command) {
+    private void sendUsageRandom(CommandSender sender) {
         sender.sendMessage(Component
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/" + command.getName() + " random <num teams> [-e] [players...]")
+                        .text("/team random <num teams> [-e] [players...]")
                         .color(NamedTextColor.WHITE)
                 )
         );
@@ -294,12 +287,7 @@ public class TeamCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
+    public @NotNull Collection<String> suggest(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             return Collections.emptyList();
         }

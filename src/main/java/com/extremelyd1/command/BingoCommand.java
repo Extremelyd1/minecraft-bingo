@@ -5,21 +5,19 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.ChatUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class BingoCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class BingoCommand implements BasicCommand {
 
     /**
      * The game instance
@@ -31,17 +29,12 @@ public class BingoCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            String @NotNull [] strings
-    ) {
-        if (CommandUtil.checkCommandSender(sender, game, false, false, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (CommandUtil.checkCommandSender(commandSourceStack, game, false, false, true, true)) {
+            return;
         }
 
-        Player player = (Player) sender;
+        Player player = (Player) commandSourceStack.getSender();
         PlayerTeam playerTeam = (PlayerTeam) game.getTeamManager().getTeamByPlayer(player);
 
         List<Material> itemsCollected = new ArrayList<>();
@@ -86,13 +79,6 @@ public class BingoCommand implements TabExecutor {
         }
 
         player.sendMessage(message);
-
-        return true;
-    }
-
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        return Collections.emptyList();
     }
 
     /**

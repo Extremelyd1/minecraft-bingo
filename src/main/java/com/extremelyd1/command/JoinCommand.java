@@ -4,18 +4,20 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class JoinCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class JoinCommand implements BasicCommand {
 
     /**
      * The game instance.
@@ -27,15 +29,12 @@ public class JoinCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, false, false)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, false, false)) {
+            return;
         }
+
+        CommandSender sender = commandSourceStack.getSender();
 
         // Prevent the command from being used anything apart from pre-game
         if (!game.getState().equals(Game.State.PRE_GAME)) {
@@ -44,14 +43,20 @@ public class JoinCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
-        Player player = (Player) sender;
-
         if (args.length == 0) {
-            sendUsage(sender, command);
-            return true;
+            sendUsage(sender);
+            return;
+        }
+
+        if (!(commandSourceStack.getExecutor() instanceof Player player)) {
+            sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                    .text("Cannot execute this command for a non-player entity")
+                    .color(NamedTextColor.WHITE)
+            ));
+            return;
         }
 
         PlayerTeam checkTeam = game.getTeamManager().getTeamByName(args[0]);
@@ -64,36 +69,28 @@ public class JoinCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
         }
-
-        return true;
     }
 
     /**
      * Send the usage of this command to the given sender.
      * @param sender The sender to send the command to.
-     * @param command The command instance.
      */
-    private void sendUsage(CommandSender sender, Command command) {
+    private void sendUsage(CommandSender sender) {
         sender.sendMessage(Component
                 .text("Usage: ")
                 .color(NamedTextColor.DARK_RED)
                 .append(Component
-                        .text("/" + command.getName() + " <team name>")
+                        .text("/join <team name>")
                         .color(NamedTextColor.WHITE)
                 )
         );
     }
 
     @Override
-    public List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
+    public @NotNull Collection<String> suggest(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
         List<String> teams = new ArrayList<>();
 
-        if (!(sender instanceof Player) || args.length != 1) {
+        if (!(commandSourceStack.getSender() instanceof Player) || args.length != 1) {
             return teams;
         }
 

@@ -4,21 +4,21 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
 import com.extremelyd1.util.TimeUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
-public class TimerCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class TimerCommand implements BasicCommand {
 
     /**
      * The game instance
@@ -30,15 +30,12 @@ public class TimerCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, true, true)) {
+            return;
         }
+
+        CommandSender sender = commandSourceStack.getSender();
 
         if (args.length == 0) {
             sender.sendMessage(ChatUtil.errorPrefix().append(Component
@@ -46,7 +43,7 @@ public class TimerCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         if (!game.getState().equals(Game.State.PRE_GAME)) {
@@ -55,7 +52,7 @@ public class TimerCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         if (args[0].equalsIgnoreCase("enable")) {
@@ -71,7 +68,7 @@ public class TimerCommand implements TabExecutor {
 
             game.onPregameUpdate();
 
-            return true;
+            return;
         } else if (args[0].equalsIgnoreCase("disable")) {
             game.getConfig().setTimerEnabled(false);
 
@@ -85,7 +82,7 @@ public class TimerCommand implements TabExecutor {
 
             game.onPregameUpdate();
 
-            return true;
+            return;
         }
 
         int timerLength;
@@ -95,7 +92,7 @@ public class TimerCommand implements TabExecutor {
 
             game.onPregameUpdate();
 
-            return true;
+            return;
         } catch (NumberFormatException ignored) {
             // Timer is not specified in a single integer
         }
@@ -115,14 +112,12 @@ public class TimerCommand implements TabExecutor {
                     )
             ));
 
-            return true;
+            return;
         }
 
         trySetTimer(sender, parsedTime);
 
         game.onPregameUpdate();
-
-        return true;
     }
 
     private void trySetTimer(CommandSender sender, int seconds) {
@@ -151,12 +146,7 @@ public class TimerCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
+    public @NotNull Collection<String> suggest(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
         if (!game.getState().equals(Game.State.PRE_GAME)) {
             return Collections.emptyList();
         }

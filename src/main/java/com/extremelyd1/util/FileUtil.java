@@ -2,12 +2,17 @@ package com.extremelyd1.util;
 
 import com.extremelyd1.game.Game;
 import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.Deflater;
@@ -250,4 +255,51 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Copy a given directory resource to the given target path.
+     * @param sourceResource The embedded source.
+     * @param target The target path of the directory.
+     * @throws URISyntaxException Thrown if the given resource cannot be found.
+     * @throws IOException Thrown if the directory can not be successfully copied.
+     */
+    public static void copyResourceDirectory(String sourceResource, Path target) throws URISyntaxException, IOException {
+        URI resource = Objects.requireNonNull(FileUtil.class.getResource("")).toURI();
+        try (FileSystem fileSystem = FileSystems.newFileSystem(
+                resource,
+                Collections.emptyMap()
+        )) {
+            final Path jarPath = fileSystem.getPath(sourceResource);
+
+            copyDirectory(jarPath, target);
+        }
+    }
+
+    /**
+     * Copy the directory at the given source path to the given target path.
+     * @param source The source path of the directory.
+     * @param target The target path of the directory.
+     * @param options Copy options to be used for copying.
+     * @throws IOException Thrown when the copy could be successfully performed.
+     */
+    public static void copyDirectory(Path source, Path target, CopyOption... options) throws IOException {
+        Files.walkFileTree(source, new SimpleFileVisitor<>() {
+            @Override
+            public @NotNull FileVisitResult preVisitDirectory(
+                    Path dir,
+                    @NotNull BasicFileAttributes attrs
+            ) throws IOException {
+                Files.createDirectories(target.resolve(source.relativize(dir).toString()));
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public @NotNull FileVisitResult visitFile(
+                    Path file,
+                    @NotNull BasicFileAttributes attrs
+            ) throws IOException {
+                Files.copy(file, target.resolve(source.relativize(file).toString()), options);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
 }

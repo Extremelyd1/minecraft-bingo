@@ -3,19 +3,20 @@ package com.extremelyd1.command;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class ItemDistributionCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class ItemDistributionCommand implements BasicCommand {
 
     /**
      * The game instance.
@@ -27,19 +28,16 @@ public class ItemDistributionCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String @NotNull [] args
-    ) {
-        if (!CommandUtil.checkCommandSender(sender, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, true, true)) {
+            return;
         }
+
+        CommandSender sender = commandSourceStack.getSender();
 
         if (args.length != 5) {
             sendItemDistributionError(sender);
-            return true;
+            return;
         }
 
         int numSTierItems = parseItemDistribution(args[0], sender);
@@ -53,7 +51,7 @@ public class ItemDistributionCommand implements TabExecutor {
                 || numBTierItems == -1
                 || numCTierItems == -1
                 || numDTierItems == -1) {
-            return true;
+            return;
         }
 
         if (numSTierItems + numATierItems + numBTierItems + numCTierItems + numDTierItems != 25) {
@@ -62,7 +60,7 @@ public class ItemDistributionCommand implements TabExecutor {
                     .color(NamedTextColor.WHITE)
             ));
 
-            return true;
+            return;
         }
 
         game.getConfig().setItemDistribution(
@@ -90,8 +88,6 @@ public class ItemDistributionCommand implements TabExecutor {
         ));
 
         game.onPregameUpdate();
-
-        return true;
     }
 
     /**
@@ -135,12 +131,7 @@ public class ItemDistributionCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String @NotNull [] args
-    ) {
+    public @NotNull Collection<String> suggest(@NotNull CommandSourceStack commandSourceStack, String[] args) {
         List<String> list = new ArrayList<>();
 
         // If we have more than 5 arguments, we don't suggest anymore
