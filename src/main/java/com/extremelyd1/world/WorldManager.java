@@ -174,7 +174,7 @@ public class WorldManager implements Listener {
         );
 
         if (structureSearchResult == null) {
-            Game.getLogger().warning("Could not find structure " + bukkitStructureType
+            Game.getLogger().warning("Could not find structure " + bukkitStructureType.getKey()
                     + " within " + StructureSearchRadius
                     + " blocks in world type " + world.getEnvironment()
             );
@@ -243,6 +243,12 @@ public class WorldManager implements Listener {
         Random random = new Random(world.getSeed());
         int centerX = random.nextInt(centerMaxX - centerMinX + 1) + centerMinX;
         int centerZ = random.nextInt(centerMaxZ - centerMinZ + 1) + centerMinZ;
+
+        Game.getLogger().info("Setting world border at x: %s, z: %s, with size: %s".formatted(
+                centerX,
+                centerZ,
+                size
+        ));
 
         WorldBorder border = world.getWorldBorder();
         border.setCenter(centerX, centerZ);

@@ -1,10 +1,7 @@
 package com.extremelyd1.world.generation;
 
 import com.extremelyd1.game.Game;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.NotNull;
@@ -44,16 +41,7 @@ public class BingoChunkGenerator extends ChunkGenerator {
             return true;
         }
 
-        World world;
-        switch (worldInfo.getEnvironment()) {
-            case NORMAL -> world = game.getWorldManager().getWorld();
-            case NETHER -> world = game.getWorldManager().getNether();
-            case THE_END -> world = game.getWorldManager().getEnd();
-            default -> {
-                return true;
-            }
-        }
-
+        World world = Bukkit.getWorld(worldInfo.getName());
         if (world == null) {
             return true;
         }
