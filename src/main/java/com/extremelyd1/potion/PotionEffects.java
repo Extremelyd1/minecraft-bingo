@@ -37,26 +37,4 @@ public class PotionEffects {
             false,
             false
     );
-
-    /**
-     * Slowness potion effect applied on game start lasting 100 ticks = 5 seconds.
-     */
-    public static final PotionEffect SLOWNESS = new PotionEffect(
-            PotionEffectType.SLOWNESS,
-            100,
-            10,
-            false,
-            false
-    );
-
-    /**
-     * Jump-boost potion effect applied on game start lasting 100 ticks = 5 seconds.
-     */
-    public static final PotionEffect JUMP_BOOST = new PotionEffect(
-            PotionEffectType.JUMP_BOOST,
-            100,
-            128,
-            false,
-            false
-    );
 }

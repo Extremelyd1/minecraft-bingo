@@ -26,16 +26,15 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Game {
@@ -309,10 +308,11 @@ public class Game {
 
                 int freezeTimeOnStart = config.getFreezeTimeOnStart();
                 if (freezeTimeOnStart > 0) {
+                    Objects.requireNonNull(teamPlayer.getAttribute(Attribute.MOVEMENT_SPEED)).setBaseValue(0);
+                    Objects.requireNonNull(teamPlayer.getAttribute(Attribute.JUMP_STRENGTH)).setBaseValue(0);
+
                     teamPlayer.addPotionEffect(PotionEffects.BLINDNESS.withDuration(freezeTimeOnStart * 20));
                     teamPlayer.addPotionEffect(PotionEffects.DARKNESS.withDuration(freezeTimeOnStart * 20));
-                    teamPlayer.addPotionEffect(PotionEffects.SLOWNESS.withDuration(freezeTimeOnStart * 20));
-                    teamPlayer.addPotionEffect(PotionEffects.JUMP_BOOST.withDuration(freezeTimeOnStart * 20));
                 }
 
                 teamPlayer.teleport(location);
@@ -335,6 +335,27 @@ public class Game {
                     recipeUtil.discoverAllRecipes(teamPlayer);
                 }
             }
+        }
+
+        int freezeTimeOnStart = config.getFreezeTimeOnStart();
+        if (freezeTimeOnStart > 0) {
+            // If there is a freeze time on start, we schedule a task to run after the freeze time is over to reset
+            // the players' movement speed and jump strength to normal
+            Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+                for (PlayerTeam team : teamManager.getActiveTeams()) {
+                    for (Player teamPlayer : team.getPlayers()) {
+                        AttributeInstance moveSpeedAttr = teamPlayer.getAttribute(Attribute.MOVEMENT_SPEED);
+                        if (moveSpeedAttr != null) {
+                            moveSpeedAttr.setBaseValue(0.10000000149011612);
+                        }
+
+                        AttributeInstance jumpStrengthAttr = teamPlayer.getAttribute(Attribute.JUMP_STRENGTH);
+                        if (jumpStrengthAttr != null) {
+                            jumpStrengthAttr.setBaseValue(0.41999998688697815);
+                        }
+                    }
+                }
+            }, freezeTimeOnStart * 20L);
         }
 
         for (Player spectatorPlayer : teamManager.getSpectatorTeam().getPlayers()) {
