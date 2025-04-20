@@ -12,16 +12,16 @@ import java.util.Map;
 public class GameBoardManager {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
     /**
-     * The pregame board instance
+     * The pregame board instance.
      */
     private PregameBoard pregameBoard;
     /**
-     * A mapping from team to the respective in-game board
+     * A mapping from team to the respective in-game board.
      */
     private Map<Team, IngameBoard> inGameBoards;
 
@@ -44,8 +44,8 @@ public class GameBoardManager {
     }
 
     /**
-     * Creates the boards used while in the in-game phase
-     * @param teams An iterable of teams for which to create the boards
+     * Creates the boards used while in the in-game phase.
+     * @param teams An iterable of teams for which to create the boards.
      */
     public void createInGameBoards(Iterable<PlayerTeam> teams) {
         if (inGameBoards == null) {
@@ -66,8 +66,8 @@ public class GameBoardManager {
     }
 
     /**
-     * Updates scoreboards in pregame
-     * @param numOnlinePlayers The number of online players
+     * Updates scoreboards in pregame.
+     * @param numOnlinePlayers The number of online players.
      */
     public void onPregameUpdate(int numOnlinePlayers) {
         if (game.getState().equals(Game.State.PRE_GAME)) {
@@ -78,8 +78,8 @@ public class GameBoardManager {
     }
 
     /**
-     * When an item is collected by a certain team
-     * @param team The team that collects the item
+     * When an item is collected by a certain team.
+     * @param team The team that collects the item.
      */
     public void onItemCollected(PlayerTeam team) {
         if (game.getState().equals(Game.State.IN_GAME)) {
@@ -106,8 +106,8 @@ public class GameBoardManager {
     }
 
     /**
-     * Called when scoreboard need to update their time
-     * @param timeLeft The current time left
+     * Called when scoreboard need to update their time.
+     * @param timeLeft The current time left.
      */
     public void onTimeUpdate(long timeLeft) {
         if (game.getState().equals(Game.State.IN_GAME)) {
@@ -118,7 +118,7 @@ public class GameBoardManager {
     }
 
     /**
-     * Broadcasts the appropriate scoreboard to all players
+     * Broadcasts the appropriate scoreboard to all players.
      */
     public void broadcast() {
         if (game.getState().equals(Game.State.PRE_GAME)) {
@@ -126,7 +126,6 @@ public class GameBoardManager {
             pregameBoard.broadcast();
         } else if (game.getState().equals(Game.State.IN_GAME)) {
             for (IngameBoard ingameBoard : inGameBoards.values()) {
-                ingameBoard.update();
                 ingameBoard.broadcast();
             }
         }

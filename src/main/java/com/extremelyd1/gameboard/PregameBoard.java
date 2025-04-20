@@ -36,18 +36,20 @@ public class PregameBoard extends GameBoard {
     public PregameBoard(Game game) {
         super(game);
 
-        this.boardEntries.add(new BlankBoardEntry());
-        this.boardEntries.add(new BoardEntry(Component
+        BoardEntry.reset(objective);
+
+        new BlankBoardEntry();
+        new BoardEntry(Component
                 .text("Status: ")
                 .append(Component
                         .text("Pre-Game")
                         .color(NamedTextColor.YELLOW)
                 )
-        ));
-        this.boardEntries.add(new BoardEntry(Component
+        );
+        new BoardEntry(Component
                 .text("Waiting for players...")
-        ));
-        this.boardEntries.add(new BlankBoardEntry());
+        );
+        new BlankBoardEntry();
         numPlayersEntry = new DynamicBoardEntry<>(Component
                 .text("Players: ")
                 .append(Component
@@ -56,26 +58,23 @@ public class PregameBoard extends GameBoard {
                 ),
                 0
         );
-        this.boardEntries.add(numPlayersEntry);
-        this.boardEntries.add(new BlankBoardEntry());
-        this.boardEntries.add(new BoardEntry(Component
+        new BlankBoardEntry();
+        new BoardEntry(Component
                 .text("Item Distribution:")
-        ));
+        );
 
         currentItemDistribution = new DynamicBoardEntry<>(
                 Component.empty(),
                 getItemDistributionComponent(game)
         );
-        this.boardEntries.add(currentItemDistribution);
-        this.boardEntries.add(new BlankBoardEntry());
+        new BlankBoardEntry();
 
         timerStatus = new DynamicBoardEntry<>(Component
                 .text("Timer: "),
                 Component
                         .text("00:00")
         );
-        this.boardEntries.add(timerStatus);
-        this.boardEntries.add(new BlankBoardEntry());
+        new BlankBoardEntry();
 
         gameTypeEntry = new DynamicBoardEntry<>(Component
                 .text("Game Type: ")
@@ -85,8 +84,7 @@ public class PregameBoard extends GameBoard {
                 ),
                 "-"
         );
-        this.boardEntries.add(gameTypeEntry);
-        this.boardEntries.add(new BlankBoardEntry());
+        new BlankBoardEntry();
     }
 
     /**
@@ -144,7 +142,6 @@ public class PregameBoard extends GameBoard {
         timerStatus.setValue(getTimerStatus(game));
         gameTypeEntry.setValue(formatWinCondition(game.getWinConditionChecker()));
 
-        super.update();
+        updateTeamColors();
     }
-
 }

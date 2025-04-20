@@ -2,16 +2,12 @@ package com.extremelyd1.gameboard;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.winCondition.WinConditionChecker;
-import com.extremelyd1.gameboard.boardEntry.BoardEntry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents a scoreboard with GameBoardEntry instances in it.
@@ -38,11 +34,6 @@ public class GameBoard {
      */
     protected final Objective objective;
 
-    /**
-     * The list of entries on this board.
-     */
-    protected final List<BoardEntry> boardEntries;
-
     public GameBoard(Game game) {
         this.game = game;
 
@@ -55,52 +46,12 @@ public class GameBoard {
                         .decorate(TextDecoration.BOLD)
         );
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        this.boardEntries = new ArrayList<>();
     }
 
     /**
-     * Updates this board by updating all board entries and resetting the prefixes of players.
-     * The following steps are taken to update the board efficiently.
-     * - Remove scores that no longer exist in the board.
-     * - Update the board to the most recent scores which will add new values/update existing ones.
+     * Updates the players' team colors.
      */
-    public void update() {
-        // Remove entries that no longer exist
-        for (String entry : this.scoreboard.getEntries()) {
-            boolean entryStillExists = false;
-
-            Team team = this.scoreboard.getEntryTeam(entry);
-            if (team != null) {
-                Component prefix = team.prefix();
-                for (BoardEntry newEntry : boardEntries) {
-                    if (newEntry.getComponent().equals(prefix)) {
-                        entryStillExists = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!entryStillExists) {
-                this.scoreboard.resetScores(entry);
-            }
-        }
-
-        // Add the new scores/update existing ones
-        for (int i = 0; i < boardEntries.size(); i++) {
-            Team team = this.scoreboard.getTeam(String.valueOf(i));
-            if (team == null) {
-                team = this.scoreboard.registerNewTeam(String.valueOf(i));
-            }
-
-            String entry = spacedString(i);
-
-            team.addEntry(entry);
-            team.prefix(boardEntries.get(i).getComponent());
-
-            this.objective.getScore(entry).setScore(boardEntries.size() - i);
-        }
-
-        // Update team colors
+    public void updateTeamColors() {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             com.extremelyd1.game.team.Team gameTeam = game.getTeamManager().getTeamByPlayer(onlinePlayer);
             if (gameTeam == null) {
@@ -163,14 +114,5 @@ public class GameBoard {
         // Handle plurality of 'lines'
         int numLines = winConditionChecker.getNumLinesToComplete();
         return numLines + " Line" + (numLines == 1 ? "" : "s");
-    }
-
-    /**
-     * Get a string consisting of spaces with the given number of spaces.
-     * @param numberOfSpaces The number of spaces in the string.
-     * @return A string consisting of spaces.
-     */
-    public static String spacedString(int numberOfSpaces) {
-        return " ".repeat(Math.max(0, numberOfSpaces));
     }
 }

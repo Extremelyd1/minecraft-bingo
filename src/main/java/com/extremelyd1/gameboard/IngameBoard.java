@@ -39,22 +39,24 @@ public class IngameBoard extends GameBoard {
 
         this.team = team;
 
-        this.boardEntries.add(new BlankBoardEntry());
-        this.boardEntries.add(new BoardEntry(Component
+        BoardEntry.reset(objective);
+
+        new BlankBoardEntry();
+        new BoardEntry(Component
                 .text("Status: ")
                 .append(Component
                         .text("In-Game")
                         .color(NamedTextColor.YELLOW)
                 )
-        ));
+        );
 
-        this.boardEntries.add(new BoardEntry(Component
+        new BoardEntry(Component
                 .text("Game type: ")
                 .append(Component
                         .text(formatWinCondition(game.getWinConditionChecker()))
                         .color(NamedTextColor.YELLOW)
                 )
-        ));
+        );
 
         if (game.getConfig().isTimerEnabled()) {
             timeLeftEntry = new DynamicBoardEntry<>(Component
@@ -65,49 +67,46 @@ public class IngameBoard extends GameBoard {
                     ),
                     "0:00"
             );
-            this.boardEntries.add(timeLeftEntry);
         } else {
             timeLeftEntry = null;
         }
 
-        this.boardEntries.add(new BlankBoardEntry());
+        new BlankBoardEntry();
 
-        this.boardEntries.add(new BoardEntry(Component
+        new BoardEntry(Component
                 .text("Team: ")
                 .append(Component
                         .text(team.getName())
                         .color(team.getColor())
                 )
-        ));
-        this.boardEntries.add(new BlankBoardEntry());
+        );
+        new BlankBoardEntry();
 
         if (!team.isSpectatorTeam()) {
-            this.boardEntries.add(new BoardEntry(Component
+            new BoardEntry(Component
                     .text("Number of items collected:")
-            ));
+            );
             numItemsEntry = new DynamicBoardEntry<>(Component
                     .text("  " + DynamicBoardEntry.replacePlaceholder)
                     .color(NamedTextColor.AQUA),
                     0
             );
-            this.boardEntries.add(numItemsEntry);
-            this.boardEntries.add(new BlankBoardEntry());
+            new BlankBoardEntry();
         } else {
             numItemsEntry = null;
         }
 
         if (game.getConfig().showCurrentlyWinningTeam()) {
-            this.boardEntries.add(new BoardEntry(Component
+            new BoardEntry(Component
                     .text("Leading team:")
-            ));
+            );
             winningTeamEntry = new DynamicBoardEntry<>(Component
                     .text("  "),
                     Component
                             .text("Tie")
                             .color(NamedTextColor.GRAY)
             );
-            this.boardEntries.add(winningTeamEntry);
-            this.boardEntries.add(new BlankBoardEntry());
+            new BlankBoardEntry();
         } else {
             winningTeamEntry = null;
         }
@@ -119,8 +118,6 @@ public class IngameBoard extends GameBoard {
      */
     public void updateNumItems(int numItems) {
         numItemsEntry.setValue(numItems);
-
-        super.update();
     }
 
     /**
@@ -129,8 +126,6 @@ public class IngameBoard extends GameBoard {
      */
     public void updateTime(long timeLeft) {
         timeLeftEntry.setValue(TimeUtil.formatTimeLeft(timeLeft));
-
-        super.update();
     }
 
     /**
@@ -153,8 +148,6 @@ public class IngameBoard extends GameBoard {
                     .color(team.getColor())
             );
         }
-
-        super.update();
     }
 
     /**
