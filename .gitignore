@@ -57,8 +57,3 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,intellij
 
 .idea/
-
-# Project ignores
-
-item_data/images/**
-!item_data/images/images.zip
