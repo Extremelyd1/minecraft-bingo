@@ -5,16 +5,19 @@ import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.potion.PotionEffects;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.TranslationArgument;
+import net.kyori.adventure.text.*;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DeathListener implements Listener {
 
@@ -43,40 +46,97 @@ public class DeathListener implements Listener {
             }
         }
 
-        Player player = e.getPlayer();
-        Team team = game.getTeamManager().getTeamByPlayer(player);
-        if (team == null) {
-            Game.getLogger().warning("onPlayerDeath player has no team");
-            return;
-        }
-
         Component deathMessageComponent = e.deathMessage();
         if (deathMessageComponent == null) {
-            Game.getLogger().warning("onPlayerDeath has no death message");
+            Game.getLogger().warning("Player death event has no death message");
             return;
         }
 
         if (!(deathMessageComponent instanceof TranslatableComponent translatableComponent)) {
-            Game.getLogger().warning("onPlayerDeath has no translatable component in death message");
+            Game.getLogger().warning("Player death event has no translatable component in death message");
             return;
         }
 
-        TranslationArgument translationArgument = translatableComponent.arguments().getFirst();
-        if (translationArgument == null) {
-            Game.getLogger().warning("onPlayerDeath has no translation argument in death message");
-            return;
+        // Get the list of original translation arguments in the translatable component
+        List<TranslationArgument> translationArguments = translatableComponent.arguments();
+
+        // Create a new list of ComponentLike by mapping each translation argument to a ComponentLike
+        // This list is the new list of arguments that will be put into the translatable component
+        List<ComponentLike> newTranslationArguments = new ArrayList<>(translationArguments.stream().map(
+                arg -> (ComponentLike) arg
+        ).toList());
+
+        // Loop over all online players and try to find their name in the arguments
+        // If a name is found, replace the translation argument with an argument styled by the team's color
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            Team team = game.getTeamManager().getTeamByPlayer(onlinePlayer);
+            if (team != null) {
+                TranslationArgument playerTranslationArgument = getTranslationArgumentForPlayer(
+                        translationArguments,
+                        onlinePlayer
+                );
+                if (playerTranslationArgument != null) {
+                    replaceTranslationArgumentWithColored(
+                            newTranslationArguments,
+                            playerTranslationArgument,
+                            team.getColor()
+                    );
+                }
+            }
         }
 
-        TextComponent argumentValueComponent = (TextComponent) translationArgument.value();
+        // Set the arguments on the translatable component to the new arguments list
+        TranslatableComponent styledTranslatableComponent = translatableComponent.arguments(newTranslationArguments);
 
-        // Style the text component with the player's team color
-        Component styledArgumentComponent = argumentValueComponent.style(argumentValueComponent.style().color(team.getColor()));
-
-        // Set the arguments on the translatable component to the argument we just changed
-        TranslatableComponent styledTranslatableComponent = translatableComponent.arguments(styledArgumentComponent);
-
-        // Lastly, set the death message to this new translatable component that has our styled component
+        // Lastly, set the death message to this new translatable component that has our styled components
         e.deathMessage(styledTranslatableComponent);
+    }
+
+    /**
+     * Get the translation argument that matches the given player in the given list of arguments.
+     * @param arguments The list of translation arguments.
+     * @param player The player whose name should match the name in the translation argument.
+     * @return The translation argument that matches the player's name or null, if no such argument can be found.
+     */
+    private @Nullable TranslationArgument getTranslationArgumentForPlayer(
+            List<TranslationArgument> arguments,
+            Player player
+    ) {
+        for (TranslationArgument translationArgument : arguments) {
+            if (translationArgument.value() instanceof TextComponent textComponent) {
+                if (textComponent.content().equals(player.getName())) {
+                    return translationArgument;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Replace the given translation argument present in the given list with a variant that is colored with the given
+     * color. The given list of ComponentLike will be updated such that the given argument is replaced with the styled
+     * argument.
+     * @param arguments The list of ComponentLike arguments in which the argument should be updated with the
+     *                  replacement.
+     * @param argument The argument that should be replaced with a colored variant. This argument should be present in
+     *                 the list, or it will not be updated.
+     * @param color The color that the argument should be styled with.
+     */
+    private void replaceTranslationArgumentWithColored(
+            List<ComponentLike> arguments,
+            TranslationArgument argument,
+            TextColor color
+    ) {
+        // First get the text component from the translation argument and color it
+        TextComponent argumentValueComponent = (TextComponent) argument.value();
+        Component styledArgumentValue = argumentValueComponent.style(argumentValueComponent.style().color(color));
+
+        for (int i = 0; i < arguments.size(); i++) {
+            if (arguments.get(i).equals(argument)) {
+                arguments.set(i, styledArgumentValue);
+            }
+        }
     }
 
     @EventHandler
