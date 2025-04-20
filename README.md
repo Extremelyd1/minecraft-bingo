@@ -6,11 +6,11 @@ Item bingo in Minecraft
 ## What is minecraft bingo?
 Minecraft Bingo is a gamemode in Minecraft in which teams battle in order to collect items on their bingo card.
 The first team to reach a completed row, column or diagonal wins the game.
-Collecting items is simply done through the vanilla game experience of minecraft.
+Collecting items is simply done through the vanilla game experience of Minecraft.
 
 ## Usage
 Players that have OP on the server have access to all commands. 
-Before being able to start the game, a player needs to create teams with the /team command. 
+Before being able to start the game, a player needs to create teams with the `/team` command. 
 Other settings can be configured as explained in the commands section below. 
 As soon as the game is started, teams are scattered across the map (players within teams are grouped together). 
 The teams work together to gather the items on their bingo card. 
@@ -21,13 +21,8 @@ Note that the bingo card can be right-clicked in order to view which items need 
 
 ## Install
 Download the [latest release](https://github.com/Extremelyd1/minecraft-bingo/releases/latest) or compile it yourself using Gradle.
-The plugin requires either a [Spigot](https://www.spigotmc.org/) or [Paper](https://papermc.io/) server to run.
+The plugin requires a [Paper](https://papermc.io/) server to run.
 Place the `MinecraftBingo-[version].jar` file in the plugins directory of your server.
-Unzip the `item_data.zip` into the `<server>/plugins/MinecraftBingo/` directory.
-If done successfully, you should have the following two directories:
-- `<server>/plugins/MinecraftBingo/item_data/`
-- `<server>/plugins/MinecraftBingo/item_data/images/`
-
 The first time you run the plugin a config file will be generated in `<server>/plugins/MinecraftBingo`, in which you can edit some configuration settings.
 
 ## Commands
@@ -45,7 +40,7 @@ The first time you run the plugin a config file will be generated in `<server>/p
 #### Configuration commands  
 - `/pvp` Enable/disable PvP
 - `/maintenance` Enable maintenance mode (this will disallow all non-OP players from joining)
-- `/wincondition <full|lines|lockout> [number]` Change the wincondition to either a full card, a number of lines (rows, columns or diagonals) to complete in order to win or lockout. 
+- `/wincondition <full|lines|lockout> [number]` Change the win condition to either a full card, a number of lines (rows, columns or diagonals) to complete in order to win or lockout. 
   In case of 'lines' or 'lockout' you can specify a number to indicate how many lines needed to be completed, or after how many collections an item locks.
   (alias: `/wincon`)
 - `/itemdistribution <S> <A> <B> <C> <D>` Change the item distribution scales, the number of S, A, B, C, and D tier items that appear on the bingo card. 
@@ -64,7 +59,6 @@ The first time you run the plugin a config file will be generated in `<server>/p
 
 ## World generation
 The plugin offers the ability to pre-generate worlds to reduce chunk generation lag during gameplay.
-This feature can be used both on [Spigot](https://www.spigotmc.org/) and on [Paper](https://papermc.io/), but will be significantly faster on Paper.
 The following command can be used to manage this:
 - `/generate <start world number> <number of worlds>` Start pre-generating the given number of worlds from the given index and storing them in zip format
 - `/generate stop` Stop pre-generating worlds  
