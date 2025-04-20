@@ -9,6 +9,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,8 +25,23 @@ public class BingoBootstrap implements PluginBootstrap {
      */
     private static final String BIOME_SIZE_DIR_NAME = "biome-size";
 
+    /**
+     * The name of the directory that stores item data either on disk or in our embedded resources.
+     */
+    private static final String ITEM_DATA_DIR_NAME = "item_data";
+
     @Override
-    public void bootstrap(BootstrapContext context) {
+    public void bootstrap(@NotNull BootstrapContext context) {
+        bootstrapDatapack(context);
+        bootstrapItemData(context);
+    }
+
+    /**
+     * Bootstrap the biome size datapack by manually loading the configuration file, checking its values, unpacking
+     * the datapack directory from embedded resources, and allowing it to be discovered by the server.
+     * @param context The bootstrap context for logging and datapack discovery.
+     */
+    private void bootstrapDatapack(BootstrapContext context) {
         // First check for the existence of the plugin's configuration file
         File configFile = new File(context.getDataDirectory().toFile(), "config.yml");
         if (!configFile.exists()) {
@@ -54,28 +70,9 @@ public class BingoBootstrap implements PluginBootstrap {
             return;
         }
 
-        // Get the data directory of our plugin (this is more of a sanity check, because we already check for the
-        // existence of the config file, which should also be in there)
-        File dataDir = context.getDataDirectory().toFile();
-        if (!dataDir.exists()) {
-            context.getLogger().error("Could not unpack datapack, because data directory does not exist");
+        File datapackDir = unpackResourceToDataDir(context, DATAPACK_DIR_NAME, "biome size datapack");
+        if (datapackDir == null) {
             return;
-        }
-
-        // Get the directory that stores the datapack
-        File datapackDir = new File(dataDir, DATAPACK_DIR_NAME);
-        if (!datapackDir.exists()) {
-            // If it doesn't exist yet, we try to copy the datapack directory from our embedded resources
-            try {
-                FileUtil.copyResourceDirectory(DATAPACK_DIR_NAME, datapackDir.toPath());
-            } catch (URISyntaxException | IOException e) {
-                context.getLogger().error("Could not copy resource datapack to the data directory:\n{}", e.toString());
-                return;
-            }
-
-            context.getLogger().info("Successfully unpacked biome size resource datapack");
-        } else {
-            context.getLogger().info("Biome size resource datapack already exists");
         }
 
         // Finally use the lifecycle event manager to discover our datapack on disk at the specified directory
@@ -88,5 +85,52 @@ public class BingoBootstrap implements PluginBootstrap {
                 context.getLogger().error("Could not discover biome size resource datapack:\n{}", e.toString());
             }
         });
+    }
+
+    /**
+     * Bootstrap the item data by unpacking it from embedded resources if it doesn't exist yet.
+     * @param context The bootstrap context for logging.
+     */
+    private void bootstrapItemData(BootstrapContext context) {
+        unpackResourceToDataDir(context, ITEM_DATA_DIR_NAME, "item data");
+    }
+
+    /**
+     * Unpack an embedded resource to the plugin's data directory.
+     * @param context The bootstrap context for logging.
+     * @param dirName The name of the directory in the embedded resource and the resulting directory name on disk.
+     * @param resourceName The name of the resource for logging purposes.
+     * @return The resulting directory file if unpacking succeeded, otherwise null.
+     */
+    private @Nullable File unpackResourceToDataDir(BootstrapContext context, String dirName, String resourceName) {
+        // Get the data directory of our plugin
+        File dataDir = context.getDataDirectory().toFile();
+        if (!dataDir.exists()) {
+            context.getLogger().error(
+                    "Could not unpack {}, because data directory does not exist", resourceName
+            );
+            return null;
+        }
+
+        // Get the directory that stores the unpacked resource and check if it exists
+        File resourceDir = new File(dataDir, dirName);
+        if (!resourceDir.exists()) {
+            // If it doesn't exist yet, we try to copy the resource directory from our embedded resources
+            try {
+                FileUtil.copyResourceDirectory(dirName, resourceDir.toPath());
+            } catch (URISyntaxException | IOException e) {
+                context.getLogger().error("Could not copy resource {} to the data directory:\n{}",
+                        resourceName,
+                        e.toString()
+                );
+                return null;
+            }
+
+            context.getLogger().info("Successfully unpacked resource {}", resourceName);
+        } else {
+            context.getLogger().info("Resource {} already exists in data directory", resourceName);
+        }
+
+        return resourceDir;
     }
 }
