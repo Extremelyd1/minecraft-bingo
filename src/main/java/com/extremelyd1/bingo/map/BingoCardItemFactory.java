@@ -260,7 +260,7 @@ public class BingoCardItemFactory {
 
                 if (itemImage == null) {
                     Game.getLogger().warning(
-                            "Could not find image file for material: " + bingoItem.getMaterial()
+                            "Could not find image file for material: %s".formatted(bingoItem.getMaterial())
                     );
                     continue;
                 }

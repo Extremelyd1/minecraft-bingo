@@ -36,10 +36,20 @@ public class FileUtil {
 
         File file = new File(filePath);
         if (!file.exists()) {
+            Game.getLogger().warning("File with name '%s' does not exist!".formatted(filePath));
             return null;
         }
         try {
-            return ImageIO.read(file);
+            BufferedImage bufferedImage = ImageIO.read(file);
+            if (bufferedImage == null) {
+                Game.getLogger().warning(
+                        "Could not read image file for material: %s, ImageIO returned null".formatted(
+                                material.toString()
+                        )
+                );
+            }
+
+            return bufferedImage;
         } catch (IOException e) {
             Game.getLogger().warning("Could not read image file for material: %s, exception:\n%s".formatted(
                     material.toString(),
@@ -285,7 +295,7 @@ public class FileUtil {
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             @Override
             public @NotNull FileVisitResult preVisitDirectory(
-                    Path dir,
+                    @NotNull Path dir,
                     @NotNull BasicFileAttributes attrs
             ) throws IOException {
                 Files.createDirectories(target.resolve(source.relativize(dir).toString()));
@@ -294,7 +304,7 @@ public class FileUtil {
 
             @Override
             public @NotNull FileVisitResult visitFile(
-                    Path file,
+                    @NotNull Path file,
                     @NotNull BasicFileAttributes attrs
             ) throws IOException {
                 Files.copy(file, target.resolve(source.relativize(file).toString()), options);

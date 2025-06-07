@@ -1,7 +1,7 @@
 name: MinecraftBingo
-version: '1.12.0'
+version: '1.12.1'
 main: com.extremelyd1.main.Bingo
 description: Item bingo in Minecraft
-api-version: '1.21.4'
+api-version: '1.21.5'
 bootstrapper: com.extremelyd1.main.BingoBootstrap
 load: STARTUP
