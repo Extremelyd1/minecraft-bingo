@@ -25,7 +25,10 @@ import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
@@ -330,6 +333,11 @@ public class Game {
                         bingoCard,
                         team
                 ));
+
+                // Give start kit if enabled
+                if (config.isStartKitEnabled()) {
+                    config.getStartKitItems().forEach(item -> teamPlayer.getInventory().addItem(item));
+                }
 
                 if (config.isGiveAllRecipes()) {
                     recipeUtil.discoverAllRecipes(teamPlayer);
