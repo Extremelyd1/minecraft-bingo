@@ -1,8 +1,13 @@
 package com.extremelyd1.config;
 
 import com.extremelyd1.game.progress.ProgressController;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
+import java.util.Objects;
 
 public class Config {
 
@@ -109,6 +114,15 @@ public class Config {
      */
     private final int preGameBorderRadius;
 
+    /**
+     * Whether the start kit is enabled
+     */
+    private final boolean startKitEnabled;
+    /**
+     * The items given in the start kit
+     */
+    private final List<ItemStack> startKitItems;
+
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
         
@@ -165,6 +179,12 @@ public class Config {
         preGenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
 
         preGameBorderRadius = config.getInt("pregame.border-radius");
+
+        startKitEnabled = config.getBoolean("start-kit.enable");
+        startKitItems = config.getStringList("start-kit.items").stream()
+                .map(this::parseItemStack)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     /**
@@ -178,6 +198,27 @@ public class Config {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Default item distribution config value has a non-integer value");
         }
+    }
+
+    /**
+     * Parse the given string value to an item stack or throw an exception if not possible
+     * @param stringValue The string value to parse
+     * @return The parsed item stack
+     */
+    private ItemStack parseItemStack(String stringValue) {
+        String[] parts = stringValue.split(" ");
+        if (parts.length == 2) {
+            try {
+                Material material = Material.matchMaterial(parts[0]);
+                int amount = Integer.parseInt(parts[1]);
+                if (material != null) {
+                    return ItemStack.of(material, amount);
+                }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Start kit items config contains an invalid item");
+            }
+        }
+        return null;
     }
 
     public ProgressController getProgressController() {
@@ -288,5 +329,13 @@ public class Config {
 
     public int getPreGameBorderRadius() {
         return preGameBorderRadius;
+    }
+
+    public boolean isStartKitEnabled() {
+        return startKitEnabled;
+    }
+
+    public List<ItemStack> getStartKitItems() {
+        return startKitItems;
     }
 }
