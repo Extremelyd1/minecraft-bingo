@@ -79,9 +79,9 @@ public class WorldManager implements Listener {
             this.world = world;
 
             world.setAutoSave(false);
-            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+            world.setGameRule(GameRules.SPAWN_MOBS, false);
+            world.setGameRule(GameRules.ADVANCE_TIME, false);
+            world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
             world.setTime(0);
 
             // If the server is in pre-generation mode, create manager
@@ -107,7 +107,7 @@ public class WorldManager implements Listener {
             this.nether = world;
 
             world.setAutoSave(false);
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+            world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
 
             if (game.getConfig().isBorderEnabled()) {
                 Game.getLogger().info("Setting nether world border...");
@@ -117,7 +117,7 @@ public class WorldManager implements Listener {
         } else if (world.getEnvironment().equals(World.Environment.THE_END) && this.end == null) {
             this.end = world;
 
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+            world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
         }
 
         if (!this.game.getGameBoardManager().isInitialized()) {
@@ -259,8 +259,8 @@ public class WorldManager implements Listener {
      * Resets the gamerules of the overworld to default vanilla behaviour
      */
     public void onGameStart() {
-        world.setGameRule(GameRule.DO_MOB_SPAWNING, true);
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        world.setGameRule(GameRules.SPAWN_MOBS, true);
+        world.setGameRule(GameRules.ADVANCE_TIME, true);
     }
 
     /**
