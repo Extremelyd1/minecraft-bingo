@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CommandUtil {
     /**
      * Checks whether the given command source has permission to execute a command.

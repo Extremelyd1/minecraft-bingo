@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("UnstableApiUsage")
 public class AllCommand implements BasicCommand {
 
     /**

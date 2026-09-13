@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class JoinCommand implements BasicCommand {
 
     /**

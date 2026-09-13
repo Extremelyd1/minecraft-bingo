@@ -16,7 +16,6 @@ import java.util.Collection;
 
 import java.util.Collections;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ChannelCommand implements BasicCommand {
 
     /**

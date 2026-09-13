@@ -44,9 +44,9 @@ public class TitleManager {
         Component title;
         Component subtitle = Component.empty();
 
-        switch (winReason.getReason()) {
+        switch (winReason.reason()) {
             case COMPLETE:
-                PlayerTeam team = winReason.getTeam();
+                PlayerTeam team = winReason.team();
 
                 title = Component
                         .text("BINGO")

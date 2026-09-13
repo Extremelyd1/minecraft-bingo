@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class GenerateCommand implements BasicCommand {
 
     /**
