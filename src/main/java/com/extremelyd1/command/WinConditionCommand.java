@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@SuppressWarnings("UnstableApiUsage")
 public class WinConditionCommand implements BasicCommand {
 
     /**

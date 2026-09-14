@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-@SuppressWarnings("UnstableApiUsage")
 public class TimerCommand implements BasicCommand {
 
     /**

@@ -1,6 +1,7 @@
 package com.extremelyd1.world.generation;
 
 import org.bukkit.World;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @param index       The index of this world
@@ -8,7 +9,7 @@ import org.bukkit.World;
  */
 public record PendingGeneration(int index, World.Environment environment) {
 
-    public String toString() {
+    public @NonNull String toString() {
         return environment.toString() + index;
     }
 }

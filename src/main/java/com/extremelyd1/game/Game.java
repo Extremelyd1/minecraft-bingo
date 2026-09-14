@@ -177,7 +177,6 @@ public class Game {
      * Register all commands.
      * @param plugin The plugin instance to register the commands to.
      */
-    @SuppressWarnings("UnstableApiUsage")
     private void registerCommands(JavaPlugin plugin) {
         plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Game game = this;
@@ -419,9 +418,9 @@ public class Game {
     public void end(WinReason winReason) {
         Component message = ChatUtil.divider().append(Component.newline());
 
-        message = switch (winReason.getReason()) {
+        message = switch (winReason.reason()) {
             case COMPLETE -> {
-                PlayerTeam team = winReason.getTeam();
+                PlayerTeam team = winReason.team();
                 yield message.append(Component
                         .text(" ".repeat(21) + team.getName())
                         .color(team.getColor())

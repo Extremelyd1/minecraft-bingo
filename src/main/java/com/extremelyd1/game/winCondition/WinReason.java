@@ -4,43 +4,16 @@ import com.extremelyd1.game.team.PlayerTeam;
 
 /**
  * The reason a certain team has won the game, or that the game has ended
+ *
+ * @param team   The team that has won the game, or null if no team has won
+ * @param reason The reason that the game has been won, or has ended
  */
-public class WinReason {
-
-    /**
-     * The team that has won the game, or null if no team has won
-     */
-    private final PlayerTeam team;
-
-    /**
-     * The reason that the game has been won, or has ended
-     */
-    private final Reason reason;
-
-    /**
-     * Create a win reason with a team and a reason
-     * @param team The team that has won
-     * @param reason The reason that the team has won
-     */
-    public WinReason(PlayerTeam team, Reason reason) {
-        this.team = team;
-        this.reason = reason;
-    }
-
+public record WinReason(PlayerTeam team, Reason reason) {
     /**
      * Creates a win reason that has no winning team
      */
     public WinReason() {
-        this.team = null;
-        this.reason = Reason.NO_WINNER;
-    }
-
-    public PlayerTeam getTeam() {
-        return team;
-    }
-
-    public Reason getReason() {
-        return reason;
+        this(null, Reason.NO_WINNER);
     }
 
     public enum Reason {
@@ -48,5 +21,4 @@ public class WinReason {
         RANDOM_TIE,
         NO_WINNER
     }
-
 }

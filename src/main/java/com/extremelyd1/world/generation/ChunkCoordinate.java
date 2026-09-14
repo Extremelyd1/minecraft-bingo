@@ -1,5 +1,7 @@
 package com.extremelyd1.world.generation;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 
 /**
@@ -32,7 +34,7 @@ public record ChunkCoordinate(int x, int z) implements Comparable<ChunkCoordinat
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return String.format("%d, %d", x, z);
     }
 }
