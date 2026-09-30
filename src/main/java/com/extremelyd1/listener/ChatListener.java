@@ -73,7 +73,7 @@ public class ChatListener implements Listener {
         Advancement advancement = advancementHolder.value();
 
         // Skip if there is no display info or this advancement shouldn't be announced to chat
-        if (advancement.display().isEmpty() || !advancement.display().get().shouldAnnounceChat()) {
+        if (advancement.display().isEmpty() || !advancement.display().get().announceToChat()) {
             return;
         }
 
@@ -93,7 +93,7 @@ public class ChatListener implements Listener {
 
         // Create NMS chat component with translation key
         MutableComponent mutableComponent = net.minecraft.network.chat.Component.translatable(
-                "chat.type.advancement." + displayInfo.getType().getSerializedName(),
+                "chat.type.advancement." + displayInfo.type().getSerializedName(),
                 playerNameComponent,
                 Advancement.name(advancementHolder)
         );

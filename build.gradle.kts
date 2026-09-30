@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.3.build.7-alpha")
+    paperweight.paperDevBundle("26.3.build.+")
 }
 
 group = "com.extremelyd1"
