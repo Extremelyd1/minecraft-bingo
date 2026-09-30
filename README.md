@@ -1,7 +1,7 @@
 # Minecraft Bingo
 Item bingo in Minecraft
 
-![Item Bingo](https://i.imgur.com/7qXBAQK.png)
+![Item Bingo](https://i.imgur.com/tRkvs4A.png)
 
 ## What is minecraft bingo?
 Minecraft Bingo is a gamemode in Minecraft in which teams battle in order to collect items on their bingo card.

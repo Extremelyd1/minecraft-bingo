@@ -14,5 +14,5 @@ dependencies {
 }
 
 group = "com.extremelyd1"
-version = "1.13.0"
+version = "1.14.0"
 description = "MinecraftBingo"
