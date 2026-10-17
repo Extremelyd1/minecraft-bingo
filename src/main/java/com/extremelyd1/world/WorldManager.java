@@ -109,6 +109,10 @@ public class WorldManager implements Listener {
             world.setAutoSave(false);
             world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
 
+            if (this.game.getConfig().isPreGenerateWorlds()) {
+                return;
+            }
+
             if (game.getConfig().isBorderEnabled()) {
                 Game.getLogger().info("Setting nether world border...");
                 setWorldBorder(nether);
@@ -117,6 +121,7 @@ public class WorldManager implements Listener {
         } else if (world.getEnvironment().equals(World.Environment.THE_END) && this.end == null) {
             this.end = world;
 
+            world.setAutoSave(false);
             world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
         }
 
@@ -256,11 +261,15 @@ public class WorldManager implements Listener {
     }
 
     /**
-     * Resets the gamerules of the overworld to default vanilla behaviour
+     * Resets the gamerules of the all worlds to behavior for the game
      */
     public void onGameStart() {
         world.setGameRule(GameRules.SPAWN_MOBS, true);
         world.setGameRule(GameRules.ADVANCE_TIME, true);
+
+        world.setGameRule(GameRules.LOCATOR_BAR, false);
+        nether.setGameRule(GameRules.LOCATOR_BAR, false);
+        end.setGameRule(GameRules.LOCATOR_BAR, false);
     }
 
     /**
