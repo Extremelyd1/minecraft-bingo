@@ -1,5 +1,5 @@
 name: MinecraftBingo
-version: '1.14.0'
+version: '1.14.1'
 main: com.extremelyd1.main.Bingo
 description: Item bingo in Minecraft
 api-version: '26.3'
