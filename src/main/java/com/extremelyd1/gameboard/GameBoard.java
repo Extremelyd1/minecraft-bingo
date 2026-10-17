@@ -74,6 +74,8 @@ public class GameBoard {
 
                 // Set prefix to color code
                 scoreboardTeam.color(gameTeam.getColor());
+                scoreboardTeam.prefix(Component.text("").color(gameTeam.getColor()));
+                scoreboardTeam.suffix(Component.empty());
             }
 
             // Add player name to this scoreboard team
