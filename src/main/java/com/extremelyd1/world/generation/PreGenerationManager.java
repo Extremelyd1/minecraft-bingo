@@ -166,15 +166,15 @@ public class PreGenerationManager {
             WorldCreator worldCreator;
             switch (pendingGeneration.environment()) {
                 case NORMAL -> worldCreator = new WorldCreator(
-                        "world" + pendingGeneration.index()
+                        new NamespacedKey("minecraft-bingo", "overworld")
                 ).copy(this.game.getWorldManager().getWorld());
 
                 case NETHER -> worldCreator = new WorldCreator(
-                        "world" + pendingGeneration.index() + "_nether"
+                        new NamespacedKey("minecraft-bingo", "the_nether")
                 ).copy(this.game.getWorldManager().getNether());
 
                 case THE_END -> worldCreator = new WorldCreator(
-                        "world" + pendingGeneration.index() + "_the_end"
+                        new NamespacedKey("minecraft-bingo", "the_end")
                 ).copy(this.game.getWorldManager().getEnd());
 
                 default -> {
@@ -221,8 +221,9 @@ public class PreGenerationManager {
                 world = future.get();
             } catch (InterruptedException | ExecutionException e) {
                 Game.getLogger().info(String.format(
-                        "Could not create world (%s), skipping generation",
-                        pendingGeneration
+                        "Could not create world (%s), skipping generation (error: \n%s)",
+                        pendingGeneration,
+                        e
                 ));
 
                 generationSemaphore.release();
@@ -285,10 +286,11 @@ public class PreGenerationManager {
             return;
         }
 
-        String dirName = "world";
+        String dirName = "";
         switch (world.getEnvironment()) {
-            case NETHER -> dirName += "_nether";
-            case THE_END -> dirName += "_the_end";
+            case NORMAL -> dirName = "overworld";
+            case NETHER -> dirName = "the_nether";
+            case THE_END -> dirName = "the_end";
         }
 
         File worldZip = new File(String.format(
@@ -299,6 +301,7 @@ public class PreGenerationManager {
 
         FileUtil.packZip(
                 worldZip,
+                "world/dimensions/minecraft",
                 world.getWorldFolder(),
                 dirName
         );
